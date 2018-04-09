@@ -1,0 +1,43 @@
+.header {
+  width: 100%;
+  display: flex;
+  text-align: center;
+  overflow: hidden;
+
+  h1 {
+    min-width: 200px;
+    font-size: 1.4rem;
+
+    :hover {
+      color: #999;
+    }
+  }
+}
+
+// 搜索输入框
+.ant-input-search.ant-input-affix-wrapper.header-search {
+  width: 100px;
+  height: 30px;
+  position: relative;
+  left: calc(80% - 80px);
+  color: #555;
+
+  :focus {
+    width: 180px;
+  }
+
+  .ant-input {
+    border-radius: 15px;
+    padding-left: 30px;
+    padding-right: 10px;
+    font-size: 14px;
+    overflow: hidden;
+  }
+
+  .ant-input-suffix {
+    font-size: 18px;
+    position: absolute;
+    left: 10px;
+    width: 18px;
+  }
+}
