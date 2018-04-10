@@ -23,6 +23,7 @@ import ImagePage from '../ImagePage'; // 图片首页
 import SearchPage from '../SearchPage'; // 搜索页
 
 import CashBook from '../CashBook'; // 账本
+import Notebook from '../Notebook'; // 记事本
 
 import timer from '../../utils/timer';
 
@@ -43,6 +44,7 @@ export class App extends React.Component {
 
           {/*工具类*/}
           <Route path="/kit/cashbook" component={CashBook} />
+          <Route path="/kit/notebook" component={Notebook} />
         </Switch>
       </HashRouter>
     );
