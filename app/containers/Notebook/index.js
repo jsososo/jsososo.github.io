@@ -111,18 +111,20 @@ export class Notebook extends React.PureComponent { // eslint-disable-line react
                   onClick={() => this.createNote()}
                 >新建</Button>
                 {
-                  notebook.tags.length &&
-                  <Select
-                    className="ml_20"
-                    style={{ minWidth: '200px' }}
-                    mode="tags"
-                    placeholder="Select tags"
-                    onChange={selectTags}
-                  >
-                    {notebook.tags.map((item) => <Option value={item} key={`tag-o-${item}`}>{item}</Option>)}
-                  </Select>
+                  notebook.tags.length !== 0 &&
+                  <div className="inline-block">
+                    <Select
+                      className="ml_20"
+                      style={{ minWidth: '200px' }}
+                      mode="tags"
+                      placeholder="Select tags"
+                      onChange={selectTags}
+                    >
+                      {notebook.tags.map((item) => <Option value={item} key={`tag-o-${item}`}>{item}</Option>)}
+                    </Select>
+                    <Button className="ml_5" onClick={() => this.clearTags()} type="danger">清空空标签</Button>
+                  </div>
                 }
-                <Button className="ml_5" onClick={() => this.clearTags()} type="danger">清空空标签</Button>
                 <div className="mt_15">
                   {
                     notebook.list.map((item) =>
