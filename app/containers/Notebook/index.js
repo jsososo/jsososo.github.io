@@ -38,11 +38,12 @@ export class Notebook extends React.PureComponent { // eslint-disable-line react
       id,
       title: '新东西',
       content: '',
-      tags: ['1'],
+      tags: [],
       createTime: timer().time,
       lastEditTime: timer().time,
     });
     this.updateList(list);
+    window.location = `#/kit/notebook/detail/?id=${id}`;
   }
 
   updateList(list) {

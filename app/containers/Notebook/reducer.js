@@ -14,7 +14,7 @@ import {
 } from './constants';
 
 const localNotebook = window.localStorage.getItem('p_notebook') ? JSON.parse(window.localStorage.getItem('p_notebook')) : [];
-const tags = window.localStorage.getItem('p_n_tags') ? JSON.parse(window.localStorage.getItem('p_n_tags')) : ['1', '2', '3'];
+const tags = window.localStorage.getItem('p_n_tags') ? JSON.parse(window.localStorage.getItem('p_n_tags')) : [];
 
 const initialState = fromJS({
   localNotebook,
