@@ -9,9 +9,9 @@ import PropTypes from 'prop-types';
 // import styled from 'styled-components';
 import timer from '../../utils/timer';
 
-import { Input, Button, Modal } from 'antd';
+import { Input, Button, Modal, Select } from 'antd';
 const { TextArea } = Input;
-
+const Option = Select.Option;
 
 class NotebookDetail extends React.Component { // eslint-disable-line react/prefer-stateless-function
   constructor(props) {
@@ -19,15 +19,16 @@ class NotebookDetail extends React.Component { // eslint-disable-line react/pref
 
     this.state = {
       edit: false,
+      newTag: '',
       editInfo: JSON.parse(JSON.stringify(props.info)),
     };
   }
 
-  componentWillReceiveProps(nextProps) {
-    this.setState({
-      editInfo: nextProps.info,
-    });
-  }
+  // componentWillReceiveProps(nextProps) {
+  //   this.setState({
+  //     editInfo: nextProps.info,
+  //   });
+  // }
 
   changeInfo(v, k) {
     const { editInfo } = this.state;
@@ -41,7 +42,6 @@ class NotebookDetail extends React.Component { // eslint-disable-line react/pref
     if (edit) {
       this.props.saveChange(this.state.editInfo);
     }
-
     this.setState({
       edit: !edit,
     });
@@ -59,12 +59,27 @@ class NotebookDetail extends React.Component { // eslint-disable-line react/pref
     });
   }
 
+  addNewTag() {
+    const { tags } = this.props;
+    const { newTag, editInfo } = this.state;
+    if (editInfo.tags.indexOf(newTag) < 0) {
+      editInfo.tags.push(newTag);
+    }
+    if (tags.indexOf(newTag) < 0) {
+      this.props.addTag(newTag);
+    }
+    this.setState({
+      editInfo,
+      newTag: '',
+    });
+  }
+
   render() {
-    const { info } = this.props;
-    const { edit, editInfo } = this.state;
+    const { info, tags } = this.props;
+    const { edit, editInfo, newTag } = this.state;
     return (
       <div>
-        <div className="title">
+        <div className="title mb_15">
           <span className="ft_18">
             { edit ?
               <Input
@@ -85,6 +100,26 @@ class NotebookDetail extends React.Component { // eslint-disable-line react/pref
             }
           </span>
         </div>
+        {
+          edit ?
+            <div>
+              标签：
+              <Select
+                className="mr_20"
+                style={{ minWidth: '200px' }}
+                value={editInfo.tags}
+                mode="tags"
+                placeholder="Select tags"
+                onChange={(v) => this.changeInfo(v, 'tags')}
+              >
+                {tags.map((item) => <Option value={item} key={`tag-o-${item}`}>{item}</Option>)}
+              </Select>
+              增加一个新的标签：
+              <Input value={newTag} style={{width: '200px'}} placeholder="添加或新增一个标签" onChange={(e) => this.setState({newTag: e.target.value})} />
+              <Button type="primary" onClick={() => this.addNewTag()}>添加标签</Button>
+            </div> :
+            info.tags.length !== 0 && <div className="mt_20 ft_12">标签：{info.tags.join(', ')}</div>
+        }
         <div className="info-content mt_20 pt_20" style={{ borderTop: '1px solid #ccc' }}>
           {
             edit ?
@@ -110,7 +145,9 @@ class NotebookDetail extends React.Component { // eslint-disable-line react/pref
 NotebookDetail.propTypes = {
   info: PropTypes.object.isRequired,
   delNote: PropTypes.func.isRequired,
+  tags: PropTypes.array.isRequired,
   saveChange: PropTypes.func.isRequired,
+  addTag: PropTypes.func.isRequired,
 };
 
 export default NotebookDetail;
