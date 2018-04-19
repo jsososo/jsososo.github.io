@@ -134,8 +134,8 @@ class NotebookDetail extends React.Component { // eslint-disable-line react/pref
           }
         </div>
         <div className="pull-right ft_12 fc_999 text-right">
-          <div>创建时间：{timer(info.createTime).str('YY-M-D H:m:s')}</div>
-          <div>上次编辑时间：{timer(info.lastEditTime).str('YY-M-D H:m:s')}</div>
+          <div>创建时间：{timer(info.createTime).str('YY-M-D HH:mm:ss')}</div>
+          <div>上次编辑时间：{timer(info.lastEditTime).str('YY-M-D HH:mm:ss')}</div>
         </div>
       </div>
     );

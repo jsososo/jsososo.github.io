@@ -32,9 +32,9 @@ const Option = Select.Option;
 
 export class Notebook extends React.PureComponent { // eslint-disable-line react/prefer-stateless-function
   createNote() {
-    const list = this.props.notebook.list;
-    const id = !list.length ? 1 : list[list.length - 1].id + 1;
-    list.push({
+    const localNotebook = this.props.notebook.localNotebook;
+    const id = !localNotebook.length ? 1 : localNotebook[localNotebook.length - 1].id + 1;
+    localNotebook.push({
       id,
       title: '新东西',
       content: '',
@@ -42,29 +42,29 @@ export class Notebook extends React.PureComponent { // eslint-disable-line react
       createTime: timer().time,
       lastEditTime: timer().time,
     });
-    this.updateList(list);
+    this.updateList(localNotebook);
     window.location = `#/kit/notebook/detail/?id=${id}`;
   }
 
-  updateList(list) {
-    window.localStorage.setItem('p_notebook', JSON.stringify(list));
-    this.props.updateNotebook(list);
+  updateList(localNotebook) {
+    window.localStorage.setItem('p_notebook', JSON.stringify(localNotebook));
+    this.props.updateNotebook(localNotebook);
   }
 
   saveChange(info) {
-    const { list } = this.props.notebook;
-    list.forEach((item, index) => {
+    const { localNotebook } = this.props.notebook;
+    localNotebook.forEach((item, index) => {
       if (item.id === info.id) {
-        list[index] = info;
-        list[index].lastEditTime = timer().time;
+        localNotebook[index] = info;
+        localNotebook[index].lastEditTime = timer().time;
       }
     });
-    this.updateList(list);
+    this.updateList(localNotebook);
   }
 
   delNote(id) {
-    const { list } = this.props.notebook;
-    this.updateList(list.filter((item) => item.id !== id));
+    const { localNotebook } = this.props.notebook;
+    this.updateList(localNotebook.filter((item) => item.id !== id));
   }
 
   addTag(v) {

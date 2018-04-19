@@ -26,7 +26,7 @@ class NotebookCard extends React.PureComponent { // eslint-disable-line react/pr
           <div style={{ minHeight: '100px', wordBreak: 'break-all' }}>
             { info.content ? shortString(info.content, 57) : '啥都没有。。。'}
           </div>
-          <div className="pull-right ft_12 fc_999">上次编辑时间：{timer(info.lastEditTime).str('YY-M-D H:m:s')}</div>
+          <div className="pull-right ft_12 fc_999">上次编辑时间：{timer(info.lastEditTime).str('YY-M-D HH:mm:ss')}</div>
         </Card>
       </div>
     );
