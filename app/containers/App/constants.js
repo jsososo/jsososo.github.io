@@ -9,8 +9,10 @@
  * export const YOUR_ACTION_CONSTANT = 'yourproject/YourContainer/YOUR_ACTION_CONSTANT';
  */
 
-export const LOAD_REPOS = 'boilerplate/App/LOAD_REPOS';
-export const LOAD_REPOS_SUCCESS = 'boilerplate/App/LOAD_REPOS_SUCCESS';
-export const LOAD_REPOS_ERROR = 'boilerplate/App/LOAD_REPOS_ERROR';
-export const URL_CHANGE = 'boilerplate/App/URL_CHANGE';
-export const INIT_APP = 'boilerplate/App/INIT_APP';
+export const LOAD_REPOS = 'person_web/App/LOAD_REPOS';
+export const LOAD_REPOS_SUCCESS = 'person_web/App/LOAD_REPOS_SUCCESS';
+export const LOAD_REPOS_ERROR = 'person_web/App/LOAD_REPOS_ERROR';
+export const URL_CHANGE = 'person_web/App/URL_CHANGE';
+export const INIT_APP = 'person_web/App/INIT_APP';
+
+export const QUERY_BOXES = 'person_web/APP/QUERY_BOXES';

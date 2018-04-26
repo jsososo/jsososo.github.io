@@ -9,6 +9,21 @@ const arrayHelper = {
     });
     return result;
   },
+  delDuplicateObj: (arr, keys) => {
+    const arrLen = [];
+    const result = [];
+    arr.forEach((item) => {
+      let valLen = item;
+      for (let i = 0; i < keys.length; i += 1) {
+        valLen = valLen[keys[i]];
+      }
+      if (arrLen.indexOf(valLen) === -1) {
+        arrLen.push(valLen);
+        result.push(item);
+      }
+    });
+    return result;
+  },
   objToArr: (obj) => {
     const result = [];
     Object.keys(obj).forEach((key) => {

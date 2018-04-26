@@ -1,0 +1,51 @@
+.box-component {
+  display: inline-block;
+  width: 150px;
+  height: 150px;
+  position: relative;
+  margin: 20px;
+  cursor: pointer;
+
+  .box-bg-color {
+    border-radius: 10px;
+    display: inline-block;
+    width: 120px;
+    height: 120px;
+    left: 15px;
+    top: 0;
+    position: absolute;
+    z-index: -1;
+    transform: rotate(0);
+    transition: 0.3s;
+    cursor: pointer;
+  }
+
+  &:hover .box-bg-color {
+    background: blue;
+    width: 140px;
+    height: 140px;
+    left: 5px;
+    top: -10px;
+    transform: rotate(90deg);
+  }
+
+  .box-bg-img {
+    width: 100px;
+    height: 100px;
+    margin-left: 25px;
+    margin-top: 10px;
+    background-size: 100px 100px;
+  }
+
+  .box-name {
+    margin-top: 30px;
+    text-align: center;
+    color: transparent;
+    transition: 0.3s;
+    font-size: 18px;
+  }
+
+  &:hover .box-name {
+    color: #666;
+  }
+}

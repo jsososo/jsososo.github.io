@@ -1,39 +1,13 @@
+/*
+*  自己做的一些时间相关的方法，需要注意的是，所有的月份都按照 1 - 12 月 传递
+*
+* */
+
 import num from './num';
 
-const formatNumber = (n) => {
+export const formatNumber = (n) => {
   n = n.toString();
   return n[1] ? n : `0${n}`;
-};
-
-/*
-*  获得某年某月的日历
-*
-*  @params y: 年份（fullYear）
-*  @params m: 月份（0-11）
-* */
-export const getCalendar = (y, m) => {
-  const D = new Date();
-  // 空白的一周
-  const emptyWeek = new Array(7);
-  emptyWeek.fill(0);
-  // 最后输出的日历
-  const C = [];
-  // 初始化日期
-  D.setYear(y);
-  D.setMonth(m);
-  D.setDate(1);
-  do {
-    emptyWeek[D.getDay()] = D.getDate();
-    if (D.getDay() === 6) {
-      C.push([...emptyWeek]);
-      emptyWeek.fill(0);
-    }
-    D.setDate(D.getDate() + 1);
-  } while (D.getMonth() === m);
-  if (emptyWeek.join('') !== '0000000') {
-    C.push(emptyWeek);
-  }
-  return C;
 };
 
 const Timer = (v = new Date(), strType) => {
@@ -110,7 +84,7 @@ const Timer = (v = new Date(), strType) => {
   *
   *  @params _d: 时间截止
   *  @params output: 输出的时间格式 str || arr([Y, M, D, H, m, s])
-  *  @params start: 输出为string时计时单位，eg. start = 2 表示输出几天前
+  *  @params start: 输出为string时计时单位，eg. start = 2 表示输出几天前, start = 3 标识输出几分钟前
   * */
   date.to = (_d = Timer(), output = 'str', start = 0) => {
     const p = (_d.time - date.time) > 0;
@@ -139,6 +113,8 @@ const Timer = (v = new Date(), strType) => {
       if (typeof result !== 'string') {
         result = '刚刚';
       }
+    } else if (output === 'num') {
+      return [result[start]] * (p ? -1 : 1);
     }
     return result;
   };
@@ -225,6 +201,34 @@ const Timer = (v = new Date(), strType) => {
   };
 
   return date;
+};
+
+/*
+*  获得某年某月的日历
+*
+*  @params y: 年份（fullYear）
+*  @params m: 月份（1-12）
+* */
+export const getCalendar = (y, m) => {
+  let D = Timer([y, m]);
+  // 空白的一周
+  const emptyWeek = new Array(7);
+  emptyWeek.fill(0);
+  // 最后输出的日历
+  const C = [];
+
+  do {
+    emptyWeek[D.day.value] = D.date;
+    if (D.day.value === 6) {
+      C.push([...emptyWeek]);
+      emptyWeek.fill(0);
+    }
+    D = D.from(1);
+  } while (D.month === m);
+  if (emptyWeek.join('') !== '0000000') {
+    C.push(emptyWeek);
+  }
+  return C;
 };
 
 export default Timer;

@@ -18,18 +18,21 @@ import {makeSelectToast} from './selectors';
 // import { Helmet } from 'react-helmet';
 // import styled from 'styled-components';
 import { Switch, Route, HashRouter } from 'react-router-dom';
+import recentlyUsed from '../../utils/recentlyUsed';
 import IndexPage from '../IndexPage'; // 首页
 import ImagePage from '../ImagePage'; // 图片首页
 import SearchPage from '../SearchPage'; // 搜索页
 
+import Kit from '../KitIndex'; // 工具首页
 import CashBook from '../CashBook'; // 账本
 import Notebook from '../Notebook'; // 记事本
+import Calendar from '../Calendar'; // 日历
 
-import timer from '../../utils/timer';
 
 export class App extends React.Component {
   componentWillMount() {
     this.props.initApp();
+    recentlyUsed.clearExpire();
   }
   componentWillReceiveProps() {
   }
@@ -38,13 +41,15 @@ export class App extends React.Component {
     return (
       <HashRouter>
         <Switch>
-          <Route exact path="/" component={IndexPage} />
+          <Route exact path="/" component={Kit} />
           <Route path="/img" component={ImagePage} />
           <Route path="/search" component={SearchPage} />
 
           {/*工具类*/}
+          <Route path="/kit" exact component={Kit} />
           <Route path="/kit/cashbook" component={CashBook} />
           <Route path="/kit/notebook" component={Notebook} />
+          <Route path="/kit/calendar" component={Calendar} />
         </Switch>
       </HashRouter>
     );

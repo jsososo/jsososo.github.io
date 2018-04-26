@@ -11,16 +11,14 @@
  */
 
 import { fromJS } from 'immutable';
+import getBoxes from '../../utils/const/box';
 import {
   LOAD_REPOS_SUCCESS,
   LOAD_REPOS,
   LOAD_REPOS_ERROR,
   URL_CHANGE,
-  GET_ADDRESS_LIST,
-  GET_USER_INFO,
-  GET_SMS_SIGN,
-  SHOW_TOAST,
-  HIDE_TOAST,
+
+  QUERY_BOXES,
 } from './constants';
 
 // The initial state of the App
@@ -28,6 +26,7 @@ const initialState = fromJS({
   loading: false,
   error: false,
   currentUser: false,
+  boxes: getBoxes(),
 });
 
 function appReducer(state = initialState, action) {
@@ -35,7 +34,7 @@ function appReducer(state = initialState, action) {
     case LOAD_REPOS:
       return state
         .set('loading', true)
-        .set('error', false)
+        .set('error', false);
     case LOAD_REPOS_SUCCESS:
       return state
         .set('loading', false)
@@ -44,6 +43,9 @@ function appReducer(state = initialState, action) {
       return state
         .set('error', action.error)
         .set('loading', false);
+    case QUERY_BOXES:
+      return state
+        .set('boxes', fromJS(getBoxes(...action.data)));
     case URL_CHANGE:
         // history.push({pathname:'/features'});
         console.log("....");

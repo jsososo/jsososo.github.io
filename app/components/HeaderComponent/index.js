@@ -17,13 +17,10 @@ class HeaderComponent extends React.PureComponent { // eslint-disable-line react
       <div>
         <div className="header">
           <h1><a href="#/">首页</a></h1>
-          <h1><a href="#/code">美妙的代码</a></h1>
           <h1><a href="#/kit">没用的工具</a></h1>
           <h1><a href="#/img">二刺螈壁纸</a></h1>
         </div>
-        <Input.Search className='header-search' onSearch={(v) => {
-          this.props.history.push(`#/search?search=${encodeURI(v)}`);
-        }}/>
+        <Input.Search className="header-search" onSearch={(v) => this.props.history.push(`#/search?search=${encodeURI(v)}`)} />
       </div>
     );
   }

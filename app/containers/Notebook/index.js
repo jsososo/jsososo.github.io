@@ -24,6 +24,7 @@ import { Button, Select, message } from 'antd';
 import timer from '../../utils/timer';
 import { getQueryFromUrl } from "../../utils/stringHelper";
 import Num from '../../utils/num';
+import recentlyUsed from '../../utils/recentlyUsed';
 
 import * as Action from './actions';
 import arrayHelper from "../../utils/arrayHelper";
@@ -31,6 +32,10 @@ import arrayHelper from "../../utils/arrayHelper";
 const Option = Select.Option;
 
 export class Notebook extends React.PureComponent { // eslint-disable-line react/prefer-stateless-function
+  componentWillMount() {
+    recentlyUsed.set('记事本', 'kit');
+  }
+
   createNote() {
     const localNotebook = this.props.notebook.localNotebook;
     const id = !localNotebook.length ? 1 : localNotebook[localNotebook.length - 1].id + 1;

@@ -28,10 +28,16 @@ const makeSelectLocation = () => createSelector(
   (routeState) => routeState.get('location').toJS()
 );
 
+const makeSelectBoxes = () => createSelector(
+  selectGlobal,
+  (globalState) => globalState.get('boxes').toJS()
+);
+
 export {
   selectGlobal,
   makeSelectCurrentUser,
   makeSelectLoading,
   makeSelectError,
   makeSelectLocation,
+  makeSelectBoxes,
 };

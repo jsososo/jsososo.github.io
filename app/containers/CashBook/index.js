@@ -25,6 +25,7 @@ import arrayHelper from '../../utils/arrayHelper';
 import Num, { Abs } from '../../utils/Num';
 import { CASH_BOOK_DATA } from "../../utils/constants";
 import * as Action from './actions';
+import recentlyUsed from '../../utils/recentlyUsed';
 
 import { DatePicker, Switch, Select, InputNumber } from 'antd';
 
@@ -33,10 +34,12 @@ const { RangePicker } = DatePicker;
 const Option = Select.Option;
 
 export class CashBook extends React.PureComponent { // eslint-disable-line react/prefer-stateless-function
+  componentWillMount() {
+    recentlyUsed.set('账单统计', 'kit');
+  }
+
   componentWillReceiveProps(nextProps) {
-    console.log(nextProps.cashbook.needFresh, nextProps.cashbook.lineData);
     if (nextProps.cashbook.needFresh) {
-      console.log(nextProps.cashbook.spaceType)
       this.getChartsData(nextProps);
     }
   }

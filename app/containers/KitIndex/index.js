@@ -14,33 +14,53 @@ import { compose } from 'redux';
 import injectSaga from 'utils/injectSaga';
 import injectReducer from 'utils/injectReducer';
 import makeSelectKitIndex from './selectors';
+import { makeSelectBoxes } from "../App/selectors";
 import reducer from './reducer';
 import saga from './saga';
 
+import { queryBoxes } from "../App/actions";
+import recentlyUsed from "../../utils/recentlyUsed";
+import arrayHelper from "../../utils/arrayHelper";
+
+import BoxComponent from "../../components/BoxesComponent";
+
 export class KitIndex extends React.PureComponent { // eslint-disable-line react/prefer-stateless-function
+  componentWillMount() {
+    this.props.queryKitBoxes();
+  }
+
   render() {
+    const rU = recentlyUsed.get('kit', true);
+    const boxes = arrayHelper.delDuplicateObj([...rU, ...(this.props.boxes.kit)], ['name']);
+
     return (
       <div>
         <Helmet>
-          <title>KitIndex</title>
-          <meta name="description" content="Description of KitIndex" />
+          <title>没用的工具</title>
+          <meta name="soso" content="没用的工具" />
         </Helmet>
+        <div>
+          {boxes.map((item, index) => (<BoxComponent key={`kit-box-${index}`} boxInfo={item} />))}
+        </div>
       </div>
     );
   }
 }
 
 KitIndex.propTypes = {
-  dispatch: PropTypes.func.isRequired,
+  kitindex: PropTypes.object.isRequired,
+  boxes: PropTypes.object.isRequired,
+  queryKitBoxes: PropTypes.func.isRequired,
 };
 
 const mapStateToProps = createStructuredSelector({
   kitindex: makeSelectKitIndex(),
+  boxes: makeSelectBoxes(),
 });
 
 function mapDispatchToProps(dispatch) {
   return {
-    dispatch,
+    queryKitBoxes: () => dispatch(queryBoxes(['kit'])),
   };
 }
 

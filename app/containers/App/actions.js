@@ -21,6 +21,7 @@ import {
   LOAD_REPOS_ERROR,
   URL_CHANGE,
   INIT_APP,
+  QUERY_BOXES,
 } from './constants';
 /**
  * Load the repositories, this action starts the request saga
@@ -73,4 +74,12 @@ export function initApp() {
   return {
     type: INIT_APP,
   }
+}
+
+// 获取方格
+export function queryBoxes(data) {
+  return {
+    type: QUERY_BOXES,
+    data,
+  };
 }
