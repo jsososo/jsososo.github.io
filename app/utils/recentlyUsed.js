@@ -4,7 +4,7 @@ import getBox from './const/box';
 
 const recentlyUsed = {
   clearExpire: () => {
-    const rU = storage.get('p_box_recent', true, {});
+    const rU = storage.get('p_box_recent', true, '{}');
     const newRU = {};
     Object.keys(rU).forEach((date) => {
       // 保留15天内的访问数据
@@ -16,7 +16,7 @@ const recentlyUsed = {
   },
   get: (type, showBox) => {
     const result = {};
-    const rU = storage.get('p_box_recent', true, {});
+    const rU = storage.get('p_box_recent', true, '{}');
     Object.values(rU).forEach((v) => {
       Object.keys(v).forEach((b) => {
         if (!result[b]) {
@@ -43,7 +43,7 @@ const recentlyUsed = {
     return resultArr;
   },
   set: (name, type) => {
-    const rU = storage.get('p_box_recent', true, {});
+    const rU = storage.get('p_box_recent', true, '{}');
     const date = timer().str('YYYYMMDD');
     if (!rU[date]) {
       rU[date] = {};
