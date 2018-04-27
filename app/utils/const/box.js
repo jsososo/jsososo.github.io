@@ -1,5 +1,5 @@
 const imgUrl = (str) => {
-  if (window.location.origin.indexOf('jsososo.github.com') > -1) {
+  if (window.location.origin.indexOf('jsososo.github.io') > -1) {
     return `/person-web/app/resources/img/${str}`;
   }
   return `/app/resources/img/${str}`;
