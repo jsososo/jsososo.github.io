@@ -20,13 +20,13 @@ import {makeSelectToast} from './selectors';
 import { Switch, Route, HashRouter } from 'react-router-dom';
 import recentlyUsed from '../../utils/recentlyUsed';
 import IndexPage from '../IndexPage'; // 首页
-import ImagePage from '../ImagePage'; // 图片首页
-import SearchPage from '../SearchPage'; // 搜索页
+import ImagePage from '../ImagePage/Loadable'; // 图片首页
+import SearchPage from '../SearchPage/Loadable'; // 搜索页
 
-import Kit from '../KitIndex'; // 工具首页
-import CashBook from '../CashBook'; // 账本
-import Notebook from '../Notebook'; // 记事本
-import Calendar from '../Calendar'; // 日历
+import Kit from '../KitIndex/Loadable'; // 工具首页
+import CashBook from '../CashBook/Loadable'; // 账本
+import Notebook from '../Notebook/Loadable'; // 记事本
+import Calendar from '../Calendar/Loadable'; // 日历
 
 
 export class App extends React.Component {

@@ -1,11 +1,16 @@
-const imgUrl = (str) => `//ov8a2tdri.bkt.clouddn.com/person_web/img/box/${str}`;
+const imgUrl = (str) => {
+  if (window.location.origin.indexOf('jsososo.github.com') > -1) {
+    return `/person-web/app/resources/img/${str}`;
+  }
+  return `/app/resources/img/${str}`;
+};
 
 const boxInfo = {
   kit: [
     {
       name: '日历',
       type: 'kit',
-      img: imgUrl('calendar1.png'),
+      img: imgUrl('calendar.png'),
       color: '#3089DC',
       keyWords: '日历calendar里程碑milestone万年历计划表',
       url: '#/kit/calendar',
