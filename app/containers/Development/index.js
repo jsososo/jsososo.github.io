@@ -57,7 +57,7 @@ export class Development extends React.PureComponent { // eslint-disable-line re
               <Button type="primary" className="ml_20" onClick={() => this.copyContent('local-storage-content')}>复制</Button>
             </div>
             <TextArea
-              value={'window.localStorage=`' + JSON.stringify(window.localStorage) + '`'}
+              value={'var P_L_O = JSON.parse(decodeURI("' + encodeURI(JSON.stringify(window.localStorage)) + '")); Object.keys(P_L_O).forEach(key=>{window.localStorage.setItem(key,P_L_O[key])});'}
               id="local-storage-content"
               className="pd_10 mt_10"
               rows={4}
