@@ -12,6 +12,7 @@ injectGlobal`
   body {
     color: #555;
     background: white;
+    height: calc(100vh - 120px);
   }
   
   a {

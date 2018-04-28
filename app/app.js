@@ -53,7 +53,7 @@ class WebApp extends React.Component {
         <ConnectedRouter history={history}>
           <div className="container">
             <HeaderComponent history={history} />
-            <div style={{width: '1200px', margin: '20px auto'}}>
+            <div style={{width: '1200px', margin: '120px auto'}}>
               <App />
             </div>
           </div>

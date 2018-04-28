@@ -1,6 +1,6 @@
 /**
  *
- * Asynchronously loads the component for CashBook
+ * Asynchronously loads the component for Development
  *
  */
 
@@ -9,5 +9,5 @@ import ModuleLoading from 'components/ModuleLoading';
 
 export default Loadable({
   loader: () => import('./index'),
-  loading: () => ModuleLoading,
+  loading: ModuleLoading,
 });

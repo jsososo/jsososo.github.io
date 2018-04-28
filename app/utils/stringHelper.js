@@ -14,7 +14,7 @@ export function getQueryFromUrl(search, key) {
     const result = {};
     querys.forEach((item) => {
       const temp = item.split('=');
-      result[temp[0]] = temp[1];
+      result[temp[0]] = decodeURI(temp[1]);
     });
     return key ? result[key] : result;
   } catch (err) {

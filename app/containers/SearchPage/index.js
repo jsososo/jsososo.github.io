@@ -17,8 +17,36 @@ import makeSelectSearchPage from './selectors';
 import reducer from './reducer';
 import saga from './saga';
 
+import BoxesComponent from '../../components/BoxesComponent';
+
+import getBox from '../../utils/const/box';
+import { getQueryFromUrl } from "../../utils/stringHelper";
+
+const typeMap = {
+  kit: '工具',
+};
+
 export class SearchPage extends React.PureComponent { // eslint-disable-line react/prefer-stateless-function
   render() {
+    const searchWords = getQueryFromUrl(this.props.location.search, 'search');
+    const boxes = getBox('', searchWords);
+    let boxesArray = [];
+    let result = [<span key="search-result">共找到</span>];
+    Object.keys(boxes).forEach((type) => {
+      if (boxes[type].length > 0) {
+        boxesArray = [...boxesArray, ...boxes[type]];
+        result.push(
+          <span key={`search-${type}`}>
+            <b className="fc_red ft_16 pd_5">{boxes[type].length}</b>
+            个{typeMap[type]}
+          </span>
+        );
+      }
+    });
+    if (result.length === 1) {
+      result = [<span key="search-none">啥也没找到</span>];
+    }
+
     return (
       <div>
         <Helmet>
@@ -26,7 +54,11 @@ export class SearchPage extends React.PureComponent { // eslint-disable-line rea
           <meta name="" content="搜索页" />
         </Helmet>
         <div className="body-page">
-          <div className="page-title">搜索：</div>
+          <div className="page-title">搜索：{searchWords}</div>
+          <div className="mt_10">{result}</div>
+          <div>
+            {boxesArray.map((item) => <BoxesComponent key={item.name} boxInfo={item} />)}
+          </div>
         </div>
       </div>
     );

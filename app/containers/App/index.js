@@ -28,6 +28,8 @@ import CashBook from '../CashBook/Loadable'; // 账本
 import Notebook from '../Notebook/Loadable'; // 记事本
 import Calendar from '../Calendar/Loadable'; // 日历
 
+import Development from '../Development/Loadable'; // 开发后门
+
 
 export class App extends React.Component {
   componentWillMount() {
@@ -50,6 +52,9 @@ export class App extends React.Component {
           <Route path="/kit/cashbook" component={CashBook} />
           <Route path="/kit/notebook" component={Notebook} />
           <Route path="/kit/calendar" component={Calendar} />
+
+          {/*开发*/}
+          <Route path="/development" component={Development} />
         </Switch>
       </HashRouter>
     );

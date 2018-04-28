@@ -5,8 +5,9 @@
  */
 
 import Loadable from 'react-loadable';
+import ModuleLoading from 'components/ModuleLoading';
 
 export default Loadable({
   loader: () => import('./index'),
-  loading: () => null,
+  loading: () => ModuleLoading,
 });
