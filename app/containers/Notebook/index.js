@@ -28,12 +28,20 @@ import recentlyUsed from '../../utils/recentlyUsed';
 
 import * as Action from './actions';
 import arrayHelper from "../../utils/arrayHelper";
+import Storage from '../../utils/localStorage';
 
 const Option = Select.Option;
 
 export class Notebook extends React.PureComponent { // eslint-disable-line react/prefer-stateless-function
   componentWillMount() {
     recentlyUsed.set('记事本', 'kit');
+  }
+
+  componentDidMount() {
+    const sTags = Storage.get('p_n_select_tags', true, '[]');
+    if (sTags.length) {
+      this.props.selectTags(sTags);
+    }
   }
 
   createNote() {
@@ -52,7 +60,7 @@ export class Notebook extends React.PureComponent { // eslint-disable-line react
   }
 
   updateList(localNotebook) {
-    window.localStorage.setItem('p_notebook', JSON.stringify(localNotebook));
+    Storage.set('p_notebook', localNotebook, true);
     this.props.updateNotebook(localNotebook);
   }
 
@@ -64,6 +72,9 @@ export class Notebook extends React.PureComponent { // eslint-disable-line react
         localNotebook[index].lastEditTime = timer().time;
       }
     });
+    const tags = arrayHelper.delDuplicate(this.props.notebook.tags, info.tags);
+    Storage.set('p_n_tags', tags, true);
+    this.props.changeTags(tags);
     this.updateList(localNotebook);
   }
 
@@ -72,19 +83,12 @@ export class Notebook extends React.PureComponent { // eslint-disable-line react
     this.updateList(localNotebook.filter((item) => item.id !== id));
   }
 
-  addTag(v) {
-    const { tags } = this.props.notebook;
-    tags.push(v);
-    window.localStorage.setItem('p_n_tags', JSON.stringify(tags));
-    this.props.changeTags(tags);
-  }
-
   clearTags() {
     let tags = [];
-    this.props.notebook.list.forEach((item) => tags = [...tags, ...item.tags]);
+    this.props.notebook.localNotebook.forEach((item) => tags = [...tags, ...item.tags]);
     tags = arrayHelper.delDuplicate(tags);
     message.success('已清空空标签~');
-    window.localStorage.setItem('p_n_tags', JSON.stringify(tags));
+    Storage.set('p_n_tags', tags, true);
     this.props.changeTags(tags);
   }
 
@@ -119,6 +123,7 @@ export class Notebook extends React.PureComponent { // eslint-disable-line react
                   notebook.tags.length !== 0 &&
                   <div className="inline-block">
                     <Select
+                      value={Storage.get('p_n_select_tags', true, '[]')}
                       className="ml_20"
                       style={{ minWidth: '200px' }}
                       mode="tags"
@@ -146,7 +151,6 @@ export class Notebook extends React.PureComponent { // eslint-disable-line react
             !isIndex &&
             <NotebookDetail
               tags={notebook.tags}
-              addTag={(v) => this.addTag(v)}
               delNote={(id) => this.delNote(id)}
               saveChange={(d) => this.saveChange(d)}
               info={info}

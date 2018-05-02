@@ -59,21 +59,6 @@ class NotebookDetail extends React.Component { // eslint-disable-line react/pref
     });
   }
 
-  addNewTag() {
-    const { tags } = this.props;
-    const { newTag, editInfo } = this.state;
-    if (editInfo.tags.indexOf(newTag) < 0) {
-      editInfo.tags.push(newTag);
-    }
-    if (tags.indexOf(newTag) < 0) {
-      this.props.addTag(newTag);
-    }
-    this.setState({
-      editInfo,
-      newTag: '',
-    });
-  }
-
   render() {
     const { info, tags } = this.props;
     const { edit, editInfo, newTag } = this.state;
@@ -114,9 +99,7 @@ class NotebookDetail extends React.Component { // eslint-disable-line react/pref
               >
                 {tags.map((item) => <Option value={item} key={`tag-o-${item}`}>{item}</Option>)}
               </Select>
-              增加一个新的标签：
-              <Input value={newTag} style={{width: '200px'}} placeholder="添加或新增一个标签" onChange={(e) => this.setState({newTag: e.target.value})} />
-              <Button type="primary" onClick={() => this.addNewTag()}>添加标签</Button>
+              (tips: 也可以直接在输入框中新增一个标签)
             </div> :
             info.tags.length !== 0 && <div className="mt_20 ft_12">标签：{info.tags.join(', ')}</div>
         }
@@ -147,7 +130,6 @@ NotebookDetail.propTypes = {
   delNote: PropTypes.func.isRequired,
   tags: PropTypes.array.isRequired,
   saveChange: PropTypes.func.isRequired,
-  addTag: PropTypes.func.isRequired,
 };
 
 export default NotebookDetail;

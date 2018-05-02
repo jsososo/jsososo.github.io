@@ -2,6 +2,7 @@
   display: inline-block;
   vertical-align: top;
   padding: 20px;
+  padding-right: 0;
   padding-left: 100px;
   width: 750px;
 
@@ -9,18 +10,19 @@
     width: 100%;
     padding: 5px;
     height: 40px;
+    margin-top: 15px;
 
     .content {
       display: inline-block;
-      width: 300px;
+      width: calc(100% - 140px);
       vertical-align: top;
     }
 
     .hover-show {
-      display: none;
+      opacity: 0;
     }
     &:hover .hover-show {
-      display: inline-block;
+      opacity: 1;
       vertical-align: top;
       margin-top: -5px;
     }
@@ -30,5 +32,9 @@
       display: inline-block;
       margin-left: 10px;
     }
+  }
+
+  .calendar-detail-time .ant-input-number {
+    margin-right: 10px;
   }
 }

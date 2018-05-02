@@ -6,6 +6,7 @@
 
 import { fromJS } from 'immutable';
 import arrayHelper from '../../utils/arrayHelper';
+import Storage from '../../utils/localStorage';
 import {
   DEFAULT_ACTION,
   UPDATE_NOTEBOOK,
@@ -13,8 +14,8 @@ import {
   CHANGE_TAGS,
 } from './constants';
 
-const localNotebook = window.localStorage.getItem('p_notebook') ? JSON.parse(window.localStorage.getItem('p_notebook')) : [];
-const tags = window.localStorage.getItem('p_n_tags') ? JSON.parse(window.localStorage.getItem('p_n_tags')) : [];
+const localNotebook = Storage.get('p_notebook', true, '[]');
+const tags = Storage.get('p_n_tags', true, '[]');
 
 const initialState = fromJS({
   localNotebook,
@@ -34,6 +35,7 @@ function notebookReducer(state = initialState, action) {
       return state
         .set('tags', fromJS(action.data));
     case SELECT_TAGS:
+      Storage.set('p_n_select_tags', action.data, true);
       if (action.data.length) {
         return state
           .set('list', fromJS(state.toJS().localNotebook.filter((item) => arrayHelper.hasDuplicate(item.tags, action.data))));

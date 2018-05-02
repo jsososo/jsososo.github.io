@@ -9,12 +9,21 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import './index.scss';
 
-import { Icon, Badge } from 'antd';
+import { Icon, Badge, InputNumber } from 'antd';
 
 import timer, { getCalendar, formatNumber } from '../../utils/timer';
 
 
-class CalendarComponent extends React.PureComponent { // eslint-disable-line react/prefer-stateless-function
+class CalendarComponent extends React.Component { // eslint-disable-line react/prefer-stateless-function
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      selectYear: false,
+      selectMonth: false,
+    };
+  }
+
   changeCalendar(y, m, needCal) {
     let {year, month} = this.props;
     if (needCal) {
@@ -23,10 +32,10 @@ class CalendarComponent extends React.PureComponent { // eslint-disable-line rea
 
       if (month === 13) {
         month = 1;
-        year++;
+        year += 1;
       } else if (month === 0) {
         month = 12;
-        year--;
+        year -= 1;
       }
     } else {
       year = y;
@@ -50,8 +59,41 @@ class CalendarComponent extends React.PureComponent { // eslint-disable-line rea
             <Icon type="double-left" className="mr_10" onClick={() => this.changeCalendar(-1, 0, true)} />
             <Icon type="left" onClick={() => this.changeCalendar(0, -1, true)} />
           </div>
-          <span>{year}</span>年
-          <span>{month}</span>月
+          {
+            !this.state.selectYear ?
+            <span
+              onClick={() => this.setState({ selectYear: true })}
+              className="inline-block pointer"
+              style={{ minWidth: '70px' }}
+            >{year}</span> :
+            <InputNumber
+              min={100}
+              autoFocus
+              style={{ minWidth: '70px' }}
+              defaultValue={year}
+              onBlur={() => this.setState({ selectYear: false })}
+              onChange={(v) => this.changeCalendar(Math.max(v, 100), month)}
+            />
+          }
+          年
+          {
+            !this.state.selectMonth ?
+              <span
+                onClick={() => this.setState({ selectMonth: true })}
+                className="inline-block pointer"
+                style={{ minWidth: '40px' }}
+              >{month}</span> :
+              <InputNumber
+                min={1}
+                max={12}
+                autoFocus
+                style={{ minWidth: '40px' }}
+                defaultValue={month}
+                onBlur={() => this.setState({ selectMonth: false })}
+                onChange={(v) => this.changeCalendar(year, Math.min(12, Math.max(1, v)))}
+              />
+          }
+          月
           <div className="pull-right ft_16">
             <Icon type="right" onClick={() => this.changeCalendar(0, 1, true)} />
             <Icon type="double-right" className="ml_10" onClick={() => this.changeCalendar(1, 0, true)} />
@@ -73,7 +115,7 @@ class CalendarComponent extends React.PureComponent { // eslint-disable-line rea
                     <div
                       key={`c-${month}-${d}-${i2}`}
                       onClick={() => d !== 0 && changeSelected(timer([year, month, d]))}
-                      className={`date-box ${d !== 0 && 'valued'} ${isThisMonth && d === timer().date && 'today'} ${isThisMonth && d === selected.date && 'selected'}`}
+                      className={`date-box ${d !== 0 && 'valued'} ${timer([year, month, d]).str('YYYYMMDD') === timer().str('YYYYMMDD') && 'today'} ${isThisMonth && d === selected.date && 'selected'}`}
                     >
                       <Badge
                         dot

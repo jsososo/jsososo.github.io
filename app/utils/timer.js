@@ -92,7 +92,7 @@ const Timer = (v = new Date(), strType) => {
 
     let result = [
       num(_t / 31536000000, 0, p ? -1 : 1),
-      num((((_d.year - date.year) * 12) + _d.month - date.month + ((_d.date - date.date) >= 0 ? 0.5 : -0.5)), 0, p ? -1 : 1),
+      (_d.str() === date.str()) ? 0 : num((((_d.year - date.year) * 12) + _d.month - date.month + ((_d.date - date.date) > 0 ? 0.5 : -0.5)), 0, p ? -1 : 1),
       num(_t / 86400000, 0, p ? -1 : 1),
       num(_t / 3600000, 0, p ? -1 : 1),
       num(_t / 60000, 0, p ? -1 : 1),
