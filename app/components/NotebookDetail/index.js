@@ -8,10 +8,10 @@ import React from 'react';
 import PropTypes from 'prop-types';
 // import styled from 'styled-components';
 import timer from '../../utils/timer';
+import replacePre from '../../utils/const/txtReplace';
 
 import { Input, Button, Modal, Select } from 'antd';
 const { TextArea } = Input;
-const Option = Select.Option;
 
 class NotebookDetail extends React.Component { // eslint-disable-line react/prefer-stateless-function
   constructor(props) {
@@ -19,16 +19,41 @@ class NotebookDetail extends React.Component { // eslint-disable-line react/pref
 
     this.state = {
       edit: false,
-      newTag: '',
       editInfo: JSON.parse(JSON.stringify(props.info)),
     };
   }
 
-  // componentWillReceiveProps(nextProps) {
-  //   this.setState({
-  //     editInfo: nextProps.info,
-  //   });
-  // }
+  componentDidMount() {
+    this.replaceTxt();
+  }
+
+  componentDidUpdate() {
+    this.replaceTxt();
+  }
+
+  /*
+  *  标签替换（可以引入图片，文字颜色，字体大小，粗细等功能）
+  * */
+  replaceTxt() {
+    if (!this.state.edit) {
+      const preDom = document.getElementsByTagName('pre')[0];
+      let txt = preDom.innerText;
+      replacePre.forEach((obj) => {
+        const resultArr = txt.match(obj.reg);
+        console.log(resultArr);
+        if (resultArr && resultArr.length) {
+          resultArr.forEach((result) => {
+            let newTxt = result;
+            obj.del.forEach((dT) => {
+              newTxt = newTxt.replace(dT, '');
+            });
+            txt = txt.replace(result, `${obj.before.replace('RESULT', newTxt)}${newTxt}${obj.after}`);
+          });
+        }
+      });
+      preDom.innerHTML = txt;
+    }
+  }
 
   changeInfo(v, k) {
     const { editInfo } = this.state;
@@ -61,7 +86,7 @@ class NotebookDetail extends React.Component { // eslint-disable-line react/pref
 
   render() {
     const { info, tags } = this.props;
-    const { edit, editInfo, newTag } = this.state;
+    const { edit, editInfo } = this.state;
     return (
       <div>
         <div className="title mb_15">
@@ -116,7 +141,7 @@ class NotebookDetail extends React.Component { // eslint-disable-line react/pref
               </pre>
           }
         </div>
-        <div className="pull-right ft_12 fc_999 text-right">
+        <div className="pull-right ft_12 fc_999 text-right mt_20">
           <div>创建时间：{timer(info.createTime).str('YY-M-D HH:mm:ss')}</div>
           <div>上次编辑时间：{timer(info.lastEditTime).str('YY-M-D HH:mm:ss')}</div>
         </div>
