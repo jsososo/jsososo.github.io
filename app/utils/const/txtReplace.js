@@ -24,13 +24,13 @@ const txtReplace = [
     after: '</span>',
   },
   {
-    reg: /~~\s(.+)(\s~~|\n|$)/g,
+    reg: /~~\s(.+)(\n|\s~~|$)/g,
     del: ['~~ ', ' ~~'],
     before: '<span style="text-decoration: line-through">',
     after: '</span>',
   },
   {
-    reg: /__\s(.+)(\s__|\n|$)/g,
+    reg: /__\s(.+)(\n|\s__|$)/g,
     del: ['__ ', ' __'],
     before: '<span style="text-decoration: underline">',
     after: '</span>',
