@@ -29,6 +29,7 @@ import Notebook from '../Notebook/Loadable'; // 记事本
 import Calendar from '../Calendar/Loadable'; // 日历
 
 import Development from '../Development/Loadable'; // 开发后门
+import Info from '../Info/Loadable'; // 一些说明
 
 
 export class App extends React.Component {
@@ -47,14 +48,17 @@ export class App extends React.Component {
           <Route path="/img" component={ImagePage} />
           <Route path="/search" component={SearchPage} />
 
-          {/*工具类*/}
+          {/* 工具类 */}
           <Route path="/kit" exact component={Kit} />
           <Route path="/kit/cashbook" component={CashBook} />
           <Route path="/kit/notebook" component={Notebook} />
           <Route path="/kit/calendar" component={Calendar} />
 
-          {/*开发*/}
+          {/* 开发 */}
           <Route path="/development" component={Development} />
+
+          {/* 说明 */}
+          <Route path="/info/" component={Info} />
         </Switch>
       </HashRouter>
     );

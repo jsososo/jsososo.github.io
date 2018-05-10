@@ -36,11 +36,10 @@ class NotebookDetail extends React.Component { // eslint-disable-line react/pref
   * */
   replaceTxt() {
     if (!this.state.edit) {
-      const preDom = document.getElementsByTagName('pre')[0];
+      const preDom = document.getElementById('notebook-pre');
       let txt = preDom.innerText;
       replacePre.forEach((obj) => {
         const resultArr = txt.match(obj.reg);
-        console.log(resultArr);
         if (resultArr && resultArr.length) {
           resultArr.forEach((result) => {
             let newTxt = result;
@@ -125,6 +124,7 @@ class NotebookDetail extends React.Component { // eslint-disable-line react/pref
                 {tags.map((item) => <Option value={item} key={`tag-o-${item}`}>{item}</Option>)}
               </Select>
               (tips: 也可以直接在输入框中新增一个标签)
+              <a className="ml_15" href="#/info/notebook">点击查看语法规则</a>
             </div> :
             info.tags.length !== 0 && <div className="mt_20 ft_12">标签：{info.tags.join(', ')}</div>
         }
@@ -136,7 +136,7 @@ class NotebookDetail extends React.Component { // eslint-disable-line react/pref
                 value={editInfo.content}
                 onChange={(e) => this.changeInfo(e.target.value, 'content')}
               /> :
-              <pre>
+              <pre id="notebook-pre">
                 {info.content || '啥也没有。。。'}
               </pre>
           }
