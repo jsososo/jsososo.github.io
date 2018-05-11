@@ -121,7 +121,7 @@ class CalendarList extends React.Component { // eslint-disable-line react/prefer
                 </div>
                 <div className="operation">
                   <Switch className="mr_10" checked={thing.milestone} onChange={(v) => this.changeMileStone(thing.id, v)} />
-                  <a href={`#/kit/milestone/?id=${thing.id}`}>前往里程碑 =></a>
+                  {thing.milestone && <a href={`#/kit/milestone/?id=${thing.id}`}>前往里程碑 =></a>}
                 </div>
               </div>
             ))
