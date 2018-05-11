@@ -35,7 +35,7 @@ const boxInfo = {
       name: '里程碑',
       type: 'kit',
       img: imgUrl('milestone.png'),
-      color: 'rgb(239, 39, 99)',
+      color: 'rgb(190, 173, 143)',
       keyWords: '里程碑milestone时间线timeline时间轴',
       url: '#/kit/milestone/?id=today',
     },

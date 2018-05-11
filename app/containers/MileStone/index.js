@@ -20,9 +20,11 @@ import saga from './saga';
 import { Timeline } from 'antd';
 import timer from '../../utils/timer';
 import { getQueryFromUrl } from "../../utils/stringHelper";
+import recentlyUsed from '../../utils/recentlyUsed';
 
 export class MileStone extends React.PureComponent { // eslint-disable-line react/prefer-stateless-function
   componentDidMount() {
+    recentlyUsed.set('里程碑', 'kit');
     this.pageScroll();
   }
 
