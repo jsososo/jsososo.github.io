@@ -23,13 +23,33 @@ import * as Action from './actions';
 
 import CalendarComponent from '../../components/CalendarComponent';
 import CalendarList from '../../components/CalendarList';
+import {getQueryFromUrl} from "../../utils/stringHelper";
 
 export class Calendar extends React.PureComponent { // eslint-disable-line react/prefer-stateless-function
   componentWillMount() {
     recentlyUsed.set('日历', 'kit');
+    this.updateFromUrl(this.props);
+  }
+
+  componentWillReceiveProps(nextProps) {
+    this.updateFromUrl(nextProps);
+  }
+
+  updateFromUrl(props) {
+    const { location, changeCalendarInfo, calendar } = props;
+    const date = getQueryFromUrl(location.search, 'date') || timer().str();
+
+    if (date !== calendar.selected.str()) {
+      changeCalendarInfo({
+        year: Number(date.split('-')[0]),
+        month: Number(date.split('-')[1]),
+      });
+      this.changeSelected(timer(date, 'YYYY-MM-DD'));
+    }
   }
 
   changeSelected(data) {
+    this.props.history.push(`?date=${timer(data).str()}&id=${Number(getQueryFromUrl(this.props.location.search, 'id') || 0)}`);
     this.props.changeSelectedDate(data);
     this.props.queryList(timer(data).str('YYYYMMDD'));
   }
@@ -41,12 +61,12 @@ export class Calendar extends React.PureComponent { // eslint-disable-line react
   }
 
   render() {
-    const { calendar, changeCalendarInfo } = this.props;
+    const { calendar, changeCalendarInfo, history, location } = this.props;
     const { calendarInfo, selected, localList, list } = calendar;
     return (
       <div>
         <Helmet>
-          <title>Calendar</title>
+          <title>日历</title>
           <meta name="description" content="Description of Calendar" />
         </Helmet>
         <div>
@@ -58,9 +78,11 @@ export class Calendar extends React.PureComponent { // eslint-disable-line react
             localList={localList}
           />
           <CalendarList
+            thingId={Number(getQueryFromUrl(location.search, 'id') || 0)}
             localList={localList}
             list={list}
             selected={selected}
+            history={history}
             updateList={(d) => this.updateList(d)}
           />
         </div>
@@ -75,6 +97,8 @@ Calendar.propTypes = {
   changeSelectedDate: PropTypes.func.isRequired,
   queryList: PropTypes.func.isRequired,
   updateList: PropTypes.func.isRequired,
+  history: PropTypes.object.isRequired,
+  location: PropTypes.object.isRequired,
 };
 
 const mapStateToProps = createStructuredSelector({

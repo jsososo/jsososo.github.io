@@ -9,7 +9,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import './index.scss';
 
-import { Icon, Badge, InputNumber } from 'antd';
+import { Icon, Badge, InputNumber, Button } from 'antd';
 
 import timer, { getCalendar, formatNumber } from '../../utils/timer';
 
@@ -54,6 +54,14 @@ class CalendarComponent extends React.Component { // eslint-disable-line react/p
 
     return (
       <div className="calendar-box">
+        <div className="ml_10 mb_20">
+          <Button type="default" onClick={() => {
+            this.changeCalendar(timer().year, timer().month);
+            changeSelected(timer());
+          }}
+          >回到今天</Button>
+          <Button type="primary" className="ml_20"><a href="#/kit/milestone?id=today">前往里程碑</a></Button>
+        </div>
         <div className="calendar-header text-center">
           <div className="pull-left ft_16">
             <Icon type="double-left" className="mr_10" onClick={() => this.changeCalendar(-1, 0, true)} />

@@ -9,7 +9,13 @@
 
 export function getQueryFromUrl(search, key) {
   try {
-    const s = search.substring(1);
+    const sArr = search.split('?');
+    let s = '';
+    if (sArr.length > 1) {
+      s = sArr[1];
+    } else {
+      s = sArr[0] || '';
+    }
     const querys = s.split('&');
     const result = {};
     querys.forEach((item) => {
