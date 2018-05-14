@@ -9,5 +9,5 @@ import ModuleLoading from 'components/ModuleLoading';
 
 export default Loadable({
   loader: () => import('./index'),
-  loading: () => ModuleLoading,
+  loading: ModuleLoading,
 });

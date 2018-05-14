@@ -8,7 +8,7 @@ const recentlyUsed = {
     const newRU = {};
     Object.keys(rU).forEach((date) => {
       // 保留15天内的访问数据
-      if (timer(date, 'YYYYMMDD').to(timer(), 'num', 2) < 15) {
+      if (timer(date, 'YYYYMMDD').to(timer(), 'num', 2) > -15) {
         newRU[date] = rU[date];
       }
     });

@@ -8,17 +8,52 @@ import React from 'react';
 import {Link} from 'react-router-dom';
 import Input from 'antd/lib/input';
 import PropTypes from 'prop-types';
+
+import { Icon } from 'antd';
 // import styled from 'styled-components';
 
 
-class HeaderComponent extends React.PureComponent { // eslint-disable-line react/prefer-stateless-function
+class HeaderComponent extends React.Component { // eslint-disable-line react/prefer-stateless-function
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      pathname: window.location.hash,
+    };
+  }
+
+  componentDidMount() {
+    window.onhashchange = () => {
+      this.setState({
+        pathname: window.location.hash,
+      });
+    };
+  }
   render() {
+    const { pathname } = this.state;
+    console.log(pathname);
     return (
       <div className="header-box">
         <div className="header">
-          <h1><a href="#/">首页</a></h1>
-          <h1><a href="#/kit">没用的工具</a></h1>
-          <h1><a href="#/img">二刺螈壁纸</a></h1>
+          <a href="#/" className={`header-link ${pathname === '#/' ? 'hover' : ''}`}>
+            <h1 className="header-item">
+              <Icon type="home" />
+              <span className="header-title-txt">首页</span>
+            </h1>
+          </a>
+          <a href="#/kit" className={`header-link ${pathname.indexOf('#/kit') === 0 ? 'hover' : ''}`}>
+            <h1 className="header-item">
+              <Icon type="appstore" />
+              <span className="header-title-txt">没用的工具</span>
+            </h1>
+          </a>
+          <a href="//github.com/jsososo" className="header-link" target="_blank">
+            <h1 className="header-item">
+              <Icon type="code" />
+              <span className="header-title-txt">同性交友网</span>
+            </h1>
+          </a>
+          {/*<h1><a href="#/img">二刺螈壁纸</a></h1>*/}
         </div>
         <Input.Search className="header-search" onSearch={(v) => { window.location = `#/search?search=${encodeURI(v)}`; }} />
       </div>
