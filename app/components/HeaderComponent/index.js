@@ -31,7 +31,6 @@ class HeaderComponent extends React.Component { // eslint-disable-line react/pre
   }
   render() {
     const { pathname } = this.state;
-    console.log(pathname);
     return (
       <div className="header-box">
         <div className="header">
@@ -49,7 +48,7 @@ class HeaderComponent extends React.Component { // eslint-disable-line react/pre
           </a>
           <a href="//github.com/jsososo" className="header-link" target="_blank">
             <h1 className="header-item">
-              <Icon type="code" />
+              <Icon type="github" />
               <span className="header-title-txt">同性交友网</span>
             </h1>
           </a>

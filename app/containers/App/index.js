@@ -28,6 +28,7 @@ import CashBook from '../CashBook/Loadable'; // 账本
 import Notebook from '../Notebook/Loadable'; // 记事本
 import Calendar from '../Calendar/Loadable'; // 日历
 import MileStone from '../MileStone/Loadable'; // 里程碑
+import Todo from '../Todo'; // 计划链
 
 import Development from '../Development/Loadable'; // 开发后门
 import Info from '../Info/Loadable'; // 一些说明
@@ -55,6 +56,7 @@ export class App extends React.Component {
           <Route path="/kit/notebook" component={Notebook} />
           <Route path="/kit/calendar" component={Calendar} />
           <Route path="/kit/milestone" component={MileStone} />
+          <Route path="/kit/todo" component={Todo} />
 
           {/* 开发 */}
           <Route path="/development" component={Development} />

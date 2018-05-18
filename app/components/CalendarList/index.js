@@ -11,8 +11,9 @@ import PropTypes from 'prop-types';
 
 import timer from '../../utils/timer';
 
-import { Button, Switch, Input, Modal } from 'antd';
+import { Button, Switch, Modal } from 'antd';
 import CalendarDetail from './CalendarDetail';
+import localStorage from '../../utils/localStorage';
 
 class CalendarList extends React.Component { // eslint-disable-line react/prefer-stateless-function
   constructor(props) {
@@ -32,17 +33,19 @@ class CalendarList extends React.Component { // eslint-disable-line react/prefer
 
   createThing() {
     const { localList, selected } = this.props;
+    let nowId = Number(localStorage.get('p_k_thing_now_id', false, '1'));
     const sT = selected.str('YYYYMMDD');
     if (!localList[sT]) {
       localList[sT] = [];
     }
     localList[sT].push({
-      id: localList.nowId += 1,
+      id: nowId += 1,
       title: '这是一条新的事情~',
       content: '这是一条新的事情~',
       milestone: false,
       time: selected.time,
     });
+    localStorage.set('p_k_thing_now_id', nowId, false);
     this.props.updateList(localList);
   }
 

@@ -1,0 +1,41 @@
+.todo-list {
+  display: inline-block;
+  vertical-align: top;
+  width: 45%;
+
+  .todo-list-item {
+    border-left: 1px dashed #999;
+    margin-left: 7px;
+    padding-left: 12px;
+
+    &.no-border {
+      border-left: none;
+    }
+
+    .title-align {
+      min-width: 20px;
+    }
+
+    .status-1 {
+      color: #1890ff;
+    }
+
+    .status-2 {
+      text-decoration: line-through;
+      color: #999;
+    }
+  }
+}
+
+.todo-detail {
+  display: inline-block;
+  vertical-align: top;
+  padding-left: 20px;
+  width: 50%;
+
+  .ant-calendar-picker {
+    input::-webkit-input-placeholder {
+      color: #333 !important;
+    }
+  }
+}
