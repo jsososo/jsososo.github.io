@@ -2,7 +2,7 @@ const imgUrl = (str) => {
   if (window.location.origin.indexOf('jsososo.github.io') > -1) {
     return `/person-web/app/resources/img/${str}`;
   }
-  return `/app/resources/img/${str}`;
+  return `/resources/img/${str}`;
 };
 
 const boxInfo = {
@@ -38,6 +38,14 @@ const boxInfo = {
       color: 'rgb(190, 173, 143)',
       keyWords: '里程碑milestone时间线timeline时间轴',
       url: '#/kit/milestone/?id=today',
+    },
+    {
+      name: '任务链',
+      type: 'kit',
+      img: imgUrl('todo.png'),
+      color: 'rgb(35, 225, 104)',
+      keyWords: '任务链renwulian计划jihua',
+      url: '#/kit/todo',
     },
   ],
 };

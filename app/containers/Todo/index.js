@@ -20,14 +20,23 @@ import localStorage from '../../utils/localStorage';
 import { Button } from 'antd';
 import TodoList from '../../components/TodoList';
 import * as Action from './actions';
+import recentlyUsed from '../../utils/recentlyUsed';
 
 export class Todo extends React.PureComponent { // eslint-disable-line react/prefer-stateless-function
+  componentWillMount() {
+    recentlyUsed('任务链', 'kit');
+    this.props.updateList(localStorage.get('p_t_list', true, '[]'));
+  }
+
   createNewTodo(parent = 0) {
     const { todo } = this.props;
     const { list } = todo;
     const pT = list.find((item) => item.id === parent);
     let nowId = Number(localStorage.get('p_k_thing_now_id', false, '1'));
     nowId += 1;
+    if (pT && pT.status === 2) {
+      pT.status = 1;
+    }
 
     // 增加子事件
     if (pT) {
@@ -46,9 +55,11 @@ export class Todo extends React.PureComponent { // eslint-disable-line react/pre
       startTime: null,
       endTime: null,
       showChildren: true,
+      isTodo: true,
     });
     localStorage.set('p_k_thing_now_id', nowId, false);
     this.updateList(list);
+    window.location = `#/kit/todo?id=${nowId}&edit=1`;
   }
 
   updateList(list) {

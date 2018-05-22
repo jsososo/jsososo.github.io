@@ -24,10 +24,12 @@ import * as Action from './actions';
 import CalendarComponent from '../../components/CalendarComponent';
 import CalendarList from '../../components/CalendarList';
 import {getQueryFromUrl} from "../../utils/stringHelper";
+import Storage from '../../utils/localStorage';
 
 export class Calendar extends React.PureComponent { // eslint-disable-line react/prefer-stateless-function
   componentWillMount() {
     recentlyUsed.set('日历', 'kit');
+    this.props.updateList(Storage.get('p_c_list', true, '{}'));
     this.updateFromUrl(this.props);
   }
 
@@ -55,7 +57,7 @@ export class Calendar extends React.PureComponent { // eslint-disable-line react
   }
 
   updateList(data) {
-    window.localStorage.setItem('p_c_list', JSON.stringify(data));
+    Storage.set('p_c_list', data, true);
     this.props.updateList(data);
     this.props.queryList(this.props.calendar.selected.str('YYYYMMDD'));
   }

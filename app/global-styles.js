@@ -16,7 +16,7 @@ injectGlobal`
   }
   
   a {
-    text-decoration: none;
+    text-decoration: none !important;
     color: #555;
   }
   `;

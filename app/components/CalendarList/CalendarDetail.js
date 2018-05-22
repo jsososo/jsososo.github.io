@@ -7,11 +7,11 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 // import styled from 'styled-components';
+import moment from 'moment';
+import { Button, Switch, Input, Icon, InputNumber, DatePicker } from 'antd';
+const { TextArea } = Input;
 
 import timer from '../../utils/timer';
-
-import { Button, Switch, Input, Icon, InputNumber } from 'antd';
-const { TextArea } = Input;
 
 
 class CalendarDetail extends React.Component { // eslint-disable-line react/prefer-stateless-function
@@ -24,14 +24,6 @@ class CalendarDetail extends React.Component { // eslint-disable-line react/pref
         ...(props.info),
       },
     };
-  }
-
-  changeTime(v, i) {
-    const { editInfo } = this.state;
-    const timeArr = timer(editInfo.time).str('YYYY-M-D-H-m-s').split('-');
-    timeArr[i] = v;
-    timeArr[1] -= 1;
-    this.changeEditInfo(timer(new Date(...timeArr)).time, 'time');
   }
 
   changeEditInfo(v, k) {
@@ -53,8 +45,6 @@ class CalendarDetail extends React.Component { // eslint-disable-line react/pref
     const { info, backToList, delThing } = this.props;
     const { editInfo, isEdit } = this.state;
 
-    const [Y, M, D, H, m, s] = timer(editInfo.time).str('YYYY-M-D-H-m-s').split('-');
-
     return (
       <div className=" calendar-list calendar-list-detail">
         {
@@ -70,12 +60,14 @@ class CalendarDetail extends React.Component { // eslint-disable-line react/pref
                     </div>
                   </div>
                   <div className="calendar-detail-time mt_5">
-                    <InputNumber style={{width: '80px'}} min={100} value={Y} onChange={(v) => this.changeTime(v, 0)} />
-                    <InputNumber style={{width: '60px'}} min={1} max={12} value={M} onChange={(v) => this.changeTime(v, 1)} />
-                    <InputNumber style={{width: '60px'}} min={1} max={31} value={D} onChange={(v) => this.changeTime(v, 2)} />
-                    <InputNumber style={{width: '60px'}} min={0} max={23} value={H} onChange={(v) => this.changeTime(v, 3)} />
-                    <InputNumber style={{width: '60px'}} min={0} max={60} value={m} onChange={(v) => this.changeTime(v, 4)} />
-                    <InputNumber style={{width: '60px'}} min={0} max={60} value={s} onChange={(v) => this.changeTime(v, 5)} />
+                    <DatePicker
+                      showToday={false}
+                      allowClear={false}
+                      showTime={{format: 'HH:mm'}}
+                      format="YYYY-MM-DD HH:mm"
+                      defaultValue={moment(editInfo.time)}
+                      onChange={(v) => this.changeEditInfo(v._d.getTime(), 'time')}
+                    />
                     <Switch className="ml_20" checked={editInfo.milestone} onChange={(v) => this.changeEditInfo(v, 'milestone')} />
                   </div>
                 </div>
@@ -92,7 +84,7 @@ class CalendarDetail extends React.Component { // eslint-disable-line react/pref
                     <Button type="danger" onClick={() => delThing()}>删除</Button>
                   </div>
                   <div className="mt_5">
-                    {timer(info.time).str('YYYY-MM-DD HH:mm:ss')}
+                    {timer(info.time).str('YYYY-MM-DD HH:mm')}
                     {info.milestone && ` （${timer().to(timer(info.time))}）`}
                   </div>
                 </div>

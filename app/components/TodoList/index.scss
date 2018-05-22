@@ -16,13 +16,15 @@
       min-width: 20px;
     }
 
-    .status-1 {
-      color: #1890ff;
-    }
+    .no-selected {
+      .status-1 {
+        color: #1890ff;
+      }
 
-    .status-2 {
-      text-decoration: line-through;
-      color: #999;
+      .status-2 {
+        text-decoration: line-through;
+        color: #999;
+      }
     }
   }
 }
@@ -31,7 +33,7 @@
   display: inline-block;
   vertical-align: top;
   padding-left: 20px;
-  width: 50%;
+  width: 54.5%;
 
   .ant-calendar-picker {
     input::-webkit-input-placeholder {

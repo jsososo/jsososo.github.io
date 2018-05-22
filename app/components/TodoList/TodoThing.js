@@ -2,6 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 
 import { Icon, Slider } from 'antd';
+import { getQueryFromUrl } from "../../utils/stringHelper";
 
 class TodoThing extends React.PureComponent {
   changeThing(key, val) {
@@ -11,8 +12,9 @@ class TodoThing extends React.PureComponent {
     updateThing(thing);
   }
   render() {
-    const { thing, list, createNewTodo, updateThing, noBorder, updateStatus } = this.props;
+    const { thing, list, updateThing, noBorder, updateStatus } = this.props;
     const childrenList = list.filter((item) => item.parent === thing.id) || [];
+    const nowId = getQueryFromUrl(window.location.hash, 'id');
     return (
       <div className={`pt_10 todo-list-item ${noBorder ? 'no-border' : ''}`}>
         <div>
@@ -20,7 +22,7 @@ class TodoThing extends React.PureComponent {
             {(childrenList.length > 0 && thing.showChildren) && <Icon type="down" />}
             {(childrenList.length > 0 && !thing.showChildren) && <Icon type="right" />}
           </div>
-          <a href={`#/kit/todo?id=${thing.id}&edit=0`}>
+          <a href={`#/kit/todo?id=${thing.id}&edit=0`} className={nowId == thing.id ? 'fc_orange' : 'no-selected'}>
             <span className={`vat status-${thing.status}`}>{thing.title !== '' ? thing.title : '名字被吃了'}</span>
           </a>
           <Slider
@@ -39,7 +41,6 @@ class TodoThing extends React.PureComponent {
             key={cT.id}
             updateThing={updateThing}
             updateStatus={updateStatus}
-            createNewTodo={createNewTodo}
             list={list}
             thing={cT}
           />
@@ -52,7 +53,6 @@ class TodoThing extends React.PureComponent {
 TodoThing.propTypes = {
   thing: PropTypes.object.isRequired,
   list: PropTypes.array.isRequired,
-  createNewTodo: PropTypes.func.isRequired,
   updateThing: PropTypes.func.isRequired,
   noBorder: PropTypes.bool,
   updateStatus: PropTypes.func.isRequired,

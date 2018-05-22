@@ -81,6 +81,19 @@ class CalendarList extends React.Component { // eslint-disable-line react/prefer
     const { localList, selected } = this.props;
     const iT = timer(info.time).str('YYYYMMDD');
     const sT = selected.str('YYYYMMDD');
+
+    // 追加，如果是todo
+    if (info.isTodo) {
+      info.startTime = info.time;
+      const tList = localStorage.get('p_t_list', true, '[]');
+      tList.forEach((item, index) => {
+        if (item.id === info.id) {
+          tList[index] = info;
+        }
+      });
+      localStorage.set('p_t_list', tList, true);
+    }
+
     if (iT === sT) {
       // 如果还是同一天内
       localList[sT].forEach((item, index) => {

@@ -9,7 +9,9 @@ import PropTypes from 'prop-types';
 import TodoThing from './TodoThing';
 import TodoDetail from './TodoDetail';
 import './index.scss';
-import { getQueryFromUrl } from "../../utils/stringHelper";
+import { getQueryFromUrl } from '../../utils/stringHelper';
+import timer from '../../utils/timer';
+import Storage from '../../utils/localStorage';
 
 // import styled from 'styled-components';
 
@@ -21,6 +23,15 @@ class TodoList extends React.Component { // eslint-disable-line react/prefer-sta
     this.state = {
       selected: 0,
     };
+  }
+
+  // 获取某一事件 或 该事件的某个值
+  getThing(id, key, list = this.props.list) {
+    const thing = list.find((item) => item.id === id);
+    if (key && thing) {
+      return thing[key];
+    }
+    return thing;
   }
 
   updateThing(thing) {
@@ -88,15 +99,7 @@ class TodoList extends React.Component { // eslint-disable-line react/prefer-sta
     return result;
   }
 
-  // 获取某一事件 或 该事件的某个值
-  getThing(id, key, list = this.props.list) {
-    const thing = list.find((item) => item.id === id);
-    if (key && thing) {
-      return thing[key];
-    }
-    return thing;
-  }
-
+  // 全部的子孙事件
   findAllChildren(id) {
     let result = [id];
     const thing = this.getThing(id);
@@ -118,6 +121,45 @@ class TodoList extends React.Component { // eslint-disable-line react/prefer-sta
     return parents;
   }
 
+  // 根据事件的id删除一个事件
+  delThing(id) {
+    const { list, updateList } = this.props;
+    const thing = this.getThing(id);
+    const parent = this.getThing(thing.parent);
+    const deleteIds = this.findAllChildren(id);
+
+    // 删除日历中对应的这些事件
+    deleteIds.forEach((dId) => {
+      this.delCalendarThing(this.getThing(id, 'time'), dId);
+    });
+
+    // 丢掉所有的子订单
+    const newList = list.filter((t) => deleteIds.indexOf(t.id) === -1);
+
+    // 从父事件那里的子事件属性中删除这个事件的id
+    if (parent) {
+      newList.forEach((t, i) => {
+        if (t.id === parent.id) {
+          newList[i].children = newList[i].children.filter((sId) => sId !== id);
+        }
+      });
+    }
+    updateList(newList);
+  }
+
+  // 删除这个事件在日历中对应的事件
+  delCalendarThing(time, id) {
+    if (!time) {
+      return;
+    }
+    const cList = Storage.get('p_c_list', true, '{}');
+    const day = timer(time).str('YYYYMMDD');
+    if (cList[day]) {
+      cList[day] = cList[day].filter((thing) => thing.id !== id);
+      Storage.set('p_c_list', cList, true);
+    }
+  }
+
   render() {
     const { list, createNewTodo } = this.props;
     const parentThing = list.filter((item) => item.parent === 0) || [];
@@ -133,7 +175,6 @@ class TodoList extends React.Component { // eslint-disable-line react/prefer-sta
               key={pT.id}
               noBorder
               updateThing={(val) => this.updateThing(val)}
-              createNewTodo={createNewTodo}
               list={list}
               thing={pT}
               updateStatus={(id, val) => this.updateStatus(id, val)}
@@ -145,6 +186,9 @@ class TodoList extends React.Component { // eslint-disable-line react/prefer-sta
             updateThing={(val) => this.updateThing(val)}
             thing={sT}
             edit={isEdit}
+            delThing={(id) => this.delThing(id)}
+            delCalendarThing={(time, id) => this.delCalendarThing(time, id)}
+            createNewTodo={createNewTodo}
             updateStatus={(id, val) => this.updateStatus(id, val)}
           />
         }

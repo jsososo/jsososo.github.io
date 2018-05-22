@@ -1,9 +1,12 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-import { Slider, Button, Input, DatePicker } from 'antd';
-import timer from '../../utils/timer';
+import { Slider, Button, Input, DatePicker, Switch, Modal } from 'antd';
 import moment from 'moment';
+import timer from '../../utils/timer';
+import Storage from '../../utils/localStorage';
+
+const { TextArea } = Input;
 
 class TodoDetail extends React.Component {
   constructor(props) {
@@ -14,10 +17,21 @@ class TodoDetail extends React.Component {
     };
   }
 
+  componentWillReceiveProps(nextProps) {
+    this.setState({
+      editInfo: JSON.parse(JSON.stringify(nextProps.thing)),
+    });
+  }
+
   changeEditInfo(val, key) {
     const { editInfo } = this.state;
     editInfo[key] = val;
-
+    if (key === 'startTime' && val && editInfo.endTime && editInfo.endTime < val) {
+      editInfo.endTime = val;
+    }
+    if (key === 'endTime' && val && editInfo.startTime && editInfo.startTime > val) {
+      editInfo.startTime = val;
+    }
     this.setState({
       editInfo,
     });
@@ -25,21 +39,38 @@ class TodoDetail extends React.Component {
 
   save() {
     const { editInfo } = this.state;
+    // 如果起始时间发生了变化，则需要更新一下日历里面的事件
+    if (editInfo.startTime) {
+      const cList = Storage.get('p_c_list', true, '{}');
+      if (editInfo.time) {
+        const oldDay = timer(editInfo.time).str('YYYYMMDD');
+        cList[oldDay] = cList[oldDay].filter((item) => item.id !== editInfo.id);
+      }
+      if (editInfo.startTime) {
+        const newDay = timer(editInfo.startTime).str('YYYYMMDD');
+        editInfo.time = editInfo.startTime;
+        cList[newDay] = cList[newDay] || [];
+        cList[newDay].push(editInfo);
+      }
+      Storage.set('p_c_list', cList, true);
+    }
+
     this.props.updateThing(editInfo);
     window.location = `#/kit/todo/?id=${editInfo.id}&edit=0`;
   }
 
-  changeTime(val, k) {
-    console.log(moment.isMoment(val));
-    if (val) {
-      this.changeEditInfo(val._d.getTime(), `${k}Time`);
-    } else {
-      this.changeEditInfo(null, `${k}Time`);
-    }
+  delThing() {
+    const { thing, delThing } = this.props;
+    Modal.confirm({
+      content: '确认删除这个任务以及下面的子任务？',
+      cancelText: '别呀',
+      okText: '删掉',
+      onOk: () => delThing(thing.id),
+    });
   }
 
   render() {
-    const { thing, edit, updateStatus } = this.props;
+    const { thing, edit, updateStatus, createNewTodo } = this.props;
     const { editInfo } = this.state;
     return (
       <div className="todo-detail">
@@ -66,8 +97,9 @@ class TodoDetail extends React.Component {
           {
             !edit ?
               <div className="pull-right">
+                <Button type="primary" onClick={() => createNewTodo(thing.id)} className="mr_10">新建子任务</Button>
                 <Button type="primary" className="mr_10"><a href={`#/kit/todo/?id=${thing.id}&edit=1`}>编辑</a></Button>
-                <Button type="danger" className="mr_10">删除</Button>
+                <Button type="danger" className="mr_10" onClick={() => this.delThing()}>删除</Button>
               </div> :
               <div className="pull-right">
                 <Button type="primary" className="mr_10" onClick={() => this.save()}>保存</Button>
@@ -81,15 +113,26 @@ class TodoDetail extends React.Component {
               <span>
                 开始时间：
                 <DatePicker
-                  placeholder={thing.startTime ? timer(thing.startTime).str() : ''}
-                  onChange={(val) => this.changeTime(val, 'start')}
+                  showToday={false}
+                  disabledDate={(d) => editInfo.endTime && d && (editInfo.endTime < d._d.getTime())}
+                  value={editInfo.startTime ? moment(editInfo.startTime) : null}
+                  onChange={(val) => this.changeEditInfo(val && val._d.getTime(), 'startTime')}
                 />
               </span>
               <span className="ml_20">
                 结束时间：
                 <DatePicker
-                  placeholder={thing.startTime ? timer(thing.startTime).str() : ''}
-                  onChange={(val) => this.changeTime(val, 'end')}
+                  showToday={false}
+                  disabledDate={(d) => editInfo.startTime && d && (editInfo.startTime > d._d.getTime())}
+                  value={editInfo.endTime ? moment(editInfo.endTime) : null}
+                  onChange={(val) => this.changeEditInfo(val && val._d.getTime(), 'endTime')}
+                />
+              </span>
+              <span className="ml_20">
+                里程碑：
+                <Switch
+                  checked={editInfo.milestone}
+                  onChange={(val) => this.changeEditInfo(val, 'milestone')}
                 />
               </span>
             </div> :
@@ -98,7 +141,17 @@ class TodoDetail extends React.Component {
               <span className="ml_20">结束时间：{thing.endTime ? timer(thing.endTime).str() : '-- --'}</span>
             </div>
         }
-        <div>{thing.content}</div>
+        {
+          edit ?
+            <div className="mt_10">
+              <TextArea
+                autosize={{ minRows: 4 }}
+                value={editInfo.content}
+                onChange={(e) => this.changeEditInfo(e.target.value, 'content')}
+              />
+            </div> :
+            <div>{thing.content}</div>
+        }
       </div>
     );
   }
@@ -109,6 +162,9 @@ TodoDetail.propTypes = {
   edit: PropTypes.bool,
   updateStatus: PropTypes.func.isRequired,
   updateThing: PropTypes.func.isRequired,
+  createNewTodo: PropTypes.func.isRequired,
+  delThing: PropTypes.func.isRequired,
+  delCalendarThing: PropTypes.func.isRequired,
 };
 
 export default TodoDetail;
