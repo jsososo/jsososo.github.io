@@ -24,7 +24,7 @@ import recentlyUsed from '../../utils/recentlyUsed';
 
 export class Todo extends React.PureComponent { // eslint-disable-line react/prefer-stateless-function
   componentWillMount() {
-    recentlyUsed('任务链', 'kit');
+    recentlyUsed.set('任务链', 'kit');
     this.props.updateList(localStorage.get('p_t_list', true, '[]'));
   }
 
