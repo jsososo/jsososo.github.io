@@ -1,5 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import marked from 'marked';
 
 import { Slider, Button, Input, DatePicker, Switch, Modal } from 'antd';
 import moment from 'moment';
@@ -150,7 +151,7 @@ class TodoDetail extends React.Component {
                 onChange={(e) => this.changeEditInfo(e.target.value, 'content')}
               />
             </div> :
-            <div>{thing.content}</div>
+            <div dangerouslySetInnerHTML={{__html: marked(thing.content)}} />
         }
       </div>
     );

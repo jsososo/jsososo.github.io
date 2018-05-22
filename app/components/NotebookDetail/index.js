@@ -8,6 +8,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 // import styled from 'styled-components';
 import timer from '../../utils/timer';
+import marked from 'marked';
 import replacePre from '../../utils/const/txtReplace';
 
 import { Input, Button, Modal, Select } from 'antd';
@@ -23,36 +24,28 @@ class NotebookDetail extends React.Component { // eslint-disable-line react/pref
     };
   }
 
-  componentDidMount() {
-    this.replaceTxt();
-  }
-
-  componentDidUpdate() {
-    this.replaceTxt();
-  }
-
   /*
   *  标签替换（可以引入图片，文字颜色，字体大小，粗细等功能）
   * */
-  replaceTxt() {
-    if (!this.state.edit) {
-      const preDom = document.getElementById('notebook-pre');
-      let txt = preDom.innerText;
-      replacePre.forEach((obj) => {
-        const resultArr = txt.match(obj.reg);
-        if (resultArr && resultArr.length) {
-          resultArr.forEach((result) => {
-            let newTxt = result;
-            obj.del.forEach((dT) => {
-              newTxt = newTxt.replace(dT, '');
-            });
-            txt = txt.replace(result, `${obj.before.replace('RESULT', newTxt)}${newTxt}${obj.after}`);
-          });
-        }
-      });
-      preDom.innerHTML = txt;
-    }
-  }
+  // replaceTxt() {
+  //   if (!this.state.edit) {
+  //     const preDom = document.getElementById('notebook-pre');
+  //     let txt = preDom.innerText;
+  //     replacePre.forEach((obj) => {
+  //       const resultArr = txt.match(obj.reg);
+  //       if (resultArr && resultArr.length) {
+  //         resultArr.forEach((result) => {
+  //           let newTxt = result;
+  //           obj.del.forEach((dT) => {
+  //             newTxt = newTxt.replace(dT, '');
+  //           });
+  //           txt = txt.replace(result, `${obj.before.replace('RESULT', newTxt)}${newTxt}${obj.after}`);
+  //         });
+  //       }
+  //     });
+  //     preDom.innerHTML = txt;
+  //   }
+  // }
 
   changeInfo(v, k) {
     const { editInfo } = this.state;
@@ -124,7 +117,6 @@ class NotebookDetail extends React.Component { // eslint-disable-line react/pref
                 {tags.map((item) => <Option value={item} key={`tag-o-${item}`}>{item}</Option>)}
               </Select>
               (tips: 也可以直接在输入框中新增一个标签)
-              <a className="ml_15" href="#/info/notebook">点击查看语法规则</a>
             </div> :
             info.tags.length !== 0 && <div className="mt_20 ft_12">标签：{info.tags.join(', ')}</div>
         }
@@ -136,9 +128,9 @@ class NotebookDetail extends React.Component { // eslint-disable-line react/pref
                 value={editInfo.content}
                 onChange={(e) => this.changeInfo(e.target.value, 'content')}
               /> :
-              <pre id="notebook-pre">
-                {info.content || '啥也没有。。。'}
-              </pre>
+              <div id="notebook-pre">
+                {<div dangerouslySetInnerHTML={{__html: marked(editInfo.content)}} /> || '啥也没有。。。'}
+              </div>
           }
         </div>
         <div className="pull-right ft_12 fc_999 text-right mt_20">

@@ -6,6 +6,7 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
+import marked from 'marked';
 // import styled from 'styled-components';
 import moment from 'moment';
 import { Button, Switch, Input, Icon, InputNumber, DatePicker } from 'antd';
@@ -90,7 +91,7 @@ class CalendarDetail extends React.Component { // eslint-disable-line react/pref
                 </div>
               </div>
               <div className="detail-body mt_20">
-                {info.content}
+                <div dangerouslySetInnerHTML={{__html: marked(info.content)}} />
               </div>
             </div>
         }
