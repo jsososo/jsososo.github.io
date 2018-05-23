@@ -3,7 +3,7 @@ import {injectGlobal} from 'styled-components';
 /* eslint no-unused-expressions: 0 */
 injectGlobal`
   *{ -webkit-font-smoothing: antialiased;}
-  hr{ border-top:1px solid #eeeeee;}
+  hr{ border:1px solid #666;}
   @mixin border-radius($value) {
   -moz-border-radius: $value;
   -webkit-border-radius: $value;

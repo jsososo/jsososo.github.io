@@ -354,3 +354,46 @@ pre {
 .pointer {
   cursor: pointer;
 }
+
+.markdown-content {
+  color: #555;
+  p {
+    margin: 5px 0;
+  }
+  h1 {
+    color: #666666;
+    margin: 10px 0;
+  }
+  h2 {
+    color: #666666;
+    margin: 9px 0;
+  }
+  h3 {
+    color: #666666;
+    margin: 8px 0;
+  }
+  h4 {
+    color: #666666;
+    margin: 7px 0;
+  }
+  h5 {
+    color: #666666;
+    margin: 6px 0;
+  }
+  h6 {
+    color: #666666;
+    margin: 5px 0;
+  }
+  code {
+    color: #F23C3C;
+    padding: 3px;
+    background: rgb(255, 239, 183);
+  }
+  a {
+    color: #1890ff;
+  }
+  hr {
+    border: 1px solid #ccc;
+    margin: 25px 0;
+  }
+}

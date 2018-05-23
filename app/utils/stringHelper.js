@@ -1,3 +1,4 @@
+import marked from 'marked';
 
 /*
 * 从浏览器url的search里获取query值
@@ -32,4 +33,18 @@ export function getQueryFromUrl(search, key) {
 
 export function shortString(str, length = 20) {
   return str.length > length ? `${str.substr(0, length - 3)}...` : str;
+}
+
+export function markdown(str) {
+  let result = str;
+  // marked插件没有对连续的回车做换行，这里手动改一改
+  result = result.replace(/\n+/g, (s) => {
+    if (s.split('\n').length > 2) {
+      const rs = new Array(s.split('\n').length - 2);
+      rs.fill('<br/>');
+      return rs.join('');
+    }
+    return s;
+  });
+  return marked(result);
 }

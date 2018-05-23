@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import marked from 'marked';
+import { markdown } from '../../utils/stringHelper';
 
 import { Slider, Button, Input, DatePicker, Switch, Modal } from 'antd';
 import moment from 'moment';
@@ -151,7 +151,7 @@ class TodoDetail extends React.Component {
                 onChange={(e) => this.changeEditInfo(e.target.value, 'content')}
               />
             </div> :
-            <div dangerouslySetInnerHTML={{__html: marked(thing.content)}} />
+            <div className="markdown-content mt_15" dangerouslySetInnerHTML={{__html: markdown(thing.content)}} />
         }
       </div>
     );

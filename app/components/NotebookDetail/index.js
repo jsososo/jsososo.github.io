@@ -8,8 +8,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 // import styled from 'styled-components';
 import timer from '../../utils/timer';
-import marked from 'marked';
-import replacePre from '../../utils/const/txtReplace';
+import { markdown } from '../../utils/stringHelper';
 
 import { Input, Button, Modal, Select } from 'antd';
 const { TextArea } = Input;
@@ -129,7 +128,7 @@ class NotebookDetail extends React.Component { // eslint-disable-line react/pref
                 onChange={(e) => this.changeInfo(e.target.value, 'content')}
               /> :
               <div id="notebook-pre">
-                {<div dangerouslySetInnerHTML={{__html: marked(editInfo.content)}} /> || '啥也没有。。。'}
+                {<div className="markdown-content" dangerouslySetInnerHTML={{__html: markdown(editInfo.content)}} /> || '啥也没有。。。'}
               </div>
           }
         </div>
