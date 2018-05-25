@@ -19,6 +19,7 @@ import {
   URL_CHANGE,
 
   QUERY_BOXES,
+  GET_USER_INFO,
 } from './constants';
 
 // The initial state of the App
@@ -27,6 +28,7 @@ const initialState = fromJS({
   error: false,
   currentUser: false,
   boxes: getBoxes(),
+  user: {},
 });
 
 function appReducer(state = initialState, action) {
@@ -46,10 +48,9 @@ function appReducer(state = initialState, action) {
     case QUERY_BOXES:
       return state
         .set('boxes', fromJS(getBoxes(...action.data)));
-    case URL_CHANGE:
-        // history.push({pathname:'/features'});
-        console.log("....");
-        break;
+    case GET_USER_INFO:
+      return state
+        .set('user', fromJS(action.data));
     default:
       return state;
   }

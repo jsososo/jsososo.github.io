@@ -22,6 +22,7 @@ import {
   URL_CHANGE,
   INIT_APP,
   QUERY_BOXES,
+  GET_USER_INFO,
 } from './constants';
 /**
  * Load the repositories, this action starts the request saga
@@ -80,6 +81,13 @@ export function initApp() {
 export function queryBoxes(data) {
   return {
     type: QUERY_BOXES,
+    data,
+  };
+}
+
+export function getUserInfo(data) {
+  return {
+    type: GET_USER_INFO,
     data,
   };
 }

@@ -11,7 +11,7 @@ import TodoDetail from './TodoDetail';
 import './index.scss';
 import { getQueryFromUrl } from '../../utils/stringHelper';
 import timer from '../../utils/timer';
-import Storage from '../../utils/localStorage';
+import Storage from '../../utils/Storage';
 
 // import styled from 'styled-components';
 

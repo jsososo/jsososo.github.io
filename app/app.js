@@ -19,7 +19,6 @@ import 'sanitize.css/sanitize.css';
 
 // Import root app
 import App from 'containers/App';
-import HeaderComponent from 'components/HeaderComponent';
 
 // Load the favicon, the manifest.json file and the .htaccess file
 /* eslint-disable import/no-webpack-loader-syntax */
@@ -43,16 +42,11 @@ const store = configureStore(initialState, history);
 const MOUNT_NODE = document.getElementById('root');
 
 class WebApp extends React.Component {
-  componentDidMount() {
-
-  }
-
   render() {
     return (
       <Provider store={store}>
         <ConnectedRouter history={history}>
           <div className="container">
-            <HeaderComponent history={history} />
             <div style={{width: '1200px', margin: '120px auto'}}>
               <App />
             </div>

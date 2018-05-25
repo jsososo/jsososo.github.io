@@ -32,38 +32,65 @@ import Todo from '../Todo'; // 计划链
 
 import Development from '../Development/Loadable'; // 开发后门
 import Info from '../Info/Loadable'; // 一些说明
+import User from '../User/Loadable'; // 用户页面
+
+import Header from '../Header/Loadable'; // 头部
+
+import { Bmob } from '../../utils/bmob';
+import Storage  from '../../utils/Storage';
 
 
 export class App extends React.Component {
   componentWillMount() {
     this.props.initApp();
     recentlyUsed.clearExpire();
-  }
-  componentWillReceiveProps() {
+    Bmob.initialize('722fd36cfde950349f5533aabbd33439', 'dc6d4b8254a412fb5896c1348fab2f5f');
+    const StorageUser = Storage.get('user');
+    if (StorageUser) {
+      Storage.queryBmob(
+        '_User',
+        (q) => {
+          q.equalTo('username', StorageUser.split('-')[0]);
+          q.equalTo('password', StorageUser.split('-')[1].split('').reverse().join(''));
+          return q;
+        },
+        (res) => {
+          const user = res ? res.attributes : { username: '游客', login: false };
+          user.login = Boolean(res);
+          this.props.getUserInfo(user);
+        },
+      );
+    }
   }
 
   render() {
     return (
       <HashRouter>
-        <Switch>
-          <Route exact path="/" component={Kit} />
-          <Route path="/img" component={ImagePage} />
-          <Route path="/search" component={SearchPage} />
+        <div>
+          <Header />
+          <Switch>
+            <Route exact path="/" component={Kit} />
+            <Route path="/img" component={ImagePage} />
+            <Route path="/search" component={SearchPage} />
 
-          {/* 工具类 */}
-          <Route path="/kit" exact component={Kit} />
-          <Route path="/kit/cashbook" component={CashBook} />
-          <Route path="/kit/notebook" component={Notebook} />
-          <Route path="/kit/calendar" component={Calendar} />
-          <Route path="/kit/milestone" component={MileStone} />
-          <Route path="/kit/todo" component={Todo} />
+            {/* 工具类 */}
+            <Route path="/kit" exact component={Kit} />
+            <Route path="/kit/cashbook" component={CashBook} />
+            <Route path="/kit/notebook" component={Notebook} />
+            <Route path="/kit/calendar" component={Calendar} />
+            <Route path="/kit/milestone" component={MileStone} />
+            <Route path="/kit/todo" component={Todo} />
 
-          {/* 开发 */}
-          <Route path="/development" component={Development} />
+            {/* 开发 */}
+            <Route path="/development" component={Development} />
 
-          {/* 说明 */}
-          <Route path="/info/" component={Info} />
-        </Switch>
+            {/* 个人中心 */}
+            <Route path="/user" component={User} />
+
+            {/* 说明 */}
+            <Route path="/info/" component={Info} />
+          </Switch>
+        </div>
       </HashRouter>
     );
   }
@@ -72,6 +99,7 @@ export class App extends React.Component {
 
 App.propTypes = {
   initApp: PropTypes.func.isRequired,
+  getUserInfo: PropTypes.func.isRequired,
 }
 const mapStateToProps = createStructuredSelector({
 });
@@ -79,6 +107,7 @@ const mapStateToProps = createStructuredSelector({
 function mapDispatchToProps(dispatch) {
   return {
     initApp: () => dispatch(Action.initApp()),
+    getUserInfo: (data) => dispatch(Action.getUserInfo(data)),
   };
 }
 

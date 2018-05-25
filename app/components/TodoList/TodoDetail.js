@@ -5,7 +5,7 @@ import { markdown } from '../../utils/stringHelper';
 import { Slider, Button, Input, DatePicker, Switch, Modal } from 'antd';
 import moment from 'moment';
 import timer from '../../utils/timer';
-import Storage from '../../utils/localStorage';
+import Storage from '../../utils/Storage';
 
 const { TextArea } = Input;
 

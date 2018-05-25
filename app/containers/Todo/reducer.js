@@ -5,7 +5,7 @@
  */
 
 import { fromJS } from 'immutable';
-import localStorage from '../../utils/localStorage';
+import localStorage from '../../utils/Storage';
 import {
   DEFAULT_ACTION,
   UPDATE_LIST,

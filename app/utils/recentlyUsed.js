@@ -1,4 +1,4 @@
-import storage from './localStorage';
+import storage from './Storage';
 import timer from './timer';
 import getBox from './const/box';
 

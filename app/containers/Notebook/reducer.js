@@ -6,7 +6,7 @@
 
 import { fromJS } from 'immutable';
 import arrayHelper from '../../utils/arrayHelper';
-import Storage from '../../utils/localStorage';
+import Storage from '../../utils/Storage';
 import {
   DEFAULT_ACTION,
   UPDATE_NOTEBOOK,

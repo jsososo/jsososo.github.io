@@ -16,7 +16,7 @@ import injectReducer from 'utils/injectReducer';
 import makeSelectTodo from './selectors';
 import reducer from './reducer';
 import saga from './saga';
-import localStorage from '../../utils/localStorage';
+import localStorage from '../../utils/Storage';
 import { Button } from 'antd';
 import TodoList from '../../components/TodoList';
 import * as Action from './actions';

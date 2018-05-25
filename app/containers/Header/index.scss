@@ -50,8 +50,8 @@
   width: 100px;
   height: 30px;
   position: relative;
-  left: calc(80% - 80px);
-  top: -30px;
+  left: calc(85% - 200px);
+  top: -33px;
   color: #555;
 
   :focus {
@@ -72,4 +72,22 @@
     left: 10px;
     width: 18px;
   }
+}
+
+// 头像
+.header-avatar {
+  position: relative;
+  left: 85%;
+  top: -73px;
+  vertical-align: top;
+  width: 45px;
+  height: 45px;
+  background: rgba(24, 144, 255, 0.7);
+  font-size: 18px;
+  line-height: 45px;
+  color: white;
+  text-align: center;
+  font-weight: 900;
+  border-radius: 50%;
+  cursor: pointer;
 }

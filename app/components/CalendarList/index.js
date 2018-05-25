@@ -13,7 +13,7 @@ import timer from '../../utils/timer';
 
 import { Button, Switch, Modal } from 'antd';
 import CalendarDetail from './CalendarDetail';
-import localStorage from '../../utils/localStorage';
+import localStorage from '../../utils/Storage';
 
 class CalendarList extends React.Component { // eslint-disable-line react/prefer-stateless-function
   constructor(props) {

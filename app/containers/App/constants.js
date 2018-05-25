@@ -16,3 +16,5 @@ export const URL_CHANGE = 'person_web/App/URL_CHANGE';
 export const INIT_APP = 'person_web/App/INIT_APP';
 
 export const QUERY_BOXES = 'person_web/APP/QUERY_BOXES';
+
+export const GET_USER_INFO = 'person_web/App/GET_USER_INFO';

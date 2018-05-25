@@ -28,7 +28,7 @@ import recentlyUsed from '../../utils/recentlyUsed';
 
 import * as Action from './actions';
 import arrayHelper from "../../utils/arrayHelper";
-import Storage from '../../utils/localStorage';
+import Storage from '../../utils/Storage';
 
 const Option = Select.Option;
 

@@ -24,7 +24,7 @@ import * as Action from './actions';
 import CalendarComponent from '../../components/CalendarComponent';
 import CalendarList from '../../components/CalendarList';
 import {getQueryFromUrl} from "../../utils/stringHelper";
-import Storage from '../../utils/localStorage';
+import Storage from '../../utils/Storage';
 
 export class Calendar extends React.PureComponent { // eslint-disable-line react/prefer-stateless-function
   componentWillMount() {

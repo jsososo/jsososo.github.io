@@ -8,9 +8,9 @@ const selectGlobal = (state) => state.get('global');
 
 const selectRoute = (state) => state.get('route');
 
-const makeSelectCurrentUser = () => createSelector(
+const makeSelectUser = () => createSelector(
   selectGlobal,
-  (globalState) => globalState.get('currentUser')
+  (globalState) => globalState.get('user').toJS()
 );
 
 const makeSelectLoading = () => createSelector(
@@ -35,7 +35,7 @@ const makeSelectBoxes = () => createSelector(
 
 export {
   selectGlobal,
-  makeSelectCurrentUser,
+  makeSelectUser,
   makeSelectLoading,
   makeSelectError,
   makeSelectLocation,
