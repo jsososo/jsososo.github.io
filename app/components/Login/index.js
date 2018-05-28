@@ -58,7 +58,12 @@ class Login extends React.Component { // eslint-disable-line react/prefer-statel
         </div>
         <div className="mt_20">
           <div className="input-label">密码：</div>
-          <Input style={{ width: '300px' }} onChange={(e) => this.onInput('password', md5(e.target.value))} type="password" />
+          <Input
+            style={{ width: '300px' }}
+            onChange={(e) => this.onInput('password', md5(e.target.value))}
+            type="password"
+            onPressEnter={() => !create && this.onLogin()}
+          />
         </div>
         {
           !create &&
@@ -73,7 +78,12 @@ class Login extends React.Component { // eslint-disable-line react/prefer-statel
             <div>
               <div className="mt_20">
                 <div className="input-label">再来一次：</div>
-                <Input style={{ width: '300px' }} onChange={(e) => this.onInput('rePassword', md5(e.target.value))} type="password" />
+                <Input
+                  style={{ width: '300px' }}
+                  onChange={(e) => this.onInput('rePassword', md5(e.target.value))}
+                  type="password"
+                  onPressEnter={() => create && this.onCreate()}
+                />
               </div>
               <div className="mt_20">
                 <div className="loss-password" onClick={() => this.setState({ create: false })}>

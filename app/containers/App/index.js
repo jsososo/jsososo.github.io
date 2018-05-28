@@ -45,29 +45,24 @@ export class App extends React.Component {
     this.props.initApp();
     recentlyUsed.clearExpire();
     Bmob.initialize('722fd36cfde950349f5533aabbd33439', 'dc6d4b8254a412fb5896c1348fab2f5f');
-    const StorageUser = Storage.get('user');
-    if (StorageUser) {
-      Storage.queryBmob(
-        '_User',
-        (q) => {
-          q.equalTo('username', StorageUser.split('-')[0]);
-          q.equalTo('password', StorageUser.split('-')[1].split('').reverse().join(''));
-          return q;
-        },
-        (res) => {
-          const user = res ? res.attributes : { username: '游客', login: false };
-          user.login = Boolean(res);
-          this.props.getUserInfo(user);
-        },
-      );
-    }
+    Storage.logIn(null, (res) => {
+      const user = res ? res.attributes : { username: '游客', login: false };
+      user.login = Boolean(res);
+      this.props.getUserInfo(user);
+    });
+  }
+
+  logOut() {
+    Storage.set('user', '-');
+    Bmob.User.logOut();
+    this.props.getUserInfo({ username: '游客', login: false });
   }
 
   render() {
     return (
       <HashRouter>
         <div>
-          <Header />
+          <Header logOut={() => this.logOut()} />
           <Switch>
             <Route exact path="/" component={Kit} />
             <Route path="/img" component={ImagePage} />

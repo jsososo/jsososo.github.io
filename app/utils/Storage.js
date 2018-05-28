@@ -1,4 +1,5 @@
 import { Bmob } from './bmob';
+import { message } from 'antd';
 const localStorage = window.localStorage;
 
 const saveBmob = (obj, cb, errCb) => {
@@ -88,6 +89,64 @@ const Storage = {
     query[type]({
       success: (res) => cb && cb(res),
       error: (err) => errCb && errCb(err),
+    });
+  },
+
+  /*
+  * 用户注册
+  * */
+  singUp(name, password, cb) {
+    const user = new Bmob.User();
+    user.set('username', name);
+    user.set('password', password);
+
+    user.signUp(null, {
+      success: cb,
+      error: () => {
+        message.error('注册失败了 = =||');
+      },
+    });
+  },
+
+  /*
+  *  用户登录
+  * */
+  logIn(userInfo, cb) {
+    if (!userInfo) {
+      const storageInfo = Storage.get('user');
+      userInfo = {
+        username: storageInfo.split('-')[0],
+        password: storageInfo.split('-')[1].split('').reverse().join(''),
+      };
+    }
+    const { username, password } = userInfo;
+    Bmob.User.logIn(username, password, {
+      success: cb,
+      error: () => {
+        message.error('登录失败了 TAT');
+      },
+    });
+  },
+
+  /*
+  * 更新用户信息
+  * */
+  updateUser(userInfo, cb) {
+    const user = Bmob.User.current();
+    Object.keys(userInfo).forEach((key) => {
+      user.set(key, userInfo[key]);
+    });
+    user.save(null, {
+      success: () => {
+        message.success('修改成功(*^▽^*)');
+        let storageInfo = Storage.get('user');
+        storageInfo = `${userInfo.username}-${storageInfo.split('-')[1]}`;
+        Storage.set('user', storageInfo);
+        cb();
+      },
+      error: () => {
+        message.warning('保存失败了 QAQ');
+      },
     });
   },
 };

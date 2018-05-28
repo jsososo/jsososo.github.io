@@ -1484,6 +1484,10 @@
 
     var xhr = new Bmob.XMLHttpRequest();
     xhr.onreadystatechange = function() {
+      // 关闭loading
+      var loading = document.getElementById('xhr-loading');
+      loading.style.display = 'none';
+
       if (xhr.readyState === 4) {
         if (handled) {
           return;
@@ -1532,6 +1536,8 @@
                            "Bmob/" + Bmob.VERSION +
                            " (NodeJS " + process.versions.node + ")");
     }
+    var loading = document.getElementById('xhr-loading');
+    loading.style.display = 'block';
     xhr.send(data);
     return promise._thenRunCallbacks(options);
   };

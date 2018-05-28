@@ -59,19 +59,12 @@ export class User extends React.PureComponent { // eslint-disable-line react/pre
         if (res) {
           message.error('你的名字被抢了');
         } else {
-          Storage.createBmob(
-            '_User',
-            user,
-            () => {
-              message.success('注册成功，马上跑路');
-              setTimeout(() => {
-                this.login(user);
-              }, 2000);
-            },
-            () => {
-              message.error('失败了，可能再试一次就成功了');
-            }
-          );
+          Storage.singUp(user.username, user.password, () => {
+            message.success('注册成功，马上跑路');
+            setTimeout(() => {
+              this.login(user);
+            }, 2000);
+          });
         }
       }
     );
@@ -87,7 +80,7 @@ export class User extends React.PureComponent { // eslint-disable-line react/pre
         </Helmet>
         {
           user.login ?
-            <UserInfo user={user} /> :
+            <UserInfo logIn={(u) => this.props.login(u)} user={user} /> :
             <Login login={(u) => this.login(u)} create={(u) => this.create(u)} />
         }
       </div>

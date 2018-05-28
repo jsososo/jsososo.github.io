@@ -5,20 +5,60 @@
 */
 
 import React from 'react';
+import PropTypes from 'prop-types';
+import { Tabs } from 'antd';
+import Info from './info';
+import './index.scss';
 // import styled from 'styled-components';
 
 
-class UserInfo extends React.PureComponent { // eslint-disable-line react/prefer-stateless-function
+class UserInfo extends React.Component { // eslint-disable-line react/prefer-stateless-function
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      current: window.location.hash.indexOf('info') > 0 ? 'info' : 'notice',
+    };
+  }
+
+  changeUrl(key) {
+    window.location = `#/user/${key}`;
+    this.setState({
+      current: key,
+    });
+  }
+
   render() {
+    const { user, logIn } = this.props;
+    const { current } = this.state;
     return (
       <div>
+        <Tabs
+          activeKey={current}
+          tabPosition="left"
+          onChange={(key) => this.changeUrl(key)}
+        >
+          <Tabs.TabPane
+           tab="个人信息"
+           key="info"
+          >
+            <Info user={user} logIn={logIn} />
+          </Tabs.TabPane>
+          <Tabs.TabPane
+            tab="消息中心"
+            key="notice"
+          >
+            null
+          </Tabs.TabPane>
+        </Tabs>
       </div>
     );
   }
 }
 
 UserInfo.propTypes = {
-
+  user: PropTypes.object,
+  logIn: PropTypes.func,
 };
 
 export default UserInfo;

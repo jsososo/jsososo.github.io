@@ -59,10 +59,7 @@ export class Header extends React.Component { // eslint-disable-line react/prefe
           {/*<h1><a href="#/img">二刺螈壁纸</a></h1>*/}
         </div>
         <Input.Search className="header-search" onSearch={(v) => { window.location = `#/search?search=${encodeURI(v)}`; }} />
-        {
-          this.props.user.login &&
-          <Avatar user={this.props.user} />
-        }
+        <Avatar logOut={this.props.logOut} user={this.props.user} />
       </div>
     );
   }
@@ -70,6 +67,7 @@ export class Header extends React.Component { // eslint-disable-line react/prefe
 
 Header.propTypes = {
   user: PropTypes.object,
+  logOut: PropTypes.func,
 };
 
 
