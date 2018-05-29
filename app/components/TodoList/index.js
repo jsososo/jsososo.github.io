@@ -163,7 +163,7 @@ class TodoList extends React.Component { // eslint-disable-line react/prefer-sta
   render() {
     const { list, createNewTodo } = this.props;
     const parentThing = list.filter((item) => item.parent === 0) || [];
-    const query = getQueryFromUrl(window.location.hash);
+    const query = getQueryFromUrl();
     const sT = list.find((item) => item.id === Number(query.id));
     const isEdit = Boolean(Number(query.edit));
 

@@ -27,22 +27,15 @@ import { message } from 'antd';
 
 export class User extends React.PureComponent { // eslint-disable-line react/prefer-stateless-function
   login(user) {
-    Storage.queryBmob(
-      '_User',
-      (q) => {
-        q.equalTo('username', user.username);
-        q.equalTo('password', user.password);
-        return q;
-      },
+    Storage.logIn(
+      user,
       (res) => {
         if (res) {
-          const userObj = res.attributes;
-          userObj.login = Boolean(res);
+          const userObj = JSON.parse(JSON.stringify(res));
+          userObj.login = true;
           this.props.login(userObj);
           Storage.set('user', `${user.username}-${user.password.split('').reverse().join('')}`)
           window.location = '#/';
-        } else {
-          message.error('账号密码错误！');
         }
       },
     );

@@ -10,59 +10,67 @@ import PropTypes from 'prop-types';
 import timer from '../../utils/timer';
 import { markdown } from '../../utils/stringHelper';
 
-import { Input, Button, Modal, Select } from 'antd';
+import { Input, Button, Modal, Select, message } from 'antd';
 const { TextArea } = Input;
+const { Option } = Select;
+
+import ArrayHelper from '../../utils/arrayHelper';
+import { changeUrlQuery } from "../../utils/stringHelper";
 
 class NotebookDetail extends React.Component { // eslint-disable-line react/prefer-stateless-function
   constructor(props) {
     super(props);
 
     this.state = {
-      edit: false,
+      edit: props.edit,
       editInfo: JSON.parse(JSON.stringify(props.info)),
     };
   }
 
-  /*
-  *  标签替换（可以引入图片，文字颜色，字体大小，粗细等功能）
-  * */
-  // replaceTxt() {
-  //   if (!this.state.edit) {
-  //     const preDom = document.getElementById('notebook-pre');
-  //     let txt = preDom.innerText;
-  //     replacePre.forEach((obj) => {
-  //       const resultArr = txt.match(obj.reg);
-  //       if (resultArr && resultArr.length) {
-  //         resultArr.forEach((result) => {
-  //           let newTxt = result;
-  //           obj.del.forEach((dT) => {
-  //             newTxt = newTxt.replace(dT, '');
-  //           });
-  //           txt = txt.replace(result, `${obj.before.replace('RESULT', newTxt)}${newTxt}${obj.after}`);
-  //         });
-  //       }
-  //     });
-  //     preDom.innerHTML = txt;
-  //   }
-  // }
+  componentWillReceiveProps(nextProps) {
+    this.setState({
+      edit: nextProps.edit,
+      editInfo: JSON.parse(JSON.stringify(nextProps.info)),
+    });
+  }
 
   changeInfo(v, k) {
+    const { tags } = this.props;
     const { editInfo } = this.state;
     editInfo[k] = v;
+    // 修改标签的时候，如果是新增标签，需要掉接口更新
+    if (k === 'tags') {
+      const newTags = ArrayHelper.delDuplicate(tags, v);
+      if (newTags.length > tags.length) {
+        this.props.updateTags(newTags);
+      }
+    }
     this.setState({
       editInfo,
     });
   }
 
-  changeEdit(edit) {
-    if (edit) {
-      this.props.saveChange(this.state.editInfo);
+  /*
+  *  修改编辑状态，需要判断是否为保存
+  * */
+  changeEdit(edit, save = true) {
+    if (save) {
+      const _this = this;
+      const cb = () => {
+        message.success('保存成功~');
+        _this.changeEdit(true, false);
+      };
+      this.props.saveChange(this.state.editInfo, cb);
     }
+    changeUrlQuery({ edit: !edit });
     this.setState({
       edit: !edit,
     });
   }
 
+  /*
+  *  删除单个笔记
+  * */
   delNote() {
     Modal.confirm({
       title: '删除',
@@ -70,7 +78,7 @@ class NotebookDetail extends React.Component { // eslint-disable-line react/pref
       okText: '确认',
       cancelText: '取消',
       onOk: () => {
-        this.props.delNote(this.props.info.id);
+        this.props.delNote(this.props.info.objectId);
       },
     });
   }
@@ -89,14 +97,14 @@ class NotebookDetail extends React.Component { // eslint-disable-line react/pref
                 size="large"
                 onChange={(e) => this.changeInfo(e.target.value, 'title')}
                 value={editInfo.title}
-              /> : info.title
+              /> : (info.title || '无题')
             }
           </span>
           <span className="pull-right">
-            <Button type="primary" onClick={() => this.changeEdit(edit)} className="mr_10">{edit ? '保存' : '编辑'}</Button>
+            <Button type="primary" onClick={() => this.changeEdit(edit, edit)} className="mr_10">{edit ? '保存' : '编辑'}</Button>
             {
               edit ?
-                <Button onClick={() => this.setState({ edit: !edit, editInfo: JSON.parse(JSON.stringify(info)) })}>取消</Button>
+                <Button onClick={() => this.changeEdit(edit, false)}>取消</Button>
                 : <Button type="danger" onClick={() => this.delNote()} >删除</Button>
             }
           </span>
@@ -146,6 +154,8 @@ NotebookDetail.propTypes = {
   delNote: PropTypes.func.isRequired,
   tags: PropTypes.array.isRequired,
   saveChange: PropTypes.func.isRequired,
+  updateTags: PropTypes.func.isRequired,
+  edit: PropTypes.bool,
 };
 
 export default NotebookDetail;

@@ -28,7 +28,7 @@ const typeMap = {
 
 export class SearchPage extends React.PureComponent { // eslint-disable-line react/prefer-stateless-function
   render() {
-    const searchWords = getQueryFromUrl(this.props.location.search, 'search');
+    const searchWords = getQueryFromUrl('search');
     const boxes = getBox('', searchWords);
     let boxesArray = [];
     let result = [<span key="search-result">共找到</span>];

@@ -14,7 +14,7 @@ class TodoThing extends React.PureComponent {
   render() {
     const { thing, list, updateThing, noBorder, updateStatus } = this.props;
     const childrenList = list.filter((item) => item.parent === thing.id) || [];
-    const nowId = getQueryFromUrl(window.location.hash, 'id');
+    const nowId = getQueryFromUrl('id');
     return (
       <div className={`pt_10 todo-list-item ${noBorder ? 'no-border' : ''}`}>
         <div>

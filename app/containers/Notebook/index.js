@@ -23,18 +23,25 @@ import NotebookDetail from '../../components/NotebookDetail';
 import { Button, Select, message } from 'antd';
 import timer from '../../utils/timer';
 import { getQueryFromUrl } from "../../utils/stringHelper";
-import Num from '../../utils/num';
 import recentlyUsed from '../../utils/recentlyUsed';
 
 import * as Action from './actions';
 import arrayHelper from "../../utils/arrayHelper";
 import Storage from '../../utils/Storage';
+import { makeSelectUser } from "../App/selectors";
+import { checkLogIn } from "../App/index";
 
 const Option = Select.Option;
 
 export class Notebook extends React.PureComponent { // eslint-disable-line react/prefer-stateless-function
   componentWillMount() {
     recentlyUsed.set('记事本', 'kit');
+    if (checkLogIn('记事本')) {
+      this.queryNoteBooks();
+      this.queryAllTags();
+    } else {
+      this.props.updateNotebook([]);
+    }
   }
 
   componentDidMount() {
@@ -44,65 +51,154 @@ export class Notebook extends React.PureComponent { // eslint-disable-line react
     }
   }
 
+  /*
+  *  查找所有该用户的notebook
+  * */
+  queryNoteBooks(cb) {
+    const { user } = this.props;
+    Storage.queryBmob(
+      'Notebook',
+      (q) => {
+        q.equalTo('author', user.username);
+        q.limit(1000);
+        return q;
+      },
+      (res) => {
+        this.props.updateNotebook(res || []);
+        if (cb) {
+          cb();
+        }
+      },
+      () => {
+        message.error('找着找着就出问题了 = =||');
+      },
+      'find'
+    );
+  }
+
+  /*
+  *  新建记事本
+  * */
   createNote() {
-    const localNotebook = this.props.notebook.localNotebook;
-    const id = !localNotebook.length ? 1 : localNotebook[localNotebook.length - 1].id + 1;
-    localNotebook.push({
-      id,
-      title: '新东西',
-      content: '',
-      tags: [],
-      createTime: timer().time,
-      lastEditTime: timer().time,
-    });
-    this.updateList(localNotebook);
-    window.location = `#/kit/notebook/detail/?id=${id}`;
-  }
-
-  updateList(localNotebook) {
-    Storage.set('p_notebook', localNotebook, true);
-    this.props.updateNotebook(localNotebook);
-  }
-
-  saveChange(info) {
-    const { localNotebook } = this.props.notebook;
-    localNotebook.forEach((item, index) => {
-      if (item.id === info.id) {
-        localNotebook[index] = info;
-        localNotebook[index].lastEditTime = timer().time;
+    const { user } = this.props;
+    Storage.createBmob(
+      'Notebook',
+      {
+        author: user.username,
+        created: timer().time,
+        lastEdit: timer().time,
+        title: '',
+        content: '',
+        tags: [],
+      },
+      (res) => {
+        this.queryNoteBooks(() => {
+          window.location = `#/kit/notebook/detail/?id=${res.id}&edit=true`;
+        });
+      },
+      () => {
+        message.error('创建失败 = =||');
       }
-    });
-    const tags = arrayHelper.delDuplicate(this.props.notebook.tags, info.tags);
-    Storage.set('p_n_tags', tags, true);
-    this.props.changeTags(tags);
-    this.updateList(localNotebook);
+    );
+    // window.location = `#/kit/notebook/detail/?id=${id}`;
   }
 
+  /*
+  *  获取所有的标签
+  * */
+  queryAllTags() {
+    const { user } = this.props;
+    Storage.queryBmob(
+      'Tags',
+      (q) => {
+        q.equalTo('username', user.username);
+        return q;
+      },
+      (res) => {
+        this.props.changeTags(res);
+      }
+    );
+  }
+
+  /*
+  * 更新tags
+  * */
+  updateTags(tags, cb = () => message.success('新增成功~')) {
+    const { user, notebook } = this.props;
+    const { tagsBmob } = notebook;
+    const value = {
+      username: user.username,
+      notebook: tags,
+    };
+    const callback = () => {
+      this.queryAllTags();
+      cb();
+    };
+    if (!tagsBmob.objectId) {
+      Storage.createBmob('Tags', value, callback);
+    } else {
+      Storage.setBmob('Tags', tagsBmob.objectId, value, callback);
+    }
+  }
+
+  /*
+  *  保存单个笔记
+  * */
+  saveChange(info, cb) {
+    info.lastEdit = timer().time;
+    Storage.setBmob(
+      'Notebook',
+      info.objectId,
+      info,
+      () => this.queryNoteBooks(cb),
+      () => message.error('保存出问题了呀'),
+    );
+  }
+
+  /*
+  * 删除笔记
+  * */
   delNote(id) {
-    const { localNotebook } = this.props.notebook;
-    this.updateList(localNotebook.filter((item) => item.id !== id));
+    Storage.delBmob(
+      'Notebook',
+      id,
+      () => this.queryNoteBooks(() => window.location = '#/kit/notebook'),
+      () => message.error('删除出错啦'));
   }
 
+  /*
+  *  清空空标签
+  * */
   clearTags() {
     let tags = [];
-    this.props.notebook.localNotebook.forEach((item) => tags = [...tags, ...item.tags]);
+    const _this = this;
+    this.props.notebook.list.forEach((item) => tags = [...tags, ...item.tags]);
     tags = arrayHelper.delDuplicate(tags);
-    message.success('已清空空标签~');
-    Storage.set('p_n_tags', tags, true);
-    this.props.changeTags(tags);
+    this.updateTags(tags, () => {
+      message.success('已清空空标签~');
+      _this.props.selectTags(arrayHelper.getDuplicate(tags, Storage.get('p_n_select_tags', true, '[]')));
+    });
   }
 
   render() {
     const { location, notebook, selectTags } = this.props;
+    // 根据 url 决定是否筛选为 detail 和是否 编辑
     let isIndex = location.pathname !== '/kit/notebook/detail/';
     let info = {};
+    let edit = false;
     if (!isIndex) {
-      const id = Num(getQueryFromUrl(location.search, 'id'));
-      info = notebook.list.find((item) => item.id === id);
+      const search = getQueryFromUrl();
+      info = notebook.list.find((item) => item.objectId === search.id);
       if (!info) {
         isIndex = true;
+      } else {
+        edit = search.edit ? JSON.parse(search.edit) : false;
       }
     }
+    // 根据选择的标签来筛选订单
+    const list = notebook.sTags.length > 0 ?
+      notebook.list.filter((item) => arrayHelper.hasDuplicate(item.tags, notebook.sTags)) :
+      notebook.list;
 
     return (
       <div>
@@ -119,28 +215,28 @@ export class Notebook extends React.PureComponent { // eslint-disable-line react
                   type="primary"
                   onClick={() => this.createNote()}
                 >新建</Button>
+                <div className="inline-block">
+                  <Select
+                    value={notebook.sTags}
+                    className="ml_20"
+                    style={{ minWidth: '200px' }}
+                    mode="tags"
+                    placeholder="Select tags"
+                    onChange={selectTags}
+                  >
+                    {notebook.tags.map((item) => <Option value={item} key={`tag-o-${item}`}>{item}</Option>)}
+                  </Select>
+                  <Button className="ml_5" onClick={() => this.clearTags()} type="danger">清空空标签</Button>
+                </div>
                 {
-                  notebook.tags.length !== 0 &&
-                  <div className="inline-block">
-                    <Select
-                      value={Storage.get('p_n_select_tags', true, '[]')}
-                      className="ml_20"
-                      style={{ minWidth: '200px' }}
-                      mode="tags"
-                      placeholder="Select tags"
-                      onChange={selectTags}
-                    >
-                      {notebook.tags.map((item) => <Option value={item} key={`tag-o-${item}`}>{item}</Option>)}
-                    </Select>
-                    <Button className="ml_5" onClick={() => this.clearTags()} type="danger">清空空标签</Button>
-                  </div>
+                  list.length === 0 &&
+                  <div className="mt_20" style={{ marginLeft: '2.5%' }}>啥也没有，还不快去记笔记</div>
                 }
                 <div className="mt_15">
                   {
-                    notebook.list.map((item) =>
+                    list.map((item) =>
                       <NotebookCard
-                        delNote={(id) => this.delNote(id)}
-                        key={`nb-${item.id}`}
+                        key={`nb-${item.objectId}`}
                         info={item}
                       />)
                   }
@@ -150,7 +246,9 @@ export class Notebook extends React.PureComponent { // eslint-disable-line react
           {
             !isIndex &&
             <NotebookDetail
-              tags={notebook.tags}
+              edit={edit}
+              tags={notebook.tags || []}
+              updateTags={(t) => this.updateTags(t)}
               delNote={(id) => this.delNote(id)}
               saveChange={(d) => this.saveChange(d)}
               info={info}
@@ -168,10 +266,12 @@ Notebook.propTypes = {
   updateNotebook: PropTypes.func.isRequired,
   selectTags: PropTypes.func.isRequired,
   changeTags: PropTypes.func.isRequired,
+  user: PropTypes.object.isRequired,
 };
 
 const mapStateToProps = createStructuredSelector({
   notebook: makeSelectNotebook(),
+  user: makeSelectUser(),
 });
 
 function mapDispatchToProps(dispatch) {

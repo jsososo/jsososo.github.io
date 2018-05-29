@@ -7,8 +7,7 @@ import marked from 'marked';
 * @params key: 想要筛选得到的值， 选填（如果未填，返回一个包含所有query信息的object）
 *
 * */
-
-export function getQueryFromUrl(search, key) {
+export function getQueryFromUrl(key, search = window.location.hash) {
   try {
     const sArr = search.split('?');
     let s = '';
@@ -31,6 +30,21 @@ export function getQueryFromUrl(search, key) {
   }
 }
 
+export function changeUrlQuery(obj) {
+  const query = getQueryFromUrl();
+  const url = window.location.hash.split('?')[0];
+
+  const newQuery = {...query, ...obj};
+  let queryStr = '';
+  Object.keys(newQuery).forEach((key) => {
+    queryStr += `&${key}=${newQuery[key]}`;
+  });
+  window.location = `${url}?${queryStr.substr(1)}`;
+}
+
+/*
+* 将长的字符串切割成短的，以 ...结尾
+* */
 export function shortString(str, length = 20) {
   return str.length > length ? `${str.substr(0, length - 3)}...` : str;
 }
@@ -42,6 +56,8 @@ export function markdown(str) {
     if (s.split('\n').length > 2) {
       const rs = new Array(s.split('\n').length - 2);
       rs.fill('<br/>');
+      // marked插件的有一个问题，## 在连续<br/>后面不起作用，需要放一个 \t 进来
+      rs.push('\t');
       return rs.join('');
     }
     return s;

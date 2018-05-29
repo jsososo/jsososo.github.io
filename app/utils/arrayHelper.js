@@ -1,4 +1,7 @@
 const arrayHelper = {
+  /*
+  *  删除数组内相同的元素（简单类型）
+  * */
   delDuplicate: (arr1, arr2 = []) => {
     const arr = [...arr1, ...arr2];
     const result = [];
@@ -9,6 +12,9 @@ const arrayHelper = {
     });
     return result;
   },
+  /*
+  *  删除数组内指定键值相同的元素
+  * */
   delDuplicateObj: (arr, keys) => {
     const arrLen = [];
     const result = [];
@@ -24,6 +30,9 @@ const arrayHelper = {
     });
     return result;
   },
+  /*
+  *  把对象内的键值转换成数组
+  * */
   objToArr: (obj) => {
     const result = [];
     Object.keys(obj).forEach((key) => {
@@ -31,9 +40,15 @@ const arrayHelper = {
     });
     return result;
   },
+  /*
+  *  判断数组内是有有相同的元素
+  * */
   hasDuplicate: (arr1, arr2) => {
     return arrayHelper.getDuplicate(arr1, arr2).length !== 0;
   },
+  /*
+  *  获取两个数组内重复的元素
+  * */
   getDuplicate: (arr1, arr2) => {
     const result = [];
     arr1.forEach((item) => {

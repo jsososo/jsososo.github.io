@@ -18,7 +18,7 @@ class Avator extends React.PureComponent { // eslint-disable-line react/prefer-s
         className="header-avatar"
         style={user.avatar ? { background: 'none' } : {}}
       >
-        <img src={user.avatar} className="header-avatar-img" />
+        { user.avatar && <img src={user.avatar} className="header-avatar-img" />}
         <div
           className="avatar-content"
           onClick={() => window.location = '#/user/info'}

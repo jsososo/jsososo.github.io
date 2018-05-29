@@ -33,7 +33,7 @@ export class MileStone extends React.PureComponent { // eslint-disable-line reac
   }
 
   pageScroll() {
-    const id = getQueryFromUrl(this.props.location.search, 'id');
+    const id = getQueryFromUrl('id');
     const dom = document.getElementById(`milestone-${id}`);
     if (dom) {
       window.scrollTo(0, dom.offsetTop - 100);

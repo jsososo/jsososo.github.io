@@ -38,24 +38,58 @@ import Header from '../Header/Loadable'; // 头部
 
 import { Bmob } from '../../utils/bmob';
 import Storage  from '../../utils/Storage';
+import { makeSelectUser } from "./selectors";
+import { Modal } from 'antd';
 
+/*
+*  判断用户是否登录，部分功能需要登录才能使用
+* */
+export const checkLogIn = (page) => {
+  if (!Bmob.User.current()) {
+    Modal.confirm({
+      iconType: 'warning',
+      content: `${page}功能需要登录才能使用哟~`,
+      okText: '登录去',
+      cancelText: '算了算了',
+      onCancel() {
+        return new Promise((res) => {
+          window.location = '#';
+          res();
+        });
+      },
+      onOk() {
+        return new Promise((res) => {
+          window.location = '#/user/info';
+          res();
+        });
+      },
+    });
+    return false;
+  }
+  return true;
+};
 
 export class App extends React.Component {
   componentWillMount() {
     this.props.initApp();
     recentlyUsed.clearExpire();
     Bmob.initialize('722fd36cfde950349f5533aabbd33439', 'dc6d4b8254a412fb5896c1348fab2f5f');
+    // 自动登录
     Storage.logIn(null, (res) => {
       const user = res ? res.attributes : { username: '游客', login: false };
       user.login = Boolean(res);
       this.props.getUserInfo(user);
-    });
+    }, null);
   }
 
+  /*
+  *  退出登录
+  * */
   logOut() {
     Storage.set('user', '-');
     Bmob.User.logOut();
     this.props.getUserInfo({ username: '游客', login: false });
+    window.location = '#';
   }
 
   render() {
@@ -95,8 +129,10 @@ export class App extends React.Component {
 App.propTypes = {
   initApp: PropTypes.func.isRequired,
   getUserInfo: PropTypes.func.isRequired,
+  user: PropTypes.object.isRequired,
 }
 const mapStateToProps = createStructuredSelector({
+  user: makeSelectUser(),
 });
 
 function mapDispatchToProps(dispatch) {

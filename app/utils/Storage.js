@@ -87,7 +87,7 @@ const Storage = {
   queryBmob(table, fun, cb, errCb, type = 'first') {
     const query = getQueryBmob(table, fun);
     query[type]({
-      success: (res) => cb && cb(res),
+      success: (res) => cb && cb(res && JSON.parse(JSON.stringify(res))),
       error: (err) => errCb && errCb(err),
     });
   },
@@ -114,6 +114,9 @@ const Storage = {
   logIn(userInfo, cb) {
     if (!userInfo) {
       const storageInfo = Storage.get('user');
+      if (!storageInfo) {
+        return;
+      }
       userInfo = {
         username: storageInfo.split('-')[0],
         password: storageInfo.split('-')[1].split('').reverse().join(''),

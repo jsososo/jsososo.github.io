@@ -39,7 +39,7 @@ export class Calendar extends React.PureComponent { // eslint-disable-line react
 
   updateFromUrl(props) {
     const { location, changeCalendarInfo, calendar } = props;
-    const date = getQueryFromUrl(location.search, 'date') || timer().str();
+    const date = getQueryFromUrl('date') || timer().str();
 
     if (date !== calendar.selected.str()) {
       changeCalendarInfo({
@@ -51,7 +51,7 @@ export class Calendar extends React.PureComponent { // eslint-disable-line react
   }
 
   changeSelected(data) {
-    this.props.history.push(`?date=${timer(data).str()}&id=${Number(getQueryFromUrl(this.props.location.search, 'id') || 0)}`);
+    this.props.history.push(`?date=${timer(data).str()}&id=${Number(getQueryFromUrl('id') || 0)}`);
     this.props.changeSelectedDate(data);
     this.props.queryList(timer(data).str('YYYYMMDD'));
   }
@@ -80,7 +80,7 @@ export class Calendar extends React.PureComponent { // eslint-disable-line react
             localList={localList}
           />
           <CalendarList
-            thingId={Number(getQueryFromUrl(location.search, 'id') || 0)}
+            thingId={Number(getQueryFromUrl('id') || 0)}
             localList={localList}
             list={list}
             selected={selected}

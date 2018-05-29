@@ -5,7 +5,6 @@
  */
 
 import { fromJS } from 'immutable';
-import arrayHelper from '../../utils/arrayHelper';
 import Storage from '../../utils/Storage';
 import {
   DEFAULT_ACTION,
@@ -14,13 +13,11 @@ import {
   CHANGE_TAGS,
 } from './constants';
 
-const localNotebook = Storage.get('p_notebook', true, '[]');
-const tags = Storage.get('p_n_tags', true, '[]');
-
 const initialState = fromJS({
-  localNotebook,
-  list: localNotebook,
-  tags,
+  list: [],
+  tags: [],
+  sTags: [],
+  tagsBmob: {},
 });
 
 function notebookReducer(state = initialState, action) {
@@ -29,20 +26,15 @@ function notebookReducer(state = initialState, action) {
       return state;
     case UPDATE_NOTEBOOK:
       return state
-        .set('localNotebook', fromJS(action.data))
         .set('list', fromJS(action.data));
     case CHANGE_TAGS:
       return state
-        .set('tags', fromJS(action.data));
+        .set('tagsBmob', fromJS(action.data || {}))
+        .set('tags', fromJS(action.data ? action.data.notebook : []));
     case SELECT_TAGS:
-      Storage.set('p_n_select_tags', action.data, true);
-      if (action.data.length) {
-        return state
-          .set('list', fromJS(state.toJS().localNotebook.filter((item) => arrayHelper.hasDuplicate(item.tags, action.data))));
-      } else {
-        return state
-          .set('list', state.get('localNotebook'));
-      }
+      Storage.set('p_n_select_tags', action.data || [], true);
+      return state
+        .set('sTags', fromJS(action.data || []));
     default:
       return state;
   }
