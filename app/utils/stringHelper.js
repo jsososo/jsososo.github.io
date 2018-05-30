@@ -59,44 +59,7 @@ export function markdown(str) {
 function replaceTextForMarkdown(str) {
   let result = str;
 
-  const replace = [
-    // h1,h2等
-    {
-      reg: /(^|\n)#+(.+)(?=(\n))/g,
-      fun: (s) => {
-        const hMatch = s.match(/(#+)(.+)/);
-        if (hMatch && hMatch[1].length < 7) {
-          return `<br/><h${hMatch[1].length}>${hMatch[2]}</h${hMatch[1].length}>`;
-        }
-        return s;
-      },
-    },
-    // 空格后换行
-    {
-      reg: /\s{2,}\n?/g,
-      fun: (s) => {
-        if (s.split('\n').length > 1) {
-          const rs = new Array(s.split('\n').length - 1);
-          rs.fill('\n');
-          return rs.join('');
-        }
-        return s;
-      },
-    },
-    // 连续换行
-    {
-      reg: /\n+/g,
-      fun: (s) => {
-        if (s.split('\n').length > 2) {
-          const rs = new Array(s.split('\n').length - 2);
-          rs.fill('<br/>');
-          return rs.join('');
-        } else {
-          return ' ';
-        }
-      },
-    },
-  ];
+  const replace = [];
   const colors = ['red', 'orange', 'blue'];
   colors.forEach((item) => {
     replace.unshift({
