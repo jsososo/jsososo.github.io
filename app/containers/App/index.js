@@ -44,7 +44,7 @@ import { Modal } from 'antd';
 /*
 *  判断用户是否登录，部分功能需要登录才能使用
 * */
-export const checkLogIn = (page) => {
+export const checkLogIn = (page, cancel = () => window.location = '#') => {
   if (!Bmob.User.current()) {
     Modal.confirm({
       iconType: 'warning',
@@ -53,7 +53,7 @@ export const checkLogIn = (page) => {
       cancelText: '算了算了',
       onCancel() {
         return new Promise((res) => {
-          window.location = '#';
+          cancel();
           res();
         });
       },

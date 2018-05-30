@@ -51,16 +51,68 @@ export function shortString(str, length = 20) {
 
 export function markdown(str) {
   let result = str;
-  // marked插件没有对连续的回车做换行，这里手动改一改
-  result = result.replace(/\n+/g, (s) => {
-    if (s.split('\n').length > 2) {
-      const rs = new Array(s.split('\n').length - 2);
-      rs.fill('<br/>');
-      // marked插件的有一个问题，## 在连续<br/>后面不起作用，需要放一个 \t 进来
-      rs.push('\t');
-      return rs.join('');
-    }
-    return s;
-  });
+  // marked插件里有一些不足，这里自己改造一下
+  result = replaceTextForMarkdown(str);
   return marked(result);
+}
+
+function replaceTextForMarkdown(str) {
+  let result = str;
+
+  const replace = [
+    // h1,h2等
+    {
+      reg: /(^|\n)#+(.+)(?=(\n))/g,
+      fun: (s) => {
+        const hMatch = s.match(/(#+)(.+)/);
+        if (hMatch && hMatch[1].length < 7) {
+          return `<br/><h${hMatch[1].length}>${hMatch[2]}</h${hMatch[1].length}>`;
+        }
+        return s;
+      },
+    },
+    // 空格后换行
+    {
+      reg: /\s{2,}\n?/g,
+      fun: (s) => {
+        if (s.split('\n').length > 1) {
+          const rs = new Array(s.split('\n').length - 1);
+          rs.fill('\n');
+          return rs.join('');
+        }
+        return s;
+      },
+    },
+    // 连续换行
+    {
+      reg: /\n+/g,
+      fun: (s) => {
+        if (s.split('\n').length > 2) {
+          const rs = new Array(s.split('\n').length - 2);
+          rs.fill('<br/>');
+          return rs.join('');
+        } else {
+          return ' ';
+        }
+      },
+    },
+  ];
+  const colors = ['red', 'orange', 'blue'];
+  colors.forEach((item) => {
+    replace.unshift({
+      reg: new RegExp(`#(${item}) (.+) ${item}#`, 'g'),
+      fun: (s) => {
+        const reg = new RegExp(`#(${item}) (.+) ${item}#`);
+        const cMatch = s.match(reg);
+        if (cMatch) {
+          return `<span class="fc_${cMatch[1]}">${cMatch[2]}</span>`;
+        }
+        return s;
+      },
+    });
+  });
+  replace.forEach((item) => {
+    result = result.replace(item.reg, item.fun);
+  });
+  return result;
 }
