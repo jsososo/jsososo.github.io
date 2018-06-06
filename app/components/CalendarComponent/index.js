@@ -24,6 +24,12 @@ class CalendarComponent extends React.Component { // eslint-disable-line react/p
     };
   }
 
+  /*
+  *  修改日历
+  *  @params y:       年
+  *  @params m:       月
+  *  @params needCal: 是否需要计算
+  * */
   changeCalendar(y, m, needCal) {
     let {year, month} = this.props;
     if (needCal) {
@@ -48,17 +54,22 @@ class CalendarComponent extends React.Component { // eslint-disable-line react/p
   }
 
   render() {
-    const { year, month, selected, changeSelected, localList } = this.props;
+    const { year, month, selected, changeSelected, list } = this.props;
     const cArr = getCalendar(year, month);
     const isThisMonth = selected.month === month && selected.year === year;
 
     return (
       <div className="calendar-box">
-        <div className="ml_10 mb_20">
-          <Button type="default" onClick={() => {
-            this.changeCalendar(timer().year, timer().month);
-            changeSelected(timer());
-          }}
+        <div className="mb_20">
+          <a href="#/kit/">
+            <Icon type="arrow-left" className="pointer ft_20 mr_20 mt_5 vat"/>
+          </a>
+          <Button
+            type="default"
+            onClick={() => {
+              this.changeCalendar(timer().year, timer().month);
+              changeSelected(timer());
+            }}
           >回到今天</Button>
           <Button type="primary" className="ml_20"><a href="#/kit/milestone?id=today">前往里程碑</a></Button>
         </div>
@@ -127,7 +138,7 @@ class CalendarComponent extends React.Component { // eslint-disable-line react/p
                     >
                       <Badge
                         dot
-                        count={localList[`${year}${formatNumber(month)}${formatNumber(d)}`] ? localList[`${year}${formatNumber(month)}${formatNumber(d)}`].length : 0}
+                        count={list[`${year}${formatNumber(month)}${formatNumber(d)}`] ? list[`${year}${formatNumber(month)}${formatNumber(d)}`].length : 0}
                       ><span className="pr_5 pt_5">{d !== 0 && d}</span></Badge>
                     </div>
                   )
@@ -147,7 +158,7 @@ CalendarComponent.propTypes = {
   selected: PropTypes.object.isRequired,
   changeCalendar: PropTypes.func.isRequired,
   changeSelected: PropTypes.func.isRequired,
-  localList: PropTypes.object.isRequired,
+  list: PropTypes.object.isRequired,
 };
 
 export default CalendarComponent;

@@ -23,22 +23,82 @@ import * as Action from './actions';
 
 import CalendarComponent from '../../components/CalendarComponent';
 import CalendarList from '../../components/CalendarList';
-import {getQueryFromUrl} from "../../utils/stringHelper";
+import { getQueryFromUrl} from "../../utils/stringHelper";
 import Storage from '../../utils/Storage';
+import { makeSelectUser } from "../App/selectors";
+import { changeUrlQuery } from "../../utils/stringHelper";
+
+import { message } from 'antd';
 
 export class Calendar extends React.PureComponent { // eslint-disable-line react/prefer-stateless-function
   componentWillMount() {
     recentlyUsed.set('日历', 'kit');
-    this.props.updateList(Storage.get('p_c_list', true, '{}'));
     this.updateFromUrl(this.props);
+    this.getAllThing();
   }
 
   componentWillReceiveProps(nextProps) {
     this.updateFromUrl(nextProps);
   }
 
+  // 获取当前用户的所有事情列表
+  getAllThing(cb) {
+    const { user } = this.props;
+    Storage.queryBmob(
+      'Thing',
+      (q) => {
+        q.equalTo('user', user.username);
+        q.limit(1000);
+        return q;
+      },
+      (res) => {
+        const calendarList = {};
+        // 把事件按照日期为 key 进行分类
+        res.forEach((item) => {
+          if (item.time) {
+            const dStr = timer(item.time).str('YYYYMMDD');
+            if (!calendarList[dStr]) {
+              calendarList[dStr] = [];
+            }
+            calendarList[dStr].push(item);
+          }
+        });
+        this.props.queryList(calendarList);
+        if (cb) {
+          cb();
+        }
+      },
+      () => message.error('获取事件失败'),
+      'find',
+    );
+  }
+
+  // 新建一件事
+  createThing(selected) {
+    const { user } = this.props;
+    Storage.createBmob(
+      'Thing',
+      {
+        user: user.username,
+        time: selected.time,
+        milestone: false,
+        notice: false,
+        title: '',
+        content: '',
+      },
+      (res) => this.getAllThing(() => {
+        changeUrlQuery({
+          id: res.id,
+          edit: true,
+        });
+      }),
+      () => message.error('创建失败 = ='),
+    );
+  }
+
+  // 根据传入的url更新一些状态
   updateFromUrl(props) {
-    const { location, changeCalendarInfo, calendar } = props;
+    const { changeCalendarInfo, calendar } = props;
     const date = getQueryFromUrl('date') || timer().str();
 
     if (date !== calendar.selected.str()) {
@@ -50,21 +110,48 @@ export class Calendar extends React.PureComponent { // eslint-disable-line react
     }
   }
 
+  // 修改选择的日期
   changeSelected(data) {
-    this.props.history.push(`?date=${timer(data).str()}&id=${Number(getQueryFromUrl('id') || 0)}`);
+    changeUrlQuery({
+      date: timer(data).str(),
+      id: undefined,
+      edit: undefined,
+    });
     this.props.changeSelectedDate(data);
-    this.props.queryList(timer(data).str('YYYYMMDD'));
   }
 
-  updateList(data) {
-    Storage.set('p_c_list', data, true);
-    this.props.updateList(data);
-    this.props.queryList(this.props.calendar.selected.str('YYYYMMDD'));
+  // 保存修改
+  saveThing(thing, cb) {
+    Storage.setBmob(
+      'Thing',
+      thing.objectId,
+      thing,
+      () => {
+        this.getAllThing(cb);
+      },
+      () => {
+        message.error('保存出错了 > <!!');
+      }
+    );
+  }
+
+  // 删除一件事
+  delThing(thing, cb) {
+    Storage.delBmob(
+      'Thing',
+      thing.objectId,
+      () => {
+        this.getAllThing(cb);
+      },
+      () => {
+        message.error('删除失败了 -。-');
+      }
+    );
   }
 
   render() {
-    const { calendar, changeCalendarInfo, history, location } = this.props;
-    const { calendarInfo, selected, localList, list } = calendar;
+    const { calendar, changeCalendarInfo } = this.props;
+    const { calendarInfo, selected, list } = calendar;
     return (
       <div>
         <Helmet>
@@ -77,15 +164,15 @@ export class Calendar extends React.PureComponent { // eslint-disable-line react
             changeCalendar={changeCalendarInfo}
             {...calendarInfo}
             selected={selected}
-            localList={localList}
+            list={list}
           />
           <CalendarList
-            thingId={Number(getQueryFromUrl('id') || 0)}
-            localList={localList}
+            saveThing={(t, cb) => this.saveThing(t, cb)}
+            createThing={(s) => this.createThing(s)}
+            thingId={getQueryFromUrl('id')}
             list={list}
             selected={selected}
-            history={history}
-            updateList={(d) => this.updateList(d)}
+            delThing={(thing, cb) => this.delThing(thing, cb)}
           />
         </div>
       </div>
@@ -98,13 +185,12 @@ Calendar.propTypes = {
   changeCalendarInfo: PropTypes.func.isRequired,
   changeSelectedDate: PropTypes.func.isRequired,
   queryList: PropTypes.func.isRequired,
-  updateList: PropTypes.func.isRequired,
-  history: PropTypes.object.isRequired,
-  location: PropTypes.object.isRequired,
+  user: PropTypes.object,
 };
 
 const mapStateToProps = createStructuredSelector({
   calendar: makeSelectCalendar(),
+  user: makeSelectUser(),
 });
 
 function mapDispatchToProps(dispatch) {

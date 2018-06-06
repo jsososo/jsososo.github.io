@@ -80,6 +80,16 @@ const Storage = {
   },
 
   /*
+  * 批量删除符合查询结果的对象
+  */
+  delBmobs(table, func, cb, errCb) {
+    getQueryBmob(table, func).destroyAll({
+      success: (r) => cb && cb(r),
+      error: (err) => errCb && errCb(err),
+    });
+  },
+
+  /*
   *  @params: table 表
   *  @params: fun   查询条件
   *  @params: type  查询方式：（first, find, count）

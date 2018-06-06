@@ -10,7 +10,7 @@ import PropTypes from 'prop-types';
 import timer from '../../utils/timer';
 import { markdown } from '../../utils/stringHelper';
 
-import { Input, Button, Modal, Select, message } from 'antd';
+import { Input, Button, Modal, Select, message, Icon } from 'antd';
 const { TextArea } = Input;
 const { Option } = Select;
 
@@ -22,16 +22,23 @@ class NotebookDetail extends React.Component { // eslint-disable-line react/pref
     super(props);
 
     this.state = {
+      tags: props.tags,
       edit: props.edit,
       editInfo: JSON.parse(JSON.stringify(props.info)),
     };
   }
 
   componentWillReceiveProps(nextProps) {
-    this.setState({
-      edit: nextProps.edit,
-      editInfo: JSON.parse(JSON.stringify(nextProps.info)),
-    });
+    if (nextProps.tags.length === this.state.tags) {
+      this.setState({
+        edit: nextProps.edit,
+        editInfo: JSON.parse(JSON.stringify(nextProps.info)),
+      });
+    } else {
+      this.setState({
+        tags: nextProps.tags,
+      });
+    }
   }
 
   changeInfo(v, k) {
@@ -65,6 +72,7 @@ class NotebookDetail extends React.Component { // eslint-disable-line react/pref
     changeUrlQuery({ edit: !edit });
     this.setState({
       edit: !edit,
+      editInfo: save ? this.state.editInfo : JSON.parse(JSON.stringify(this.props.info)),
     });
   }
 
@@ -84,8 +92,8 @@ class NotebookDetail extends React.Component { // eslint-disable-line react/pref
   }
 
   render() {
-    const { info, tags } = this.props;
-    const { edit, editInfo } = this.state;
+    const { info } = this.props;
+    const { edit, editInfo, tags } = this.state;
     return (
       <div>
         <div className="title mb_15">
@@ -97,7 +105,13 @@ class NotebookDetail extends React.Component { // eslint-disable-line react/pref
                 size="large"
                 onChange={(e) => this.changeInfo(e.target.value, 'title')}
                 value={editInfo.title}
-              /> : (info.title || '无题')
+              /> :
+              <span>
+                <a href="#/kit/notebook/">
+                  <Icon type="arrow-left" className="pointer ft_20 mr_10 mt_5 vat"/>
+                </a>
+                {(info.title || '无题')}
+              </span>
             }
           </span>
           <span className="pull-right">

@@ -13,13 +13,13 @@ import timer from '../../utils/timer';
 
 import { Button, Switch, Modal } from 'antd';
 import CalendarDetail from './CalendarDetail';
-import localStorage from '../../utils/Storage';
+import { changeUrlQuery } from "../../utils/stringHelper";
 
 class CalendarList extends React.Component { // eslint-disable-line react/prefer-stateless-function
   constructor(props) {
     super(props);
     this.state = {
-      editId: props.thingId || 0,
+      editId: props.thingId || '',
     };
   }
 
@@ -31,113 +31,38 @@ class CalendarList extends React.Component { // eslint-disable-line react/prefer
     }
   }
 
-  createThing() {
-    const { localList, selected } = this.props;
-    let nowId = Number(localStorage.get('p_k_thing_now_id', false, '1'));
-    const sT = selected.str('YYYYMMDD');
-    if (!localList[sT]) {
-      localList[sT] = [];
-    }
-    localList[sT].push({
-      id: nowId += 1,
-      title: '这是一条新的事情~',
-      content: '这是一条新的事情~',
-      milestone: false,
-      time: selected.time,
-    });
-    localStorage.set('p_k_thing_now_id', nowId, false);
-    this.props.updateList(localList);
-  }
-
-  delThing() {
-    Modal.confirm({
-      onOk: () => {
-        const { localList, selected } = this.props;
-        const { editId } = this.state;
-        const sT = selected.str('YYYYMMDD');
-        localList[sT] = localList[sT].filter((item) => item.id !== editId);
-        this.props.updateList(localList);
-      },
-      title: '确认',
-      content: '确定要删除这个事件？',
-      okText: '删了删了',
-      cancelText: '刀下留人',
-    });
-  }
-
+  // 选择了别的事件
   changeEditId(id) {
-    const { history } = this.props;
     this.setState({
       editId: id,
     });
-    if (id === 0) {
-      history.push(`?date=${this.props.selected.str()}`);
-    } else {
-      history.push(`?date=${this.props.selected.str()}&id=${id}`);
-    }
-  }
-
-  saveEdit(info) {
-    const { localList, selected } = this.props;
-    const iT = timer(info.time).str('YYYYMMDD');
-    const sT = selected.str('YYYYMMDD');
-
-    // 追加，如果是todo
-    if (info.isTodo) {
-      info.startTime = info.time;
-      const tList = localStorage.get('p_t_list', true, '[]');
-      tList.forEach((item, index) => {
-        if (item.id === info.id) {
-          tList[index] = info;
-        }
-      });
-      localStorage.set('p_t_list', tList, true);
-    }
-
-    if (iT === sT) {
-      // 如果还是同一天内
-      localList[sT].forEach((item, index) => {
-        if (item.id === info.id) {
-          localList[sT][index] = info;
-        }
-      });
-    } else {
-      // 如果不是同一天了
-      if (!localList[iT]) {
-        localList[iT] = [];
-      }
-      localList[iT].push(info);
-      localList[sT] = localList[sT].filter((item) => item.id !== info.id);
-    }
-    this.props.updateList(localList);
-  }
-
-  changeMileStone(id, value) {
-    const { localList, selected } = this.props;
-    const sT = selected.str('YYYYMMDD');
-
-    localList[sT].find((item) => item.id === id).milestone = value;
-    this.props.updateList(localList);
+    changeUrlQuery({
+      id: id === 0 ? undefined : id,
+      edit: undefined,
+    });
   }
 
   render() {
-    const { list } = this.props;
+    const { createThing, list, selected, saveThing, delThing } = this.props;
+    const sDay = selected.str('YYYYMMDD');
     const { editId } = this.state;
-    const editInfo = list.find((item) => item.id === editId);
+    // 如果存在选中的信息
+    const editInfo = (editId && list[sDay]) ? list[sDay].find((item) => item.objectId === editId) : null;
     return (
       !editInfo ?
         <div className="calendar-list">
-          <Button type="primary" onClick={() => this.createThing()}>添加事件</Button>
-          <div className="inline-block pull-right" style={{paddingRight: '100px'}}>是否为里程碑</div>
+          <Button type="primary" onClick={() => createThing(selected)}>添加事件</Button>
           {
-            list.map((thing) => (
-              <div key={`thing-${thing.id}`} className="calendar-list-item">
-                <div className="content pointer" onClick={() => this.changeEditId(thing.id)}>
-                  {thing.title}
+            list[sDay] && list[selected.str('YYYYMMDD')].map((thing) => (
+              <div key={`thing-${thing.objectId}`} className="calendar-list-item">
+                <div className="content pointer" onClick={() => this.changeEditId(thing.objectId)}>
+                  {thing.title || '还没起名字'}
                 </div>
                 <div className="operation">
-                  <Switch className="mr_10" checked={thing.milestone} onChange={(v) => this.changeMileStone(thing.id, v)} />
-                  {thing.milestone && <a href={`#/kit/milestone/?id=${thing.id}`}>前往里程碑 =></a>}
+                  {
+                    thing.milestone &&
+                    <a href={`#/kit/milestone/?id=${thing.objectId}`}>{timer().to(timer(thing.time))}</a>
+                  }
                 </div>
               </div>
             ))
@@ -146,20 +71,20 @@ class CalendarList extends React.Component { // eslint-disable-line react/prefer
         <CalendarDetail
           backToList={() => this.changeEditId(0)}
           info={editInfo}
-          save={(info) => this.saveEdit(info)}
-          delThing={() => this.delThing()}
+          save={saveThing}
+          delThing={delThing}
         />
     );
   }
 }
 
 CalendarList.propTypes = {
-  localList: PropTypes.object.isRequired,
-  list: PropTypes.array.isRequired,
+  createThing: PropTypes.func.isRequired,
+  list: PropTypes.object.isRequired,
   selected: PropTypes.object.isRequired,
-  updateList: PropTypes.func.isRequired,
-  thingId: PropTypes.number,
-  history: PropTypes.object.isRequired,
+  thingId: PropTypes.string,
+  saveThing: PropTypes.func.isRequired,
+  delThing: PropTypes.func.isRequired,
 };
 
 export default CalendarList;

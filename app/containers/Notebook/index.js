@@ -20,7 +20,7 @@ import saga from './saga';
 import NotebookCard from '../../components/NotebookCard';
 import NotebookDetail from '../../components/NotebookDetail';
 
-import { Button, Select, message } from 'antd';
+import { Button, Select, message, Icon } from 'antd';
 import timer from '../../utils/timer';
 import { getQueryFromUrl } from "../../utils/stringHelper";
 import recentlyUsed from '../../utils/recentlyUsed';
@@ -171,12 +171,11 @@ export class Notebook extends React.PureComponent { // eslint-disable-line react
   * */
   clearTags() {
     let tags = [];
-    const _this = this;
     this.props.notebook.list.forEach((item) => tags = [...tags, ...item.tags]);
     tags = arrayHelper.delDuplicate(tags);
     this.updateTags(tags, () => {
       message.success('已清空空标签~');
-      _this.props.selectTags(arrayHelper.getDuplicate(tags, Storage.get('p_n_select_tags', true, '[]')));
+      this.props.selectTags(arrayHelper.getDuplicate(tags, Storage.get('p_n_select_tags', true, '[]')));
     });
   }
 
@@ -210,8 +209,10 @@ export class Notebook extends React.PureComponent { // eslint-disable-line react
           {
             isIndex &&
               <div>
+                <a href="#/kit/" style={{ marginLeft: '2.5%' }}>
+                  <Icon type="arrow-left" className="pointer ft_20 mr_20 mt_5 vat"/>
+                </a>
                 <Button
-                  style={{ marginLeft: '2.5%' }}
                   type="primary"
                   onClick={() => this.createNote()}
                 >新建</Button>

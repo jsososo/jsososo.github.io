@@ -16,15 +16,12 @@ import {
 import timer from '../../utils/timer';
 
 const today = timer();
-const localList = window.localStorage.getItem('p_c_list') ? JSON.parse(window.localStorage.getItem('p_c_list')) : { nowId: 1 };
-
 const initialState = fromJS({
   calendarInfo: {
     year: timer().year,
     month: timer().month,
   },
-  localList,
-  list: localList[today.str('YYYYMMDD')] || [],
+  list: {},
   selected: today,
 });
 
@@ -38,12 +35,9 @@ function calendarReducer(state = initialState, action) {
     case CHANGE_SELECTED_DATE:
       return state
         .set('selected', fromJS(action.data));
-    case UPDATE_LIST:
-      return state
-        .set('localList', fromJS(action.data));
     case QUERY_LIST:
       return state
-        .set('list', fromJS(state.get('localList').toJS()[action.data] || []));
+        .set('list', fromJS(action.data));
     default:
       return state;
   }

@@ -8,11 +8,12 @@ import React from 'react';
 import PropTypes from 'prop-types';
 // import styled from 'styled-components';
 import moment from 'moment';
-import { Button, Switch, Input, Icon, DatePicker } from 'antd';
+import { Button, Switch, Input, Icon, DatePicker, Modal, message } from 'antd';
 const { TextArea } = Input;
 
 import { markdown } from '../../utils/stringHelper';
 import timer from '../../utils/timer';
+import { changeUrlQuery, getQueryFromUrl } from "../../utils/stringHelper";
 
 
 class CalendarDetail extends React.Component { // eslint-disable-line react/prefer-stateless-function
@@ -20,13 +21,12 @@ class CalendarDetail extends React.Component { // eslint-disable-line react/pref
     super(props);
 
     this.state = {
-      isEdit: false,
-      editInfo: {
-        ...(props.info),
-      },
+      isEdit: Boolean(getQueryFromUrl('edit')),
+      editInfo: JSON.parse(JSON.stringify(props.info)),
     };
   }
 
+  // 编辑信息
   changeEditInfo(v, k) {
     const { editInfo } = this.state;
     editInfo[k] = v;
@@ -35,15 +35,49 @@ class CalendarDetail extends React.Component { // eslint-disable-line react/pref
     });
   }
 
-  saveEdit() {
-    this.props.save(this.state.editInfo);
+  // 取消编辑（分为取消和保存）
+  cancelEdit(save) {
+    if (save) {
+      this.props.save(this.state.editInfo, () => this.changeEdit());
+    } else {
+      this.changeEdit();
+    }
+  }
+
+  // 修改编辑状态
+  changeEdit(edit = false) {
     this.setState({
-      isEdit: false,
+      isEdit: edit,
+      editInfo: JSON.parse(JSON.stringify(this.props.info)),
+    });
+    changeUrlQuery({
+      edit: edit ? true : undefined,
+    });
+  }
+
+  // 删除事件
+  delThing() {
+    const { editInfo } = this.state;
+    // 弹窗二次确认
+    Modal.confirm({
+      content: '真的要删？',
+      okText: '毫不留情',
+      cancelText: '再想想',
+      onOk: () => this.props.delThing(
+        editInfo,
+        () => {
+          changeUrlQuery({
+            edit: undefined,
+            id: undefined,
+          });
+          message.success('删了删了');
+        }
+      ),
     });
   }
 
   render() {
-    const { info, backToList, delThing } = this.props;
+    const { info, backToList } = this.props;
     const { editInfo, isEdit } = this.state;
 
     return (
@@ -56,8 +90,8 @@ class CalendarDetail extends React.Component { // eslint-disable-line react/pref
                   <div>
                     <Input style={{width: '200px'}} onChange={(e) => this.changeEditInfo(e.target.value, 'title')} value={editInfo.title} />
                     <div className="pull-right">
-                      <Button type="primary" onClick={() => this.saveEdit()} className="mr_10">保存</Button>
-                      <Button onClick={() => this.setState({isEdit: false})}>取消</Button>
+                      <Button type="primary" onClick={() => this.cancelEdit(true)} className="mr_10">保存</Button>
+                      <Button onClick={() => this.cancelEdit()}>取消</Button>
                     </div>
                   </div>
                   <div className="calendar-detail-time mt_5">
@@ -79,10 +113,10 @@ class CalendarDetail extends React.Component { // eslint-disable-line react/pref
               <div className="detail-head">
                 <Icon type="arrow-left" className="pointer ft_20 mr_10 mt_5 vat" onClick={backToList} />
                 <div className="inline-block" style={{width: 'calc(100% - 30px)'}}>
-                  <span className="detail-title ft_18">{info.title}</span>
+                  <span className="detail-title ft_18">{info.title || '还没起名字'}</span>
                   <div className="pull-right">
-                    <Button type="primary" className="mr_10" onClick={() => this.setState({isEdit: true})}>编辑</Button>
-                    <Button type="danger" onClick={() => delThing()}>删除</Button>
+                    <Button type="primary" className="mr_10" onClick={() => this.changeEdit(true)}>编辑</Button>
+                    <Button type="danger" onClick={() => this.delThing()}>删除</Button>
                   </div>
                   <div className="mt_5">
                     {timer(info.time).str('YYYY-MM-DD HH:mm')}
@@ -91,7 +125,7 @@ class CalendarDetail extends React.Component { // eslint-disable-line react/pref
                 </div>
               </div>
               <div className="detail-body mt_20">
-                <div className="markdown-content" dangerouslySetInnerHTML={{__html: markdown(info.content)}} />
+                <div className="markdown-content pl_20" dangerouslySetInnerHTML={{__html: markdown(info.content || '空空荡荡')}} />
               </div>
             </div>
         }

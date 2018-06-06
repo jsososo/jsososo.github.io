@@ -14,7 +14,7 @@ export function getQueryFromUrl(key, search = window.location.hash) {
     if (sArr.length > 1) {
       s = sArr[1];
     } else {
-      s = sArr[0] || '';
+      return key ? undefined : {};
     }
     const querys = s.split('&');
     const result = {};
@@ -37,7 +37,9 @@ export function changeUrlQuery(obj) {
   const newQuery = {...query, ...obj};
   let queryStr = '';
   Object.keys(newQuery).forEach((key) => {
-    queryStr += `&${key}=${newQuery[key]}`;
+    if (newQuery[key] !== undefined) {
+      queryStr += `&${key}=${newQuery[key]}`;
+    }
   });
   window.location = `${url}?${queryStr.substr(1)}`;
 }
