@@ -16,27 +16,62 @@ import injectReducer from 'utils/injectReducer';
 import makeSelectMileStone from './selectors';
 import reducer from './reducer';
 import saga from './saga';
+import { makeSelectUser } from "../App/selectors";
 
 import { Timeline } from 'antd';
 import timer from '../../utils/timer';
 import { getQueryFromUrl } from "../../utils/stringHelper";
 import recentlyUsed from '../../utils/recentlyUsed';
-
+import Storage from '../../utils/Storage';
+import * as Action from './actions';
+import { message } from 'antd';
 export class MileStone extends React.PureComponent { // eslint-disable-line react/prefer-stateless-function
+  // 页面加载或者更新之后都自动滚动到想要的位置
   componentDidMount() {
     recentlyUsed.set('里程碑', 'kit');
-    this.pageScroll();
+    this.getAllMileStone();
   }
 
-  componentDidUpdate() {
-    this.pageScroll();
+  // 获取所有的里程碑
+  getAllMileStone() {
+    Storage.queryBmob(
+      'Thing',
+      (q) => {
+        q.equalTo('user', this.props.user.username);
+        q.equalTo('milestone', true);
+        q.limit(1000);
+
+        return q;
+      },
+      (res = []) => {
+        res.push({ id: 'today', time: timer().time });
+        const sort = res.sort((a, b) => a.time - b.time);
+        const list = {};
+        sort.forEach((item) => {
+          const dStr = timer(item.time).str();
+          if (list[dStr]) {
+            list[dStr].push(item);
+          } else {
+            list[dStr] = [item];
+          }
+        });
+        this.props.queryMileStone(list);
+        this.pageScroll();
+      },
+      () => {
+        message.error('找不到呀');
+      },
+      'find',
+    );
   }
 
+  // 页面滚动
   pageScroll() {
     const id = getQueryFromUrl('id');
     const dom = document.getElementById(`milestone-${id}`);
+    const pDom = dom.parentNode.parentNode;
     if (dom) {
-      window.scrollTo(0, dom.offsetTop - 100);
+      window.scrollTo(0, dom.offsetTop + pDom.offsetTop - 100);
     }
   }
 
@@ -50,29 +85,44 @@ export class MileStone extends React.PureComponent { // eslint-disable-line reac
         </Helmet>
         <div>
           <Timeline>
-            {milestone.list.map((item) => (
-              <Timeline.Item
-                key={`milestone-${item.id}`}
-                id={`milestone-${item.id}`}
-                color={(timer().time < item.time) ? '#999' : 'blue'}
-              >
-                {
-                  item.id === 'today' ?
-                    <div className="fc_blue ft_18">
-                      <b>{timer(item.time).str()}</b>
-                      <b className="pl_20">Now</b>
-                    </div> :
-                    <div>
-                      <b className={`ft_18 ${item.time > timer().time ? 'fc_999' : 'fc_blue'}`}>{timer(item.time).str()}</b>
-                      <a href={`#/kit/calendar/?date=${timer(item.time).str()}&id=${item.id}`}>
-                        <span className="pl_20 ft_16">{item.title}</span>
-                        <span className="pl_20">{timer().to(timer(item.time), 'str', 2)}</span>
-                      </a>
-                    </div>
-                }
-                <div className="fc_999 mt_5" style={{paddingLeft: '115px'}}>{item.content}</div>
-              </Timeline.Item>
-            ))}
+            {
+              Object.keys(milestone.list).map((key) => (
+                <Timeline.Item
+                  key={`milestone-date-${key}`}
+                  id={`milestone-date-${key}`}
+                  color={(timer().time < timer(key, 'YYYY-MM-DD').time) ? '#999' : 'blue'}
+                >
+                  {
+                    milestone.list[key].map((item, index) => (
+                      // NOW
+                      item.id === 'today' ?
+                      <div className="fc_blue ft_18 mb_10" key="now">
+                        <b style={{ width: '100px' }} className="inline-block">{index === 0 && timer(item.time).str()}</b>
+                        <b className="pl_20">Now</b>
+                      </div> :
+                      // 真正的里程碑事件
+                      <div className="mb_15" key={`milestone-thing-${item.objectId}`} id={`milestone-${item.objectId}`}>
+                        <div>
+                          <b
+                            style={{ width: '100px' }}
+                            className={`ft_18 inline-block ${item.time > timer().time ? 'fc_999' : 'fc_blue'}`}
+                          >
+                            {index === 0 && timer(item.time).str()}
+                          </b>
+                          <a className="mile-stone-link" href={`#/kit/calendar/?date=${timer(item.time).str()}&id=${item.id}`}>
+                            <span className="pl_20 ft_16" style={{ fontWeight: '900' }}>
+                              {item.title || '还没起名字'}
+                            </span>
+                            <span className="pl_20">{timer().to(timer(item.time), 'str', 2)}</span>
+                          </a>
+                        </div>
+                        <div className="fc_999" style={{ paddingLeft: '120px' }}>{item.content}</div>
+                      </div>
+                    ))
+                  }
+                </Timeline.Item>
+              ))
+            }
           </Timeline>
         </div>
       </div>
@@ -82,16 +132,18 @@ export class MileStone extends React.PureComponent { // eslint-disable-line reac
 
 MileStone.propTypes = {
   milestone: PropTypes.object.isRequired,
-  location: PropTypes.object.isRequired,
+  user: PropTypes.object.isRequired,
+  queryMileStone: PropTypes.func.isRequired,
 };
 
 const mapStateToProps = createStructuredSelector({
   milestone: makeSelectMileStone(),
+  user: makeSelectUser(),
 });
 
 function mapDispatchToProps(dispatch) {
   return {
-    dispatch,
+    queryMileStone: (data) => dispatch(Action.queryMileStone(data)),
   };
 }
 

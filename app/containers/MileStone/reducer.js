@@ -9,32 +9,20 @@ import localStorage from '../../utils/Storage';
 
 import {
   DEFAULT_ACTION,
+  QUERY_MILE_STONE_LIST,
 } from './constants';
 
-const calendarObj = localStorage.get('p_c_list', true, {});
-let list = [{id: 'today', title: '今天', time: new Date()}];
-
-Object.values(calendarObj).forEach((dailyList) => {
-  if ((typeof dailyList) === 'object') {
-    dailyList.forEach((item) => {
-      if (item.milestone) {
-        list.push(item);
-      }
-    });
-  }
-});
-
-list = list.sort((a, b) => a.time - b.time);
-
 const initialState = fromJS({
-  localList: list,
-  list: JSON.parse(JSON.stringify(list)),
+  list: {},
 });
 
 function mileStoneReducer(state = initialState, action) {
   switch (action.type) {
     case DEFAULT_ACTION:
       return state;
+    case QUERY_MILE_STONE_LIST:
+      return state
+        .set('list', fromJS(action.data));
     default:
       return state;
   }
