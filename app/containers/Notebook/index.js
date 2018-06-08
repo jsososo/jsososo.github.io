@@ -64,7 +64,14 @@ export class Notebook extends React.PureComponent { // eslint-disable-line react
         return q;
       },
       (res) => {
-        this.props.updateNotebook(res || []);
+        const list = res || [];
+        list.sort((a, b) => {
+          if (Boolean(b.star) !== Boolean(a.star)) {
+            return Boolean(b.star) - Boolean(a.star);
+          }
+          return b.lastEdit - a.lastEdit;
+        });
+        this.props.updateNotebook(list);
         if (cb) {
           cb();
         }

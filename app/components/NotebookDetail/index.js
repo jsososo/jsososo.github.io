@@ -10,7 +10,7 @@ import PropTypes from 'prop-types';
 import timer from '../../utils/timer';
 import { markdown } from '../../utils/stringHelper';
 
-import { Input, Button, Modal, Select, message, Icon } from 'antd';
+import { Input, Button, Modal, Select, message, Icon, Tooltip } from 'antd';
 const { TextArea } = Input;
 const { Option } = Select;
 
@@ -99,13 +99,23 @@ class NotebookDetail extends React.Component { // eslint-disable-line react/pref
         <div className="title mb_15">
           <span className="ft_18">
             { edit ?
-              <Input
-                style={{ width: '300px', fontSize: '18px' }}
-                className="inline-block"
-                size="large"
-                onChange={(e) => this.changeInfo(e.target.value, 'title')}
-                value={editInfo.title}
-              /> :
+              <div>
+                <Input
+                  style={{ width: '300px', fontSize: '18px' }}
+                  className="inline-block"
+                  size="large"
+                  onChange={(e) => this.changeInfo(e.target.value, 'title')}
+                  value={editInfo.title}
+                />
+                <Tooltip placement="top" title="要不要标为重要">
+                  <Icon
+                    type={editInfo.star ? 'star' : 'star-o'}
+                    className="ml_20 pointer"
+                    style={{ color: '#ffcc00', fontSize: '40' }}
+                    onClick={() => this.changeInfo(!editInfo.star, 'star')}
+                  />
+                </Tooltip>
+              </div> :
               <span>
                 <a href="#/kit/notebook/">
                   <Icon type="arrow-left" className="pointer ft_20 mr_10 mt_5 vat"/>
