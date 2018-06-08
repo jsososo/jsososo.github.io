@@ -27,6 +27,7 @@ import { getQueryFromUrl} from "../../utils/stringHelper";
 import Storage from '../../utils/Storage';
 import { makeSelectUser } from "../App/selectors";
 import { changeUrlQuery } from "../../utils/stringHelper";
+import { checkLogIn } from '../App/index';
 
 import { message } from 'antd';
 
@@ -47,7 +48,7 @@ export class Calendar extends React.PureComponent { // eslint-disable-line react
     Storage.queryBmob(
       'Thing',
       (q) => {
-        q.equalTo('user', user.username);
+        q.equalTo('user', user.username || '游客');
         q.limit(1000);
         return q;
       },
@@ -75,6 +76,9 @@ export class Calendar extends React.PureComponent { // eslint-disable-line react
 
   // 新建一件事
   createThing(selected) {
+    if (!checkLogIn('创建时间', () => {})) {
+      return false;
+    }
     const { user } = this.props;
     Storage.createBmob(
       'Thing',

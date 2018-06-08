@@ -25,11 +25,15 @@ import recentlyUsed from '../../utils/recentlyUsed';
 import Storage from '../../utils/Storage';
 import * as Action from './actions';
 import { message } from 'antd';
+import { checkLogIn } from "../App/index";
+
 export class MileStone extends React.PureComponent { // eslint-disable-line react/prefer-stateless-function
   // 页面加载或者更新之后都自动滚动到想要的位置
   componentDidMount() {
-    recentlyUsed.set('里程碑', 'kit');
-    this.getAllMileStone();
+    if (checkLogIn('里程碑')) {
+      recentlyUsed.set('里程碑', 'kit');
+      this.getAllMileStone();
+    }
   }
 
   // 获取所有的里程碑
@@ -37,7 +41,7 @@ export class MileStone extends React.PureComponent { // eslint-disable-line reac
     Storage.queryBmob(
       'Thing',
       (q) => {
-        q.equalTo('user', this.props.user.username);
+        q.equalTo('user', this.props.user.username || '游客');
         q.equalTo('milestone', true);
         q.limit(1000);
 
@@ -96,7 +100,7 @@ export class MileStone extends React.PureComponent { // eslint-disable-line reac
                     milestone.list[key].map((item, index) => (
                       // NOW
                       item.id === 'today' ?
-                      <div className="fc_blue ft_18 mb_10" key="now">
+                      <div className="fc_blue ft_18 mb_10" key="now" id="milestone-today">
                         <b style={{ width: '100px' }} className="inline-block">{index === 0 && timer(item.time).str()}</b>
                         <b className="pl_20">Now</b>
                       </div> :
