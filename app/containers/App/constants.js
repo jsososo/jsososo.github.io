@@ -18,3 +18,5 @@ export const INIT_APP = 'person_web/App/INIT_APP';
 export const QUERY_BOXES = 'person_web/APP/QUERY_BOXES';
 
 export const GET_USER_INFO = 'person_web/App/GET_USER_INFO';
+
+export const GET_BOX_INFO = 'person_web/App/GET_BOX_INFO';

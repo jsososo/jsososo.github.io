@@ -11,13 +11,11 @@
  */
 
 import { fromJS } from 'immutable';
-import getBoxes from '../../utils/const/box';
 import {
   LOAD_REPOS_SUCCESS,
   LOAD_REPOS,
   LOAD_REPOS_ERROR,
-  URL_CHANGE,
-
+  GET_BOX_INFO,
   QUERY_BOXES,
   GET_USER_INFO,
 } from './constants';
@@ -27,7 +25,7 @@ const initialState = fromJS({
   loading: false,
   error: false,
   currentUser: false,
-  boxes: getBoxes(),
+  boxes: {},
   user: {},
 });
 
@@ -45,9 +43,9 @@ function appReducer(state = initialState, action) {
       return state
         .set('error', action.error)
         .set('loading', false);
-    case QUERY_BOXES:
+    case GET_BOX_INFO:
       return state
-        .set('boxes', fromJS(getBoxes(...action.data)));
+        .set('boxes', fromJS(action.data));
     case GET_USER_INFO:
       return state
         .set('user', fromJS(action.data));

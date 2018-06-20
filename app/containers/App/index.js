@@ -39,7 +39,7 @@ import Header from '../Header/Loadable'; // 头部
 import { Bmob } from '../../utils/bmob';
 import Storage  from '../../utils/Storage';
 import { makeSelectUser } from "./selectors";
-import { Modal } from 'antd';
+import { Modal, message } from 'antd';
 
 /*
 *  判断用户是否登录，部分功能需要登录才能使用
@@ -74,8 +74,31 @@ export const checkLogIn = (page, cancel = () => window.location = '#') => {
 export class App extends React.Component {
   componentWillMount() {
     this.props.initApp();
-    recentlyUsed.clearExpire();
+    // Bmob的初始化
     Bmob.initialize('722fd36cfde950349f5533aabbd33439', 'dc6d4b8254a412fb5896c1348fab2f5f');
+    // 获取所有的子应用大致信息
+    Storage.queryBmob(
+      'BoxInfo',
+      (q) => {
+        q.limit = 1000;
+        return q;
+      },
+      (res) => {
+        // 把box列表按照type为key名分来排好
+        const boxInfo = {};
+        res.forEach((item) => {
+          if (!boxInfo[item.type]) {
+            boxInfo[item.type] = [];
+          }
+          boxInfo[item.type].push(item);
+        });
+        this.props.getBoxInfo(boxInfo);
+      },
+      () => {
+        message.error('获取基本信息失败');
+      },
+      'find',
+    );
     // 自动登录
     Storage.logIn(null, (res) => {
       const user = res ? res.attributes : { username: '游客', login: false };
@@ -132,6 +155,7 @@ App.propTypes = {
   initApp: PropTypes.func.isRequired,
   getUserInfo: PropTypes.func.isRequired,
   user: PropTypes.object.isRequired,
+  getBoxInfo: PropTypes.func.isRequired,
 }
 const mapStateToProps = createStructuredSelector({
   user: makeSelectUser(),
@@ -141,6 +165,7 @@ function mapDispatchToProps(dispatch) {
   return {
     initApp: () => dispatch(Action.initApp()),
     getUserInfo: (data) => dispatch(Action.getUserInfo(data)),
+    getBoxInfo: (data) => dispatch(Action.getBoxInfo(data)),
   };
 }
 

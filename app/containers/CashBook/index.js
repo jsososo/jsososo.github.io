@@ -14,6 +14,7 @@ import { compose } from 'redux';
 import injectSaga from 'utils/injectSaga';
 import injectReducer from 'utils/injectReducer';
 import makeSelectCashBook from './selectors';
+import { makeSelectUser } from "../App/selectors";
 import reducer from './reducer';
 import saga from './saga';
 
@@ -35,7 +36,9 @@ const Option = Select.Option;
 
 export class CashBook extends React.PureComponent { // eslint-disable-line react/prefer-stateless-function
   componentWillMount() {
-    recentlyUsed.set('账单统计', 'kit');
+    if (this.props.user.username !== '游客') {
+      recentlyUsed.set('账单统计', 'kit', this.props.user.username);
+    }
   }
 
   componentWillReceiveProps(nextProps) {
@@ -264,10 +267,12 @@ CashBook.propTypes = {
   showAllData: PropTypes.func.isRequired,
   setTimeType: PropTypes.func.isRequired,
   setSpaceTime: PropTypes.func.isRequired,
+  user: PropTypes.object.isRequired,
 };
 
 const mapStateToProps = createStructuredSelector({
   cashbook: makeSelectCashBook(),
+  user: makeSelectUser(),
 });
 
 function mapDispatchToProps(dispatch) {

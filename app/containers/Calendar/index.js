@@ -33,7 +33,9 @@ import { message } from 'antd';
 
 export class Calendar extends React.PureComponent { // eslint-disable-line react/prefer-stateless-function
   componentWillMount() {
-    recentlyUsed.set('日历', 'kit');
+    if (this.props.user.username !== '游客') {
+      recentlyUsed.set('日历', 'kit', this.props.user.username);
+    }
     this.updateFromUrl(this.props);
     this.getAllThing();
   }

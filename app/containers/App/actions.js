@@ -23,6 +23,7 @@ import {
   INIT_APP,
   QUERY_BOXES,
   GET_USER_INFO,
+  GET_BOX_INFO,
 } from './constants';
 /**
  * Load the repositories, this action starts the request saga
@@ -88,6 +89,13 @@ export function queryBoxes(data) {
 export function getUserInfo(data) {
   return {
     type: GET_USER_INFO,
+    data,
+  };
+}
+
+export function getBoxInfo(data) {
+  return {
+    type: GET_BOX_INFO,
     data,
   };
 }

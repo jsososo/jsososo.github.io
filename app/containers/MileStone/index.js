@@ -31,7 +31,7 @@ export class MileStone extends React.PureComponent { // eslint-disable-line reac
   // 页面加载或者更新之后都自动滚动到想要的位置
   componentDidMount() {
     if (checkLogIn('里程碑')) {
-      recentlyUsed.set('里程碑', 'kit');
+      recentlyUsed.set('里程碑', 'kit', this.props.user.username);
       this.getAllMileStone();
     }
   }

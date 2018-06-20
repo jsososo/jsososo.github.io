@@ -14,14 +14,33 @@ import { compose } from 'redux';
 import injectSaga from 'utils/injectSaga';
 import injectReducer from 'utils/injectReducer';
 import makeSelectDevelopment from './selectors';
+import { makeSelectUser } from "../App/selectors";
 import reducer from './reducer';
 import saga from './saga';
 
-import { Button, Input, message } from 'antd';
+import Dev from '../../components/Dev/index';
+
+import { Button, Input, message, Icon } from 'antd';
 
 const TextArea = Input.TextArea;
 
-export class Development extends React.PureComponent { // eslint-disable-line react/prefer-stateless-function
+export class Development extends React.Component { // eslint-disable-line react/prefer-stateless-function
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      selected: '',
+    };
+  }
+
+  // 只有 soso 有超级权限
+  componentDidMount() {
+    const { user } = this.props;
+    if (user.username !== 'soso') {
+      window.location = '#/';
+    }
+  }
+
   copyContent(id) {
     try {
       const range = document.createRange();
@@ -34,15 +53,10 @@ export class Development extends React.PureComponent { // eslint-disable-line re
     } catch (err) {
       message.success('你的浏览器也太垃圾了');
     }
-
-    // const dom = document.getElementById(id);
-    // console.log(dom.createTextRange());
-    // dom.select();
-    // document.execCommand("Copy");
-    // console.log(dom);
   }
 
   render() {
+    const { selected } = this.state;
     return (
       <div>
         <Helmet>
@@ -51,7 +65,8 @@ export class Development extends React.PureComponent { // eslint-disable-line re
         </Helmet>
         <div>
           <h3>开一个开发者后门</h3>
-          <div className="mt_20">
+          <Dev />
+          {/*<div className="mt_20">
             <div>
               localStorage搬移大发
               <Button type="primary" className="ml_20" onClick={() => this.copyContent('local-storage-content')}>复制</Button>
@@ -63,7 +78,7 @@ export class Development extends React.PureComponent { // eslint-disable-line re
               rows={4}
               style={{border: '1px solid #666', borderRadius: '5px', background: '#333', color: '#ccc'}}
             />
-          </div>
+          </div>*/}
         </div>
       </div>
     );
@@ -72,10 +87,12 @@ export class Development extends React.PureComponent { // eslint-disable-line re
 
 Development.propTypes = {
   dispatch: PropTypes.func.isRequired,
+  user: PropTypes.func.isRequired,
 };
 
 const mapStateToProps = createStructuredSelector({
   development: makeSelectDevelopment(),
+  user: makeSelectUser(),
 });
 
 function mapDispatchToProps(dispatch) {

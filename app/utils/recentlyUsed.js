@@ -1,62 +1,80 @@
-import storage from './Storage';
+import Storage from './Storage';
 import timer from './timer';
 import getBox from './const/box';
 
 const recentlyUsed = {
-  clearExpire: () => {
-    const rU = storage.get('p_box_recent', true, '{}');
-    const newRU = {};
-    Object.keys(rU).forEach((date) => {
-      // 保留15天内的访问数据
-      if (timer(date, 'YYYYMMDD').to(timer(), 'num', 2) > -15) {
-        newRU[date] = rU[date];
+  get: (type, rUObj, boxes) => {
+    try {
+      const rU = JSON.parse(rUObj.value);
+      const count = {};
+      // 仅保留15天内的访问数据
+      const newRU = {};
+      Object.keys(rU).forEach((date) => {
+        if(timer(date, 'YYYYMMDD').to(timer(), 'num', 2) > -15) {
+          newRU[date] = rU[date];
+          Object.keys(newRU[date]).forEach((name) => {
+            if (newRU[date][name].type === type) {
+              if (!count[name]) {
+                count[name] = 0;
+              }
+              count[name] += Number(newRU[date][name].count);
+            }
+          });
+        }
+      });
+
+      // 更新Bmob中的访问数据，清除15天以上数据
+      if (JSON.stringify(newRU) !== JSON.stringify(rU)) {
+        rUObj.value = newRU;
+        Storage.setBmob(
+          'RecentlyUsed',
+          rUObj.objectId,
+          rUObj,
+        );
       }
-    });
-    storage.set('p_box_recent', newRU, true);
+      const result = Object.keys(count).map((name) => {
+        const box = boxes.find(b => b.name === name);
+        box.count = count[name];
+        return box;
+      });
+      result.sort((a, b) => a.count - b.count < 0);
+      return result;
+    } catch (err) {
+      console.log(err);
+      return [];
+    }
   },
-  get: (type, showBox) => {
-    const result = {};
-    const rU = storage.get('p_box_recent', true, '{}');
-    Object.values(rU).forEach((v) => {
-      Object.keys(v).forEach((b) => {
-        if (!result[b]) {
-          result[b] = {
+  set: (name, type, username) => {
+    Storage.queryBmob(
+      'RecentlyUsed',
+      (q) => {
+        q.equalTo('user', username);
+        return q;
+      },
+      (res) => {
+        const rU = res || { user: username, value: '{}' };
+        rU.value = JSON.parse(rU.value);
+
+        const date = timer().str('YYYYMMDD');
+        if (!rU.value[date]) {
+          rU.value[date] = {};
+        }
+        if (!rU.value[date][name]) {
+          rU.value[date][name] = {
             count: 0,
-            name: v[b].name,
-            type: v[b].type,
+            name,
+            type,
           };
         }
-        result[b].count += v[b].count;
-      });
-    });
-    const resultArr = Object.values(result);
-    resultArr.sort((a, b) => a.count - b.count < 0);
-    if (showBox) {
-      const boxArr = [];
-      resultArr.forEach((b) => {
-        if ((type && b.type === type) || !type) {
-          boxArr.push(getBox('', b.name, true));
-        }
-      });
-      return boxArr;
-    }
-    return resultArr;
-  },
-  set: (name, type) => {
-    const rU = storage.get('p_box_recent', true, '{}');
-    const date = timer().str('YYYYMMDD');
-    if (!rU[date]) {
-      rU[date] = {};
-    }
-    if (!rU[date][name]) {
-      rU[date][name] = {
-        count: 0,
-        name,
-        type,
-      };
-    }
-    rU[date][name].count += 1;
-    storage.set('p_box_recent', rU, true);
+        rU.value[date][name].count += 1;
+        rU.value = JSON.stringify(rU.value);
+        Storage.setBmob(
+          'RecentlyUsed',
+          res.objectId,
+          rU,
+        );
+      }
+    );
   },
 };
 

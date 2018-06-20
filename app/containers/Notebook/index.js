@@ -35,10 +35,10 @@ const Option = Select.Option;
 
 export class Notebook extends React.PureComponent { // eslint-disable-line react/prefer-stateless-function
   componentWillMount() {
-    recentlyUsed.set('记事本', 'kit');
     if (checkLogIn('记事本')) {
       this.queryNoteBooks();
       this.queryAllTags();
+      recentlyUsed.set('记事本', 'kit', this.props.user.username);
     } else {
       this.props.updateNotebook([]);
     }

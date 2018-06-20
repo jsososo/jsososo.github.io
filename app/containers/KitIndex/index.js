@@ -14,25 +14,58 @@ import { compose } from 'redux';
 import injectSaga from 'utils/injectSaga';
 import injectReducer from 'utils/injectReducer';
 import makeSelectKitIndex from './selectors';
-import { makeSelectBoxes } from "../App/selectors";
+import { makeSelectBoxes, makeSelectUser } from "../App/selectors";
 import reducer from './reducer';
 import saga from './saga';
 
 import { queryBoxes } from "../App/actions";
 import recentlyUsed from "../../utils/recentlyUsed";
 import arrayHelper from "../../utils/arrayHelper";
+import Storage from '../../utils/Storage';
 
 import BoxComponent from "../../components/BoxesComponent";
 
-export class KitIndex extends React.PureComponent { // eslint-disable-line react/prefer-stateless-function
+export class KitIndex extends React.Component { // eslint-disable-line react/prefer-stateless-function
+  constructor(props) {
+    super(props);
+    this.state = {
+      boxes: props.boxes.kit || [],
+    };
+  }
   componentWillMount() {
-    this.props.queryKitBoxes();
+    const { user } = this.props;
+    Storage.queryBmob(
+      'RecentlyUsed',
+      (q) => {
+        q.equalTo('user', user.username);
+        return q;
+      },
+      (res) => {
+        if (res) {
+          const rU = recentlyUsed.get('kit', res, this.state.boxes);
+          const boxes = arrayHelper.delDuplicateObj([...rU, ...(this.props.boxes.kit)], ['name']);
+          this.setState({
+            boxes,
+          });
+        } else {
+          // 说明该用户没有最近使用的数据，建一个空对象
+          Storage.createBmob(
+            'RecentlyUsed',
+            {
+              user: user.username,
+              value: '{}',
+            },
+          );
+        }
+      }
+    );
+    // const rU = recentlyUsed.get('kit', true);
+    // const boxes = arrayHelper.delDuplicateObj([...rU, ...(this.props.boxes.kit)], ['name']);
+    // this.props.queryKitBoxes();
   }
 
   render() {
-    const rU = recentlyUsed.get('kit', true);
-    const boxes = arrayHelper.delDuplicateObj([...rU, ...(this.props.boxes.kit)], ['name']);
-
+    const { boxes } = this.state;
     return (
       <div>
         <Helmet>
@@ -51,11 +84,13 @@ KitIndex.propTypes = {
   kitindex: PropTypes.object.isRequired,
   boxes: PropTypes.object.isRequired,
   queryKitBoxes: PropTypes.func.isRequired,
+  user: PropTypes.object.isRequired,
 };
 
 const mapStateToProps = createStructuredSelector({
   kitindex: makeSelectKitIndex(),
   boxes: makeSelectBoxes(),
+  user: makeSelectUser(),
 });
 
 function mapDispatchToProps(dispatch) {
