@@ -19,17 +19,20 @@ import reducer from './reducer';
 import saga from './saga';
 
 import Storage from '../../utils/Storage';
-import timer from '../../utils/timer';
 import { Button, message, Icon } from 'antd';
 import TodoList from '../../components/TodoList';
 import * as Action from './actions';
 import recentlyUsed from '../../utils/recentlyUsed';
 import {changeUrlQuery} from "../../utils/stringHelper";
 
+import { checkLogIn } from "../App/index";
+
 export class Todo extends React.PureComponent { // eslint-disable-line react/prefer-stateless-function
   componentDidMount() {
-    recentlyUsed.set('任务链', 'kit');
-    this.queryAllList();
+    if (checkLogIn('任务链')) {
+      recentlyUsed.set('任务链', 'kit');
+      this.queryAllList();
+    }
   }
 
   // 查询获取所有的todo事件
