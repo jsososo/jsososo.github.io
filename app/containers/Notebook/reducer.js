@@ -32,7 +32,8 @@ function notebookReducer(state = initialState, action) {
         .set('tagsBmob', fromJS(action.data || {}))
         .set('tags', fromJS(action.data ? action.data.notebook : []));
     case SELECT_TAGS:
-      Storage.set('p_n_select_tags', action.data || [], true);
+      const userName = Storage.get('user').split('-')[0];
+      Storage.set(`p_n_select_tags_${userName}`, action.data || [], true);
       return state
         .set('sTags', fromJS(action.data || []));
     default:

@@ -63,6 +63,10 @@ class CalendarList extends React.Component { // eslint-disable-line react/prefer
                     thing.milestone &&
                     <a href={`#/kit/milestone/?id=${thing.objectId}`}>{timer().to(timer(thing.time))}</a>
                   }
+                  {
+                    thing.isTodo &&
+                    <a className={thing.milestone ? 'pl_10' : ''} href={`#/kit/todo/?id=${thing.objectId}`}>看看任务</a>
+                  }
                 </div>
               </div>
             ))

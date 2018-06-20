@@ -7,6 +7,7 @@
 import {
   DEFAULT_ACTION,
   UPDATE_LIST,
+  QUERY_LIST,
 } from './constants';
 
 export function defaultAction() {
@@ -18,6 +19,13 @@ export function defaultAction() {
 export function updateList(data) {
   return {
     type: UPDATE_LIST,
+    data,
+  };
+}
+
+export function queryList(data) {
+  return {
+    type: QUERY_LIST,
     data,
   };
 }

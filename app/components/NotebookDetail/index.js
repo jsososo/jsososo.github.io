@@ -65,7 +65,7 @@ class NotebookDetail extends React.Component { // eslint-disable-line react/pref
       const _this = this;
       const cb = () => {
         message.success('保存成功~');
-        _this.changeEdit(true, false);
+        _this.changeEdit(edit, false);
       };
       this.props.saveChange(this.state.editInfo, cb);
     }
@@ -128,7 +128,10 @@ class NotebookDetail extends React.Component { // eslint-disable-line react/pref
             <Button type="primary" onClick={() => this.changeEdit(edit, edit)} className="mr_10">{edit ? '保存' : '编辑'}</Button>
             {
               edit ?
-                <Button onClick={() => this.changeEdit(edit, false)}>取消</Button>
+                <div className="inline-block">
+                  <Button type="primary" className="mr_10" onClick={() => this.changeEdit(false, true)}>暂存</Button>
+                  <Button onClick={() => this.changeEdit(edit, false)}>取消</Button>
+                </div>
                 : <Button type="danger" onClick={() => this.delNote()} >删除</Button>
             }
           </span>

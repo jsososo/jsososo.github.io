@@ -96,9 +96,10 @@ class CalendarDetail extends React.Component { // eslint-disable-line react/pref
                   </div>
                   <div className="calendar-detail-time mt_5">
                     <DatePicker
+                      disabled={editInfo.isTodo}
                       showToday={false}
                       allowClear={false}
-                      showTime={{format: 'HH:mm'}}
+                      showTime={{ format: 'HH:mm' }}
                       format="YYYY-MM-DD HH:mm"
                       defaultValue={moment(editInfo.time)}
                       onChange={(v) => this.changeEditInfo(v._d.getTime(), 'time')}
@@ -116,7 +117,17 @@ class CalendarDetail extends React.Component { // eslint-disable-line react/pref
                   <span className="detail-title ft_18">{info.title || '还没起名字'}</span>
                   <div className="pull-right">
                     <Button type="primary" className="mr_10" onClick={() => this.changeEdit(true)}>编辑</Button>
-                    <Button type="danger" onClick={() => this.delThing()}>删除</Button>
+                    {
+                      // todo 事件不支持在这里删除
+                      !editInfo.isTodo &&
+                      <Button type="danger" onClick={() => this.delThing()}>删除</Button>
+                    }
+                    {
+                      editInfo.isTodo &&
+                      <a href={`#/kit/todo/?id=${editInfo.objectId}`}>
+                        <Button>看看任务</Button>
+                      </a>
+                    }
                   </div>
                   <div className="mt_5">
                     {timer(info.time).str('YYYY-MM-DD HH:mm')}

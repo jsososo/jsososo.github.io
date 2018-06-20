@@ -14,56 +14,120 @@ import { compose } from 'redux';
 import injectSaga from 'utils/injectSaga';
 import injectReducer from 'utils/injectReducer';
 import makeSelectTodo from './selectors';
+import { makeSelectUser } from "../App/selectors";
 import reducer from './reducer';
 import saga from './saga';
-import localStorage from '../../utils/Storage';
-import { Button } from 'antd';
+
+import Storage from '../../utils/Storage';
+import timer from '../../utils/timer';
+import { Button, message, Icon } from 'antd';
 import TodoList from '../../components/TodoList';
 import * as Action from './actions';
 import recentlyUsed from '../../utils/recentlyUsed';
+import {changeUrlQuery} from "../../utils/stringHelper";
 
 export class Todo extends React.PureComponent { // eslint-disable-line react/prefer-stateless-function
-  componentWillMount() {
+  componentDidMount() {
     recentlyUsed.set('任务链', 'kit');
-    this.props.updateList(localStorage.get('p_t_list', true, '[]'));
+    this.queryAllList();
   }
 
-  createNewTodo(parent = 0) {
+  // 查询获取所有的todo事件
+  queryAllList() {
+    const { user } = this.props;
+    Storage.queryBmob(
+      'Thing',
+      (q) => {
+        q.equalTo('isTodo', true);
+        q.equalTo('user', user.username || '游客');
+        q.limit(1000);
+        return q;
+      },
+      (res) => {
+        this.props.queryList(res);
+      },
+      () => {
+        message.error('查询失败了 = =');
+      },
+      'find'
+    );
+  }
+
+  // 新增事件
+  createNewTodo(parent = '') {
+    const { user } = this.props;
+    Storage.createBmob(
+      'Thing',
+      {
+        user: user.username,
+        time: 0,
+        startTime: 0,
+        endTime: 0,
+        isTodo: true,
+        milestone: false,
+        notice: false,
+        title: '',
+        content: '',
+        parent,
+        children: [],
+        showChildren: true,
+        status: 0,
+      },
+      (res) => {
+        changeUrlQuery({ id: res.id, edit: 1 });
+        if (parent) {
+          this.updateParentStatusTo1(parent, res.id);
+        } else {
+          this.queryAllList();
+        }
+      },
+    );
+  }
+
+  // 更新父事件的status
+  updateParentStatusTo1(id, childId) {
+    // 作为递归中的终止判断
+    if (!id) {
+      this.queryAllList();
+      return;
+    }
     const { todo } = this.props;
-    const { list } = todo;
-    const pT = list.find((item) => item.id === parent);
-    let nowId = Number(localStorage.get('p_k_thing_now_id', false, '1'));
-    nowId += 1;
-    if (pT && pT.status === 2) {
-      pT.status = 1;
+    const pT = todo.list.find((item) => item.objectId === id);
+    // 不需要更新的父事件，就不请求了
+    if (childId || pT.status === 2) {// 可能是增加了子事件，也可能是改了状态
+      if (childId) {
+        pT.children.push(childId);
+      }
+      if (pT.status === 2) {
+        pT.status = pT.status === 2 ? 1 : pT.status;
+      }
+      this.updateThing(pT.objectId, pT, () => this.updateParentStatusTo1(pT.parent));
+    } else {
+      this.updateParentStatusTo1(pT.parent);
     }
-
-    // 增加子事件
-    if (pT) {
-      pT.children.push(nowId);
-    }
-
-    list.push({
-      title: '新的计划',
-      content: '',
-      parent,
-      children: [],
-      status: 0,
-      id: nowId,
-      time: null,
-      milestone: false,
-      startTime: null,
-      endTime: null,
-      showChildren: true,
-      isTodo: true,
-    });
-    localStorage.set('p_k_thing_now_id', nowId, false);
-    this.updateList(list);
-    window.location = `#/kit/todo?id=${nowId}&edit=1`;
   }
 
-  updateList(list) {
-    this.props.updateList(list);
+  // 快速修改一个事件, cb 可以是一个递归，一层一层的向上修改父事件或向下修改子事件
+  updateThing(id, editInfo, cb = () => this.queryAllList()) {
+    // 作为递归中的终止判断
+    if (!id) {
+      this.queryAllList();
+      return;
+    }
+    const { todo } = this.props;
+    const thing = todo.list.find((item) => item.objectId === id);
+    Storage.setBmob(
+      'Thing',
+      id,
+      {
+        ...thing,
+        ...editInfo,
+      },
+      cb,
+      () => {
+        message.error('失败了= =');
+      }
+    );
   }
 
   render() {
@@ -76,11 +140,15 @@ export class Todo extends React.PureComponent { // eslint-disable-line react/pre
           <meta name="jsososo" content="计划链" />
         </Helmet>
         <div>
+          <a href="#/kit/">
+            <Icon type="arrow-left" className="pointer ft_20 mr_20 mt_5 vat"/>
+          </a>
           <Button type="primary" onClick={() => this.createNewTodo()}>添加一个新计划</Button>
           <TodoList
             list={list}
+            queryAllList={() => this.queryAllList()}
             createNewTodo={(val) => this.createNewTodo(val)}
-            updateList={(val) => this.updateList(val)}
+            updateThing={(id, val, cb) => this.updateThing(id, val, cb)}
           />
         </div>
       </div>
@@ -90,16 +158,18 @@ export class Todo extends React.PureComponent { // eslint-disable-line react/pre
 
 Todo.propTypes = {
   todo: PropTypes.object.isRequired,
-  updateList: PropTypes.func.isRequired,
+  queryList: PropTypes.func.isRequired,
+  user: PropTypes.object.isRequired
 };
 
 const mapStateToProps = createStructuredSelector({
   todo: makeSelectTodo(),
+  user: makeSelectUser(),
 });
 
 function mapDispatchToProps(dispatch) {
   return {
-    updateList: (list) => dispatch(Action.updateList(list)),
+    queryList: (list) => dispatch(Action.queryList(list)),
   };
 }
 

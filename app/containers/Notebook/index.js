@@ -45,10 +45,9 @@ export class Notebook extends React.PureComponent { // eslint-disable-line react
   }
 
   componentDidMount() {
-    const sTags = Storage.get('p_n_select_tags', true, '[]');
-    if (sTags.length) {
-      this.props.selectTags(sTags);
-    }
+    const { user } = this.props;
+    const sTags = Storage.get(`p_n_select_tags_${user.username}`, true, '[]');
+    this.props.selectTags(sTags);
   }
 
   /*
@@ -177,12 +176,13 @@ export class Notebook extends React.PureComponent { // eslint-disable-line react
   *  清空空标签
   * */
   clearTags() {
+    const { user } = this.props;
     let tags = [];
     this.props.notebook.list.forEach((item) => tags = [...tags, ...item.tags]);
     tags = arrayHelper.delDuplicate(tags);
     this.updateTags(tags, () => {
       message.success('已清空空标签~');
-      this.props.selectTags(arrayHelper.getDuplicate(tags, Storage.get('p_n_select_tags', true, '[]')));
+      this.props.selectTags(arrayHelper.getDuplicate(tags, Storage.get(`p_n_select_tags_${user.username}`, true, '[]')));
     });
   }
 

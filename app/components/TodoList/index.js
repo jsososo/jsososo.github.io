@@ -9,10 +9,9 @@ import PropTypes from 'prop-types';
 import TodoThing from './TodoThing';
 import TodoDetail from './TodoDetail';
 import './index.scss';
-import { getQueryFromUrl } from '../../utils/stringHelper';
+import { changeUrlQuery, getQueryFromUrl } from '../../utils/stringHelper';
 import timer from '../../utils/timer';
 import Storage from '../../utils/Storage';
-
 // import styled from 'styled-components';
 
 
@@ -27,41 +26,47 @@ class TodoList extends React.Component { // eslint-disable-line react/prefer-sta
 
   // 获取某一事件 或 该事件的某个值
   getThing(id, key, list = this.props.list) {
-    const thing = list.find((item) => item.id === id);
+    const thing = list.find((item) => item.objectId === id);
     if (key && thing) {
       return thing[key];
     }
     return thing;
   }
 
-  updateThing(thing) {
-    const { list, updateList } = this.props;
-    updateList(list.map((item) => (item.id === thing.id ? thing : item)));
+  updateAll(list, val) {
+    let count = list.length;
+    list.forEach((item) => {
+      this.props.updateThing(item.objectId, val, () => {
+        count--;
+        if (!count) {
+          this.props.queryAllList();
+        }
+      });
+    });
   }
 
-  updateStatus(id, status) {
-    const { updateList } = this.props;
+  updateStatus(status, id) {
     /*
     *  如果某事件状态改为1：
     *  1、子事件状态全都不动
     *  2、所有父事件状态改为1
     * */
     if (status === 1) {
-      const allParents = this.findAllParent([id], id);
-      updateList(this.changeStatus(allParents, 1));
+      const allParents = this.findAllParent([], id, (t) => t.status === 1).filter((item) => item.status !== 1);
+      this.updateAll(allParents, { status: 1 });
     } else {
       /*
       *  如果把某事件的状态改为0
       *  1、所有的子事件改为0
-      *  2、检查判断是否需要将父事件状态修改为0或1
+      *  2、检查判断是否需要将父事件状态修改为1 (不改为0)
       *
       *  如果事件状态改为2：
       *  1、所有子事件状态全改为2
-      *  2、父事件状态通过判断再改为1或2
+      *  2、父事件状态通过判断再改为1 （不改为2）
       * */
-      const allChildren = this.findAllChildren(id);
-      const newList = this.changeStatus(allChildren, status);
-      updateList(this.changeStatus(this.findLimitedParent(id, newList, status), status, newList));
+      this.updateAll(this.findLimitedParent(id, status), { status: 1 });
+      this.props.updateThing(id, { status });
+      this.updateAll(this.findAllChildren(id), { status });
     }
   }
 
@@ -76,35 +81,35 @@ class TodoList extends React.Component { // eslint-disable-line react/prefer-sta
   }
 
   // 寻找受限的父事件（受父事件的其他子事件状态限制）
-  findLimitedParent(id, list, val) {
-    const parent = this.getThing(id, 'parent', list);
-    const thing = this.getThing(parent, null, list);
+  findLimitedParent(id, val, result = []) {
+    const parent = this.getThing(id, 'parent');
+    const thing = this.getThing(parent);
     // 如果为空
     if (!thing) {
-      return [];
+      return result;
     }
-    let result = [];
-
-    let allSame = true;
-    thing.children.forEach((tC) => {
-      // 非自身的其他子事件为非0，则不改变父事件状态
-      if (this.getThing(tC, 'status', list) !== val && (tC !== id)) {
-        allSame = false;
-      }
-    });
-    // 所有子事件均为0，改变父事件状态，并继续推算祖父事件的状态
-    if (allSame) {
-      result = [...result, thing.id, ...(this.findLimitedParent(thing.id, list, val))];
+    // 所有子事件均为 目标状态，改变父事件状态，并继续推算祖父事件的状态
+    if (thing.status !== 1 && thing.status !== val) {
+      result.push(thing);
+      return this.findLimitedParent(thing.objectId, val, result);
     }
     return result;
   }
 
   // 全部的子孙事件
-  findAllChildren(id) {
-    let result = [id];
+  findAllChildren(id, onlyId = false) {
+    if (!id) {
+      return [];
+    }
     const thing = this.getThing(id);
-    if (thing.children.length > 0) {
+    let result = [];
+    if (thing && thing.children.length > 0) {
       thing.children.forEach((tC) => {
+        if (onlyId) {
+          result.push(tC);
+        } else {
+          result.push(this.getThing(tC));
+        }
         result = [...result, ...(this.findAllChildren(tC))];
       });
     }
@@ -112,39 +117,40 @@ class TodoList extends React.Component { // eslint-disable-line react/prefer-sta
   }
 
   // 全部的直系父事件
-  findAllParent(parents, id) {
-    const tP = this.getThing(id, 'parent');
-    if (tP !== 0) {
-      parents.push(tP);
-      return this.findAllParent(parents, tP);
+  // stop 为判断停下的函数
+  findAllParent(parents, id, stop = () => false) {
+    const tP = this.getThing(id);
+    parents.push(tP);
+    if (stop(tP)) {
+      return parents;
+    }
+    if (tP.parent !== '') {
+      return this.findAllParent(parents, tP.parent);
     }
     return parents;
   }
 
   // 根据事件的id删除一个事件
   delThing(id) {
-    const { list, updateList } = this.props;
+    const { updateThing } = this.props;
     const thing = this.getThing(id);
     const parent = this.getThing(thing.parent);
-    const deleteIds = this.findAllChildren(id);
-
-    // 删除日历中对应的这些事件
-    deleteIds.forEach((dId) => {
-      this.delCalendarThing(this.getThing(id, 'time'), dId);
-    });
-
-    // 丢掉所有的子订单
-    const newList = list.filter((t) => deleteIds.indexOf(t.id) === -1);
-
-    // 从父事件那里的子事件属性中删除这个事件的id
-    if (parent) {
-      newList.forEach((t, i) => {
-        if (t.id === parent.id) {
-          newList[i].children = newList[i].children.filter((sId) => sId !== id);
+    const deleteIds = this.findAllChildren(id, true);
+    deleteIds.push(id);
+    let count = 0;
+    deleteIds.forEach((item) => {
+      Storage.delBmob('Thing', item, () => {
+        count++;
+        if (count === deleteIds.length) {
+          this.props.queryAllList();
+          if (parent) {
+            const newC = parent.children.filter((c) => c !== id);
+            updateThing(parent.objectId, { children: newC });
+            changeUrlQuery({ edit: 0 });
+          }
         }
       });
-    }
-    updateList(newList);
+    });
   }
 
   // 删除这个事件在日历中对应的事件
@@ -161,29 +167,34 @@ class TodoList extends React.Component { // eslint-disable-line react/prefer-sta
   }
 
   render() {
-    const { list, createNewTodo } = this.props;
-    const parentThing = list.filter((item) => item.parent === 0) || [];
+    const { list, createNewTodo, updateThing, queryAllList } = this.props;
+    const parentThing = list.filter((item) => item.parent === '') || [];
     const query = getQueryFromUrl();
-    const sT = list.find((item) => item.id === Number(query.id));
+    const sT = list.find((item) => item.objectId === query.id);
     const isEdit = Boolean(Number(query.edit));
 
     return (
       <div>
+        {
+          parentThing.length === 0 &&
+            <div className="fc_666 mt_20">没有事咯</div>
+        }
         <div className="todo-list">
           {parentThing.map((pT) => (
             <TodoThing
-              key={pT.id}
+              key={pT.objectId}
               noBorder
-              updateThing={(val) => this.updateThing(val)}
+              updateThing={updateThing}
               list={list}
               thing={pT}
-              updateStatus={(id, val) => this.updateStatus(id, val)}
+              updateStatus={(val, id) => this.updateStatus(val, id)}
             />
           ))}
         </div>
         {
           sT && <TodoDetail
-            updateThing={(val) => this.updateThing(val)}
+            updateThing={updateThing}
+            queryAllList={queryAllList}
             thing={sT}
             edit={isEdit}
             delThing={(id) => this.delThing(id)}
@@ -200,7 +211,8 @@ class TodoList extends React.Component { // eslint-disable-line react/prefer-sta
 TodoList.propTypes = {
   list: PropTypes.array.isRequired,
   createNewTodo: PropTypes.func.isRequired,
-  updateList: PropTypes.func.isRequired,
+  updateThing: PropTypes.func.isRequired,
+  queryAllList: PropTypes.func.isRequired,
 };
 
 export default TodoList;

@@ -28,7 +28,7 @@ import CashBook from '../CashBook/Loadable'; // 账本
 import Notebook from '../Notebook/Loadable'; // 记事本
 import Calendar from '../Calendar/Loadable'; // 日历
 import MileStone from '../MileStone/Loadable'; // 里程碑
-import Todo from '../Todo'; // 计划链
+import Todo from '../Todo/Loadable'; // 计划链
 
 import Development from '../Development/Loadable'; // 开发后门
 import Info from '../Info/Loadable'; // 一些说明
@@ -43,6 +43,8 @@ import { Modal } from 'antd';
 
 /*
 *  判断用户是否登录，部分功能需要登录才能使用
+*  点击 去登录 直接眺望登录页面，
+*  点击 取消 默认眺望首页，也可以进行自由配置（某些页面部分功能可以不登录使用）
 * */
 export const checkLogIn = (page, cancel = () => window.location = '#') => {
   if (!Bmob.User.current()) {

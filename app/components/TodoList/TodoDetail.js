@@ -2,10 +2,10 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { markdown } from '../../utils/stringHelper';
 
-import { Slider, Button, Input, DatePicker, Switch, Modal } from 'antd';
+import { Button, Input, DatePicker, Switch, Modal } from 'antd';
 import moment from 'moment';
 import timer from '../../utils/timer';
-import Storage from '../../utils/Storage';
+import { changeUrlQuery } from "../../utils/stringHelper";
 
 const { TextArea } = Input;
 
@@ -24,6 +24,10 @@ class TodoDetail extends React.Component {
     });
   }
 
+  /*
+  *  修改信息
+  *  如果修改的是起始时间，需要限制一下
+  * */
   changeEditInfo(val, key) {
     const { editInfo } = this.state;
     editInfo[key] = val;
@@ -38,40 +42,33 @@ class TodoDetail extends React.Component {
     });
   }
 
+  /*
+  *  保存修改，保存完后重新拉一下数据，改一下edit状态
+  * */
   save() {
     const { editInfo } = this.state;
-    // 如果起始时间发生了变化，则需要更新一下日历里面的事件
-    if (editInfo.startTime) {
-      const cList = Storage.get('p_c_list', true, '{}');
-      if (editInfo.time) {
-        const oldDay = timer(editInfo.time).str('YYYYMMDD');
-        cList[oldDay] = cList[oldDay].filter((item) => item.id !== editInfo.id);
-      }
-      if (editInfo.startTime) {
-        const newDay = timer(editInfo.startTime).str('YYYYMMDD');
-        editInfo.time = editInfo.startTime;
-        cList[newDay] = cList[newDay] || [];
-        cList[newDay].push(editInfo);
-      }
-      Storage.set('p_c_list', cList, true);
-    }
-
-    this.props.updateThing(editInfo);
-    window.location = `#/kit/todo/?id=${editInfo.id}&edit=0`;
+    editInfo.time = editInfo.startTime;
+    this.props.updateThing(editInfo.objectId, editInfo, () => {
+      this.props.queryAllList();
+      changeUrlQuery({ edit: 0 });
+    });
   }
 
+  /*
+  *  删除事件
+  * */
   delThing() {
     const { thing, delThing } = this.props;
     Modal.confirm({
       content: '确认删除这个任务以及下面的子任务？',
       cancelText: '别呀',
       okText: '删掉',
-      onOk: () => delThing(thing.id),
+      onOk: () => delThing(thing.objectId),
     });
   }
 
   render() {
-    const { thing, edit, updateStatus, createNewTodo } = this.props;
+    const { thing, edit, createNewTodo } = this.props;
     const { editInfo } = this.state;
     return (
       <div className="todo-detail">
@@ -83,28 +80,20 @@ class TodoDetail extends React.Component {
                 value={editInfo.title}
                 onChange={(e) => this.changeEditInfo(e.target.value, 'title')}
               /> :
-              <span className="inline-block" style={{maxWidth: '300px', wordBreak: 'break-all'}}>{thing.title}</span>
+              <span className="inline-block" style={{ maxWidth: '300px', wordBreak: 'break-all' }}>
+                {thing.title || '名字被吃掉了'}
+              </span>
           }
-          <Slider
-            onChange={(val) => updateStatus(thing.id, val)}
-            className="inline-block vat"
-            tipFormatter={(val) => ['还没呢', '在做了', '早好了'][val]}
-            style={{width: '40px', marginLeft: '30px', marginTop: '7px'}}
-            min={0}
-            max={2}
-            step={1}
-            value={thing.status}
-          />
           {
             !edit ?
               <div className="pull-right">
-                <Button type="primary" onClick={() => createNewTodo(thing.id)} className="mr_10">新建子任务</Button>
-                <Button type="primary" className="mr_10"><a href={`#/kit/todo/?id=${thing.id}&edit=1`}>编辑</a></Button>
+                <Button type="primary" onClick={() => createNewTodo(thing.objectId)} className="mr_10">新建子任务</Button>
+                <Button type="primary" className="mr_10" onClick={() => changeUrlQuery({ edit: 1 })}>编辑</Button>
                 <Button type="danger" className="mr_10" onClick={() => this.delThing()}>删除</Button>
               </div> :
               <div className="pull-right">
                 <Button type="primary" className="mr_10" onClick={() => this.save()}>保存</Button>
-                <Button className="mr_10"><a href={`#/kit/todo/?id=${thing.id}&edit=0`}>取消</a></Button>
+                <Button className="mr_10" onClick={() => changeUrlQuery({ edit: 0 })}>取消</Button>
               </div>
           }
         </b>
@@ -161,11 +150,10 @@ class TodoDetail extends React.Component {
 TodoDetail.propTypes = {
   thing: PropTypes.object,
   edit: PropTypes.bool,
-  updateStatus: PropTypes.func.isRequired,
   updateThing: PropTypes.func.isRequired,
   createNewTodo: PropTypes.func.isRequired,
   delThing: PropTypes.func.isRequired,
-  delCalendarThing: PropTypes.func.isRequired,
+  queryAllList: PropTypes.func.isRequired,
 };
 
 export default TodoDetail;
