@@ -14,7 +14,7 @@ class Dev extends React.Component { // eslint-disable-line react/prefer-stateles
     super(props);
 
     this.state = {
-      selected: 'box',
+      selected: '',
     };
   }
 

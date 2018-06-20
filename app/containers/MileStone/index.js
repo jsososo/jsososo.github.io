@@ -90,7 +90,7 @@ export class MileStone extends React.PureComponent { // eslint-disable-line reac
         <div>
           <Timeline>
             {
-              Object.keys(milestone.list).map((key) => (
+              Object.keys(milestone.list).sort((a, b) => timer(a, 'YYYY-MM-DD').time - timer(b, 'YYYY-MM-DD').time > 0).map((key) => (
                 <Timeline.Item
                   key={`milestone-date-${key}`}
                   id={`milestone-date-${key}`}
