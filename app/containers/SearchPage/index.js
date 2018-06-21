@@ -14,6 +14,7 @@ import { compose } from 'redux';
 import injectSaga from 'utils/injectSaga';
 import injectReducer from 'utils/injectReducer';
 import makeSelectSearchPage from './selectors';
+import { makeSelectBoxes } from "../App/selectors";
 import reducer from './reducer';
 import saga from './saga';
 
@@ -29,7 +30,7 @@ const typeMap = {
 export class SearchPage extends React.PureComponent { // eslint-disable-line react/prefer-stateless-function
   render() {
     const searchWords = getQueryFromUrl('search');
-    const boxes = getBox('', searchWords);
+    const boxes = getBox('', searchWords, false, this.props.boxes);
     let boxesArray = [];
     let result = [<span key="search-result">共找到</span>];
     Object.keys(boxes).forEach((type) => {
@@ -68,10 +69,12 @@ export class SearchPage extends React.PureComponent { // eslint-disable-line rea
 SearchPage.propTypes = {
   dispatch: PropTypes.func.isRequired,
   location: PropTypes.object.isRequired,
+  boxes: PropTypes.object.isRequired,
 };
 
 const mapStateToProps = createStructuredSelector({
   searchpage: makeSelectSearchPage(),
+  boxes: makeSelectBoxes(),
 });
 
 function mapDispatchToProps(dispatch) {
