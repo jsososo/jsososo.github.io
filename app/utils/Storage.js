@@ -103,6 +103,20 @@ const Storage = {
   },
 
   /*
+  * bmob的或查询
+  * */
+  queryBmobOr(table, funArr, fun, cb, errCb, type = 'find') {
+    const queryArr = funArr.map((fun) => getQueryBmob(table, fun));
+    const mainQuery = fun(Bmob.Query.or(...queryArr));
+    mainQuery.limit = 1000;
+
+    mainQuery[type]({
+      success: (res) => cb && cb(res && JSON.parse(JSON.stringify(res))),
+      error: (err) => errCb && errCb(err),
+    });
+  },
+
+  /*
   * 用户注册
   * */
   singUp(name, password, cb) {

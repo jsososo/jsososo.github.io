@@ -2,7 +2,6 @@ import React from 'react';
 import { Button, Input, Modal, Icon, message } from 'antd';
 import PropTypes from 'prop-types';
 import Storage from '../../utils/Storage';
-import { Bmob } from '../../utils/bmob';
 
 class Info extends React.Component {
   constructor(props) {

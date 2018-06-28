@@ -34,6 +34,8 @@ import Development from '../Development/Loadable'; // 开发后门
 import Info from '../Info/Loadable'; // 一些说明
 import User from '../User/Loadable'; // 用户页面
 
+import Article from '../Article/Loadable'; // 文章
+
 import Header from '../Header/Loadable'; // 头部
 
 import { Bmob } from '../../utils/bmob';
@@ -123,7 +125,7 @@ export class App extends React.Component {
         <div>
           <Header logOut={() => this.logOut()} />
           <Switch>
-            <Route exact path="/" component={Kit} />
+            <Route exact path="/" component={IndexPage} />
             <Route path="/img" component={ImagePage} />
             <Route path="/search" component={SearchPage} />
 
@@ -143,6 +145,9 @@ export class App extends React.Component {
 
             {/* 说明 */}
             <Route path="/info/" component={Info} />
+
+            {/* 文章 */}
+            <Route path="/article" component={Article} />
           </Switch>
         </div>
       </HashRouter>

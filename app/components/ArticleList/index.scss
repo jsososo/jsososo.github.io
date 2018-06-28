@@ -1,0 +1,32 @@
+.article-search {
+  .label {
+    display: inline-block;
+    margin-right: 15px;
+  }
+}
+.article-item {
+  width: 800px;
+  padding: 8px 15px;
+
+  &:hover {
+    background: #efe8ff;
+  }
+  > div {
+    display: inline-block;
+    overflow-x: hidden;
+  }
+
+  .article-title {
+    font-size: 16px;
+    min-width: 500px;
+  }
+
+  .article-author {
+    display: inline-block;
+    margin-right: 15px;
+  }
+  .article-time {
+    display: inline-block;
+    margin-left: 15px;
+  }
+}

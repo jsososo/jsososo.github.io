@@ -59,9 +59,6 @@ export class KitIndex extends React.Component { // eslint-disable-line react/pre
         }
       }
     );
-    // const rU = recentlyUsed.get('kit', true);
-    // const boxes = arrayHelper.delDuplicateObj([...rU, ...(this.props.boxes.kit)], ['name']);
-    // this.props.queryKitBoxes();
   }
 
   render() {

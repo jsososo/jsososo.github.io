@@ -1,0 +1,39 @@
+.article-edit {
+  .title-input {
+    width: 400px;
+    margin-bottom: 20px;
+    margin-right: 20px;
+  }
+  .article-icon {
+    font-size: 20px;
+    color: #666;
+    margin-left: 10px;
+    cursor: pointer;
+  }
+}
+
+.article-content {
+  word-break: break-all;
+}
+
+.article-detail {
+  .article-title {
+    display: inline-block;
+    max-width: 500px;
+    overflow-x: hidden;
+    vertical-align: top;
+    margin-right: 30px;
+  }
+  .article-info {
+    display: inline-block;
+    vertical-align: top;
+    padding-top: 8px;
+  }
+  .article-content-box {
+    border-top: 1px solid #ddd;
+    border-bottom: 1px solid #ddd;
+    padding: 20px 0;
+    margin: 20px 0;
+    min-height: 450px;
+  }
+}

@@ -35,13 +35,13 @@ export function changeUrlQuery(obj) {
   const url = window.location.hash.split('?')[0];
 
   const newQuery = {...query, ...obj};
-  let queryStr = '';
+  let queryArr = [];
   Object.keys(newQuery).forEach((key) => {
-    if (newQuery[key] !== undefined) {
-      queryStr += `&${key}=${newQuery[key]}`;
+    if (newQuery[key] !== undefined && newQuery[key] !== '') {
+      queryArr.push(`${key}=${newQuery[key]}`);
     }
   });
-  window.location = `${url}?${queryStr.substr(1)}`;
+  window.location = queryArr.length > 0 ? `${url}?${queryArr.join('&')}` : url;
 }
 
 /*

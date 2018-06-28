@@ -14,19 +14,117 @@ import { compose } from 'redux';
 import injectSaga from 'utils/injectSaga';
 import injectReducer from 'utils/injectReducer';
 import makeSelectIndexPage from './selectors';
+import { makeSelectUser, makeSelectBoxes } from "../App/selectors";
 import reducer from './reducer';
 import saga from './saga';
+import { setArticleInfo } from "../Article/actions";
 
-export class IndexPage extends React.PureComponent { // eslint-disable-line react/prefer-stateless-function
+import Storage from '../../utils/Storage';
+import recentlyUsed from '../../utils/recentlyUsed';
+import arrayHelper from '../../utils/arrayHelper';
+
+import BoxComponent from '../../components/BoxesComponent';
+import './index.scss';
+
+export class IndexPage extends React.Component { // eslint-disable-line react/prefer-stateless-function
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      articles: [],
+      kits: props.boxes.kit || [],
+    };
+  }
+
+  componentWillMount() {
+    this.getArticles();
+    this.getKits();
+  }
+
+  getArticles() {
+    Storage.queryBmob(
+      'Article',
+      (q) => {
+        q.equalTo('public', true);
+        q.select('author', 'lastEdit', 'title');
+        q.limit = 1000;
+        return q;
+      },
+      (res) => {
+        res.sort((a, b) => b.lastEdit - a.lastEdit);
+        this.setState({
+          articles: res.slice(0, 5),
+        });
+      },
+      (err) => {
+        console.log(err);
+      },
+      'find',
+    );
+  }
+
+  getKits() {
+    const { user } = this.props;
+    Storage.queryBmob(
+      'RecentlyUsed',
+      (q) => {
+        q.equalTo('user', user.username);
+        return q;
+      },
+      (res) => {
+        if (res) {
+          const rU = recentlyUsed.get('kit', res, this.state.kits);
+          const boxes = arrayHelper.delDuplicateObj([...rU, ...(this.props.boxes.kit)], ['name']);
+          this.setState({
+            kits: boxes,
+          });
+        } else {
+          // 说明该用户没有最近使用的数据，建一个空对象
+          Storage.createBmob(
+            'RecentlyUsed',
+            {
+              user: user.username,
+              value: '{}',
+            },
+          );
+        }
+      }
+    );
+  }
+
   render() {
+    const { kits, articles } = this.state;
+    const [showKits, showArticles] = [kits.slice(0, 4), articles.slice(0, 5)];
     return (
       <div>
         <Helmet>
-          <title>IndexPage</title>
-          <meta name="description" content="Description of IndexPage" />
+          <title>首页</title>
+          <meta name="soso" content="首页" />
         </Helmet>
         <div>
-          index
+          <div className="inline-block vat" style={{ width: '40%' }}>
+            <h2 className="index-title">没用的工具</h2>
+            {
+              showKits.map((kit, index) => <BoxComponent key={`index-kit-${index}`} boxInfo={kit} />)
+            }
+          </div>
+          <div className="inline-block vat" style={{ width: '50%' }}>
+            <h2 className="index-title">随性的文字</h2>
+            {
+              showArticles.map((article, index) =>
+                <a
+                  key={`index-article-${index}`}
+                  href={`#/article/?id=${article.objectId}`}
+                  onClick={() => this.props.setArticle(article)}
+                >
+                  <div className="index-article-item">
+                    {article.title}
+                    <span className="pull-right">{article.author}</span>
+                  </div>
+                </a>
+              )
+            }
+          </div>
         </div>
       </div>
     );
@@ -34,16 +132,20 @@ export class IndexPage extends React.PureComponent { // eslint-disable-line reac
 }
 
 IndexPage.propTypes = {
-  dispatch: PropTypes.func.isRequired,
+  user: PropTypes.object.isRequired,
+  boxes: PropTypes.object.isRequired,
+  setArticle: PropTypes.func.isRequired,
 };
 
 const mapStateToProps = createStructuredSelector({
   indexpage: makeSelectIndexPage(),
+  user: makeSelectUser(),
+  boxes: makeSelectBoxes(),
 });
 
 function mapDispatchToProps(dispatch) {
   return {
-    dispatch,
+    setArticle: (data) => dispatch(setArticleInfo(data)),
   };
 }
 

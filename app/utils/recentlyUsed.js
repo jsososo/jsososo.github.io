@@ -34,8 +34,10 @@ const recentlyUsed = {
       }
       const result = Object.keys(count).map((name) => {
         const box = boxes.find(b => b.name === name);
-        box.count = count[name];
-        return box;
+        if (box) {
+          box.count = count[name];
+          return box;
+        }
       });
       result.sort((a, b) => a.count - b.count < 0);
       return result;

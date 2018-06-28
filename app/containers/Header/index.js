@@ -44,6 +44,12 @@ export class Header extends React.Component { // eslint-disable-line react/prefe
               <span className="header-title-txt">首页</span>
             </h1>
           </a>
+          <a href="#/article" className={`header-link ${pathname.indexOf('#/article') === 0 ? 'hover' : ''}`}>
+            <h1 className="header-item">
+              <Icon type="edit" />
+              <span className="header-title-txt">随性的文字</span>
+            </h1>
+          </a>
           <a href="#/kit" className={`header-link ${pathname.indexOf('#/kit') === 0 ? 'hover' : ''}`}>
             <h1 className="header-item">
               <Icon type="appstore" />

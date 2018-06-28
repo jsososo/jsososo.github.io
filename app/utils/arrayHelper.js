@@ -19,13 +19,15 @@ const arrayHelper = {
     const arrLen = [];
     const result = [];
     arr.forEach((item) => {
-      let valLen = item;
-      for (let i = 0; i < keys.length; i += 1) {
-        valLen = valLen[keys[i]];
-      }
-      if (arrLen.indexOf(valLen) === -1) {
-        arrLen.push(valLen);
-        result.push(item);
+      if (typeof item === 'object') {
+        let valLen = item;
+        for (let i = 0; i < keys.length; i += 1) {
+          valLen = valLen[keys[i]];
+        }
+        if (arrLen.indexOf(valLen) === -1) {
+          arrLen.push(valLen);
+          result.push(item);
+        }
       }
     });
     return result;
