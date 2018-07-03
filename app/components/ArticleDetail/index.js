@@ -55,10 +55,25 @@ class ArticleDetail extends React.Component { // eslint-disable-line react/prefe
     const { rawInfo, edit, user, setArticleInfo, saveArticle } = this.props;
     const { info } = this.state;
     const editorProps = {
-      height: 500,
       contentFormat: 'html',
       initialContent: rawInfo.content,
       onChange: (v) => this.changeInfo('content', v),
+      excludeControls: ['font-family', 'indent'],
+      tabIndents: 4,
+      pasteMode: 'text',
+      onSave: () => saveArticle(info, true),
+      media: {
+        allowPasteImage: true, // 是否允许直接粘贴剪贴板图片（例如QQ截图等）到编辑器
+        image: true, // 开启图片插入功能
+        // video: true, // 开启视频插入功能
+        // audio: true, // 开启音频插入功能
+        validateFn: null, // 指定本地校验函数，说明见下文
+        uploadFn: null, // 指定上传函数，说明见下文
+        removeConfirmFn: null, // 指定删除前的确认函数，说明见下文
+        onRemove: null, // 指定媒体库文件被删除时的回调，参数为被删除的媒体文件列表(数组)
+        onChange: null, // 指定媒体库文件列表发生变化时的回调，参数为媒体库文件列表(数组)
+        onInsert: null, // 指定从媒体库插入文件到编辑器时的回调，参数为被插入的媒体文件列表(数组)
+      },
     };
 
     return (
@@ -133,7 +148,9 @@ class ArticleDetail extends React.Component { // eslint-disable-line react/prefe
             }
           </div>
           <div className="article-content-box">
-            <div className="article-content markdown-content" dangerouslySetInnerHTML={{ __html: rawInfo.content }} />
+            {
+              rawInfo.content && <div className="article-content" dangerouslySetInnerHTML={{ __html: rawInfo.content }} />
+            }
             {
               rawInfo.content === undefined && <div className="mt_20 text-center ft_20"><Icon type="loading" /></div>
             }

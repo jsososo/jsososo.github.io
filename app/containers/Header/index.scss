@@ -7,6 +7,7 @@
   height: 66px;
   top: 0;
   left: 0;
+  min-width: 1000px;
 }
 
 .header {
@@ -19,23 +20,42 @@
 
   .header-link {
     transition: 0.3s;
-    margin-right: 50px;
-    min-width: 100px;
+    margin-right: 20px;
+    width: 80px;
 
     &.hover .header-item {
       color: #1890ff !important;
     }
 
+    i {
+      opacity: 1;
+      transition: 0.3s;
+    }
+
+    &:hover {
+      .header-title-txt{
+        opacity: 1 !important;
+      }
+      i {
+        opacity: 0;
+      }
+    }
+
     .header-item {
       transition: 0.3s;
       color: #666;
+      position: relative;
 
       .header-title-txt {
-        display: inline-block;
-        text-align: left;
-        padding-left: 15px;
-        line-height: 30px;
+        opacity: 0;
+        top: 0;
+        left: 0;
+        width: 80px;
+        position: absolute;
+        text-align: center;
         font-size: 16px;
+        padding-top: 10px;
+        transition: 0.3s;
       }
 
       &:hover {
@@ -49,10 +69,11 @@
 .ant-input-search.ant-input-affix-wrapper.header-search {
   width: 100px;
   height: 30px;
-  position: relative;
-  left: calc(85% - 200px);
-  top: -33px;
+  position: absolute;
+  top: 20px;
+  right: 270px;
   color: #555;
+  z-index: 1000;
 
   :focus {
     width: 180px;
@@ -76,9 +97,9 @@
 
 // 头像
 .header-avatar {
-  position: relative;
-  left: 85%;
-  top: -73px;
+  position: absolute;
+  right: 120px;
+  top: 10px;
   vertical-align: top;
   width: 45px;
   height: 45px;

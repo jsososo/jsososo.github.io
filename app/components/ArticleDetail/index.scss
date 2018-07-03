@@ -35,5 +35,18 @@
     padding: 20px 0;
     margin: 20px 0;
     min-height: 450px;
+    text-indent: 2em !important;
+
+    p {
+      min-height: 20px;
+    }
   }
+}
+
+.BraftEditor-content {
+  height: auto !important;
+  min-height: 500px;
+}
+.DraftEditor-editorContainer div {
+  text-indent: 2em !important;
 }
