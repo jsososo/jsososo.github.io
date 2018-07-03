@@ -36,6 +36,9 @@ class ArticleDetail extends React.Component { // eslint-disable-line react/prefe
   changeInfo(k, v) {
     const { info } = this.state;
     info[k] = v;
+    if (k === 'content' || k === 'title') {
+      info[k] = v;
+    }
     this.setState({
       info,
     });
@@ -140,7 +143,7 @@ class ArticleDetail extends React.Component { // eslint-disable-line react/prefe
               <div className="inline-block ml_15">{timer(rawInfo.lastEdit).str('YY-M-D HH:mm')}</div>
             </div>
             {
-              md5(user.username) === rawInfo.authorId &&
+              md5(user.username || '') === rawInfo.authorId &&
               <div className="pull-right">
                 <Button type="primary" className="mr_15" onClick={() => setArticleInfo(info, true)}>编辑</Button>
                 <Button type="danger" onClick={() => this.delArticle()}>删除</Button>
@@ -149,10 +152,10 @@ class ArticleDetail extends React.Component { // eslint-disable-line react/prefe
           </div>
           <div className="article-content-box">
             {
-              rawInfo.content && <div className="article-content" dangerouslySetInnerHTML={{ __html: rawInfo.content }} />
+              rawInfo.content !== 'undefined' && <div className="article-content" dangerouslySetInnerHTML={{ __html: rawInfo.content }} />
             }
             {
-              rawInfo.content === undefined && <div className="mt_20 text-center ft_20"><Icon type="loading" /></div>
+              rawInfo.content === 'undefined' && <div className="mt_20 text-center ft_20"><Icon type="loading" /></div>
             }
           </div>
           {/*<div className="comment-box pl_20">

@@ -10,7 +10,7 @@ import PropTyps from 'prop-types';
 import SearchOpts from './searchOpts';
 import { Icon, Button, Pagination } from 'antd';
 
-import { changeUrlQuery } from "../../utils/stringHelper";
+import { changeUrlQuery, shortString } from "../../utils/stringHelper";
 import timer from '../../utils/timer';
 import md5 from 'js-md5';
 
@@ -52,7 +52,7 @@ class ArticleList extends React.PureComponent { // eslint-disable-line react/pre
     return (
       <div>
         <SearchOpts
-          clearOpts={() => this.clearOpts()}
+          searchOpts={searchOpts}
           changeSearchOpts={(k, v) => this.changeSearchOpts(k, v)}
         />
         <Button
@@ -63,7 +63,7 @@ class ArticleList extends React.PureComponent { // eslint-disable-line react/pre
               title: '',
               content: '',
               author: user.username,
-              authorId: md5(user.username),
+              authorId: md5(user.username || ''),
               lastEdit: timer().time,
               tags: [],
               public: false,
@@ -88,7 +88,7 @@ class ArticleList extends React.PureComponent { // eslint-disable-line react/pre
                   setArticleInfo(a);
                 }}
               >
-                <div className="article-title">{a.title || '无题'}</div>
+                <div className="article-title">{shortString(a.title) || '无题'}</div>
                 <div className="pull-right">
                   <div className="article-author">{a.author}</div>
                   {

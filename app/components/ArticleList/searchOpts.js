@@ -5,12 +5,13 @@ import { Input } from 'antd';
 
 class SearchOpts extends React.PureComponent {
   render() {
-    const { changeSearchOpts } = this.props;
+    const { changeSearchOpts, searchOpts } = this.props;
     return (
       <div className="article-search inline-block">
         <div className="inline-block mr_20">
           <div className="label">搜索：</div>
           <Input
+            defaultValue={searchOpts.search}
             style={{ width: '150px' }}
             placeholder="只能搜标题哟"
             onChange={(e) => changeSearchOpts('search', e.target.value)}

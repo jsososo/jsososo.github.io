@@ -70,7 +70,11 @@ export class Notebook extends React.PureComponent { // eslint-disable-line react
           }
           return b.lastEdit - a.lastEdit;
         });
-        this.props.updateNotebook(list);
+        this.props.updateNotebook(list.map(n => ({
+          ...n,
+          title: decodeURI(decodeURI(n.title)),
+          content: decodeURI(decodeURI(n.content)),
+        })));
         if (cb) {
           cb();
         }
@@ -151,11 +155,16 @@ export class Notebook extends React.PureComponent { // eslint-disable-line react
   *  保存单个笔记
   * */
   saveChange(info, cb) {
-    info.lastEdit = timer().time;
+    const saveInfo = {
+      ...JSON.parse(JSON.stringify(info)),
+      lastEdit: timer().time,
+      title: encodeURI(encodeURI(info.title)),
+      content: encodeURI(encodeURI(info.content)),
+    };
     Storage.setBmob(
       'Notebook',
       info.objectId,
-      info,
+      saveInfo,
       () => this.queryNoteBooks(cb),
       () => message.error('保存出问题了呀'),
     );

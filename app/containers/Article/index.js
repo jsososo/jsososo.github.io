@@ -18,12 +18,12 @@ import reducer from './reducer';
 import * as Action from './actions';
 
 import Storage from '../../utils/Storage';
+import { changeUrlQuery, getQueryFromUrl } from "../../utils/stringHelper";
 
 import { message } from 'antd';
 import md5 from 'js-md5';
 import ArticleList from '../../components/ArticleList';
 import ArticleDetail from '../../components/ArticleDetail';
-import { changeUrlQuery, getQueryFromUrl } from "../../utils/stringHelper";
 
 export class Article extends React.PureComponent { // eslint-disable-line react/prefer-stateless-function
   componentWillMount() {
@@ -36,20 +36,30 @@ export class Article extends React.PureComponent { // eslint-disable-line react/
 
   componentWillReceiveProps(nextProps) {
     const { article, setArticleInfo } = this.props;
-    const newId = nextProps.article.articleInfo && nextProps.article.articleInfo.objectId;
-    const oldId = article.articleInfo && article.articleInfo.objectId;
-    if (newId && newId !== oldId) {
-      const loading = document.getElementById('xhr-loading');
-      loading.style.display = 'block';
-      Storage.getBmob(
-        'Article',
-        newId,
-        null,
-        (res) => {
-          loading.style.display = 'none';
-          setArticleInfo(JSON.parse(JSON.stringify(res)));
-        },
-      );
+    // 看看url里有没有id，没有就展示列表
+    if (getQueryFromUrl('id')) {
+      const newId = nextProps.article.articleInfo && nextProps.article.articleInfo.objectId;
+      const oldId = article.articleInfo && article.articleInfo.objectId;
+      if (newId && newId !== oldId) {
+        const loading = document.getElementById('xhr-loading');
+        loading.style.display = 'block';
+        Storage.getBmob(
+          'Article',
+          newId,
+          null,
+          (res) => {
+            loading.style.display = 'none';
+            const articleDetail = JSON.parse(JSON.stringify(res));
+            setArticleInfo({
+              ...articleDetail,
+              title: decodeURI(decodeURI(articleDetail.title)),
+              content: decodeURI(decodeURI(articleDetail.content)),
+            });
+          },
+        );
+      }
+    } else {
+      setArticleInfo(null);
     }
   }
 
@@ -82,7 +92,7 @@ export class Article extends React.PureComponent { // eslint-disable-line react/
           return q;
         },
         (q) => {
-          q.equalTo('authorId', md5(user.username));
+          q.equalTo('authorId', md5(user.username || ' '));
           return q;
         },
       ],
@@ -92,7 +102,11 @@ export class Article extends React.PureComponent { // eslint-disable-line react/
       },
       (res) => {
         res.sort((a, b) => b.lastEdit - a.lastEdit);
-        getArticleList(res);
+        getArticleList(res.map(a => ({
+          ...a,
+          title: decodeURI(decodeURI(a.title)),
+          content: decodeURI(decodeURI(a.content)),
+        })));
       }
     );
   }
@@ -102,12 +116,17 @@ export class Article extends React.PureComponent { // eslint-disable-line react/
   * */
   saveArticle(info, edit, time) {
     const { setArticleInfo } = this.props;
+    const saveInfo = {
+      ...JSON.parse(JSON.stringify(info)),
+      title: encodeURI(encodeURI(info.title)),
+      content: encodeURI(encodeURI(info.content)),
+    };
     if (info.objectId) {
       // 保存
       Storage.setBmob(
         'Article',
         info.objectId,
-        info,
+        saveInfo,
         () => {
           setArticleInfo(info, edit, time);
           message.success('保存成功~');
@@ -117,7 +136,7 @@ export class Article extends React.PureComponent { // eslint-disable-line react/
       // 新建
       Storage.createBmob(
         'Article',
-        info,
+        saveInfo,
         (res) => {
           info.objectId = res.id;
           setArticleInfo(info, edit, time);

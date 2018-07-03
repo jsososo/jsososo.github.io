@@ -22,6 +22,7 @@ import { setArticleInfo } from "../Article/actions";
 import Storage from '../../utils/Storage';
 import recentlyUsed from '../../utils/recentlyUsed';
 import arrayHelper from '../../utils/arrayHelper';
+import { shortString } from "../../utils/stringHelper";
 
 import BoxComponent from '../../components/BoxesComponent';
 import './index.scss';
@@ -53,7 +54,7 @@ export class IndexPage extends React.Component { // eslint-disable-line react/pr
       (res) => {
         res.sort((a, b) => b.lastEdit - a.lastEdit);
         this.setState({
-          articles: res.slice(0, 5),
+          articles: res.map(a => ({ ...a, title: shortString(decodeURI(decodeURI(a.title))) })).slice(0, 5),
         });
       },
       (err) => {
@@ -103,13 +104,13 @@ export class IndexPage extends React.Component { // eslint-disable-line react/pr
         </Helmet>
         <div>
           <div className="inline-block vat" style={{ width: '40%' }}>
-            <h2 className="index-title">没用的工具</h2>
+            <h2 className="index-title" onClick={() => window.location = '#/kit/'}>没用的工具</h2>
             {
               showKits.map((kit, index) => <BoxComponent key={`index-kit-${index}`} boxInfo={kit} />)
             }
           </div>
           <div className="inline-block vat" style={{ width: '50%' }}>
-            <h2 className="index-title">随性的文字</h2>
+            <h2 className="index-title" onClick={() => window.location = '#/article/'}>随性的文字</h2>
             {
               showArticles.map((article, index) =>
                 <a

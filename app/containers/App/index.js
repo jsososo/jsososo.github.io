@@ -122,7 +122,7 @@ export class App extends React.Component {
   render() {
     return (
       <HashRouter>
-        <div>
+        <div style={{width: '1260px', margin: '120px auto', padding: '0 30px'}}>
           <Header logOut={() => this.logOut()} />
           <Switch>
             <Route exact path="/" component={IndexPage} />
