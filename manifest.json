@@ -1,0 +1,11 @@
+{
+  "name": "react boilerplate",
+  "theme_color": "#b1624d",
+  "background_color": "#fafafa",
+  "display": "standalone",
+  "Scope": "/",
+  "start_url": "/",
+  "icons": [
+  ],
+  "splash_pages": null
+}
