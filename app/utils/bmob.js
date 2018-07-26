@@ -1469,7 +1469,7 @@
   };
 
 
-  Bmob._ajax = function(method, url, data, success, error) {
+  Bmob._ajax = function(method, url, data, success, error, progress) {
     var options = {
       success: success,
       error: error
@@ -1483,6 +1483,10 @@
     var handled = false;
 
     var xhr = new Bmob.XMLHttpRequest();
+    // 添加上传进度的函数
+    if (progress) {
+      xhr.upload.addEventListener("progress", progress, false);
+    }
     xhr.onreadystatechange = function() {
       // 关闭loading
       var loading = document.getElementById('xhr-loading');
@@ -1556,7 +1560,7 @@
    * dataObject is the payload as an object, or null if there is none.
    * @ignore
    */
-  Bmob._request = function(route, className, objectId, method, dataObject) {
+  Bmob._request = function(route, className, objectId, method, dataObject, progress) {
     if (!Bmob.applicationId) {
       throw "You must specify your applicationId using Bmob.initialize";
     }
@@ -1609,7 +1613,7 @@
     }
     var data = JSON.stringify(dataObject);
 
-    return Bmob._ajax(method, url, data).then(null, function(response) {
+    return Bmob._ajax(method, url, data, null, null, progress).then(null, function(response) {
       // Transform the error into an instance of Bmob.Error by trying to parse
       // the error string as JSON.
       var error;
@@ -4159,7 +4163,7 @@
      * @param {Object} options A Backbone-style options object.
      * @return {Bmob.Promise} Promise that is resolved when the save finishes.
      */
-    save: function(options) {
+    save: function(options, progress) {
       var self = this;
       if (!self._previousSave) {
         if(self._source){
@@ -4173,7 +4177,7 @@
             if(!self._metaData.size){
               self._metaData.size = base64.length;
             }
-            return Bmob._request("2/files", self._name, null, 'POST', data);
+            return Bmob._request("2/files", self._name, null, 'POST', data, progress);
           }).then(function(response) {
 
             self._name = response.filename;

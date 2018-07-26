@@ -29,7 +29,9 @@ const recentlyUsed = {
         Storage.setBmob(
           'RecentlyUsed',
           rUObj.objectId,
-          rUObj,
+          {
+            value: JSON.stringify(newRU),
+          },
         );
       }
       const result = Object.keys(count).map((name) => {

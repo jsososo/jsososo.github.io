@@ -1,5 +1,6 @@
 import { Bmob } from './bmob';
 import { message } from 'antd';
+import timer from './timer';
 const localStorage = window.localStorage;
 
 const saveBmob = (obj, cb, errCb) => {
@@ -175,6 +176,15 @@ const Storage = {
         message.warning('保存失败了 QAQ');
       },
     });
+  },
+  saveFile(file, cb, progress) {
+    const BmobFile = new Bmob.File(file.name, file);
+    BmobFile.save((res) => {
+      cb({
+        url: res._url,
+        name: file.name,
+      });
+    }, progress);
   },
 };
 

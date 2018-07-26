@@ -371,6 +371,10 @@ pre {
   cursor: pointer;
 }
 
+textarea {
+  word-break: break-all;
+}
+
 .markdown-content {
   color: #555;
   word-break: break-all;

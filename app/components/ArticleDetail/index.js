@@ -13,6 +13,9 @@ import timer from '../../utils/timer';
 import { Input, Button, Icon, Tooltip, Modal } from 'antd';
 import md5 from 'js-md5';
 import BraftEditor from 'braft-editor';
+
+import Storage from '../../utils/Storage';
+
 import 'braft-editor/dist/braft.css';
 import './index.scss';
 // import styled from 'styled-components';
@@ -71,7 +74,13 @@ class ArticleDetail extends React.Component { // eslint-disable-line react/prefe
         // video: true, // 开启视频插入功能
         // audio: true, // 开启音频插入功能
         validateFn: null, // 指定本地校验函数，说明见下文
-        uploadFn: null, // 指定上传函数，说明见下文
+        uploadFn: function (param) {
+          Storage.saveFile(param.file, (res) => {
+            param.success(res);
+          }, (event) => {
+            param.progress(event.loaded / event.total * 100);
+          });
+        }, // 指定上传函数，说明见下文
         removeConfirmFn: null, // 指定删除前的确认函数，说明见下文
         onRemove: null, // 指定媒体库文件被删除时的回调，参数为被删除的媒体文件列表(数组)
         onChange: null, // 指定媒体库文件列表发生变化时的回调，参数为媒体库文件列表(数组)

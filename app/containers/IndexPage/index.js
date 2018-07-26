@@ -119,7 +119,7 @@ export class IndexPage extends React.Component { // eslint-disable-line react/pr
                   onClick={() => this.props.setArticle(article)}
                 >
                   <div className="index-article-item">
-                    {article.title}
+                    {article.title || '无题'}
                     <span className="pull-right">{article.author}</span>
                   </div>
                 </a>

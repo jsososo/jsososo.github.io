@@ -31,7 +31,7 @@ import { checkLogIn } from "../App/index";
 export class Todo extends React.PureComponent { // eslint-disable-line react/prefer-stateless-function
   componentDidMount() {
     if (checkLogIn('任务链')) {
-      recentlyUsed.set('任务链', 'kit');
+      recentlyUsed.set('任务链', 'kit', this.props.user.username);
       this.queryAllList();
     }
   }

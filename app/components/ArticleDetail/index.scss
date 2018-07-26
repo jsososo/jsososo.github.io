@@ -35,10 +35,15 @@
     padding: 20px 0;
     margin: 20px 0;
     min-height: 450px;
-    text-indent: 2em !important;
+    overflow: hidden;
+
+    a {
+      color: #1890ff;
+    }
 
     p {
       min-height: 20px;
+      text-indent: 2em !important;
     }
 
     hr {
@@ -47,12 +52,26 @@
       width: 92%;
       margin: 0 auto;
     }
+    img {
+      text-indent: 0 !important;
+      max-width: 100% !important;
+    }
   }
 }
 
 .BraftEditor-content {
   height: auto !important;
   min-height: 500px;
+
+  overflow: hidden;
+
+  .braft-embed-image {
+    text-indent: 0 !important;
+  }
+
+  img {
+    max-width: 100% !important;
+  }
 }
 .DraftEditor-editorContainer div {
   text-indent: 2em !important;
