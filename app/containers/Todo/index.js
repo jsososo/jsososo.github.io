@@ -23,7 +23,8 @@ import { Button, message, Icon } from 'antd';
 import TodoList from '../../components/TodoList';
 import * as Action from './actions';
 import recentlyUsed from '../../utils/recentlyUsed';
-import {changeUrlQuery} from "../../utils/stringHelper";
+import { changeUrlQuery } from "../../utils/stringHelper";
+import timer from "../../utils/timer";
 
 import { checkLogIn } from "../App/index";
 
@@ -47,6 +48,25 @@ export class Todo extends React.PureComponent { // eslint-disable-line react/pre
         return q;
       },
       (res) => {
+        console.log(res);
+        // 这里要对todo做一个排序
+        res.sort((a, b) => {
+          if (a.status === b.status) {
+            return timer(a.createdAt, 'YYYY-MM-DD HH:mm:ss').time < timer(b.createdAt, 'YYYY-MM-DD HH:mm:ss').time;
+          }
+          if (a.status === 2 && b.status !== 2) {
+            return 1;
+          }
+          if (a.status === 1 && b.status !== 1) {
+            return -1;
+          }
+          if (a.status !== 2 && b.status === 2) {
+            return -1;
+          }
+          if (a.status !== 1 && b.status === 1) {
+            return 1;
+          }
+        });
         this.props.queryList(res);
       },
       () => {

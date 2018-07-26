@@ -63,6 +63,10 @@ export class User extends React.PureComponent { // eslint-disable-line react/pre
     );
   }
 
+  changePassword(info) {
+
+  }
+
   render() {
     const { user } = this.props;
     return (
@@ -73,7 +77,7 @@ export class User extends React.PureComponent { // eslint-disable-line react/pre
         </Helmet>
         {
           user.login ?
-            <UserInfo logIn={(u) => this.props.login(u)} user={user} /> :
+            <UserInfo logIn={(u) => this.props.login(u)} user={user} changePassword={(info) => this.changePassword(info)} /> :
             <Login login={(u) => this.login(u)} create={(u) => this.create(u)} />
         }
       </div>

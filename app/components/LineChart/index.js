@@ -32,7 +32,7 @@ class LineChart extends React.PureComponent { // eslint-disable-line react/prefe
       });
     });
     return {
-      color: ['#f93', '#3f9', '#39f', '#ff0', '#f6f', '#3ff', '#fc6', '#66f', '#9f3'],
+      color: ['#399', '#ff9', '#390', '#9f9', '#966', '#f96', '#39f', '#93c', '#ff3', '#96f', '#9ff', '#0c3', '#3ff', '#f9f', '#99f','#f60', '#3f3','#f69', '#999', '#F33', '#990','#f3c', '#9f0', '#069'],
       tooltip: {
         trigger: 'axis',
       },

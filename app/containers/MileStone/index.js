@@ -49,9 +49,9 @@ export class MileStone extends React.PureComponent { // eslint-disable-line reac
       },
       (res = []) => {
         res.push({ id: 'today', time: timer().time });
-        const sort = res.sort((a, b) => a.time - b.time);
+        res.sort((a, b) => a.time - b.time);
         const list = {};
-        sort.forEach((item) => {
+        res.forEach((item) => {
           const dStr = timer(item.time).str();
           if (list[dStr]) {
             list[dStr].push(item);
@@ -90,7 +90,7 @@ export class MileStone extends React.PureComponent { // eslint-disable-line reac
         <div>
           <Timeline>
             {
-              Object.keys(milestone.list).sort((a, b) => timer(a, 'YYYY-MM-DD').time - timer(b, 'YYYY-MM-DD').time > 0).map((key) => (
+              Object.keys(milestone.list).sort((a, b) => timer(a, 'YYYY-MM-DD').time - timer(b, 'YYYY-MM-DD').time).map((key) => (
                 <Timeline.Item
                   key={`milestone-date-${key}`}
                   id={`milestone-date-${key}`}
@@ -101,14 +101,14 @@ export class MileStone extends React.PureComponent { // eslint-disable-line reac
                       // NOW
                       item.id === 'today' ?
                       <div className="fc_blue ft_18 mb_10" key="now" id="milestone-today">
-                        <b style={{ width: '100px' }} className="inline-block">{index === 0 && timer(item.time).str()}</b>
+                        <b style={{ width: '150px' }} className="inline-block">{index === 0 && timer(item.time).str()}</b>
                         <b className="pl_20">Now</b>
                       </div> :
                       // 真正的里程碑事件
                       <div className="mb_15" key={`milestone-thing-${item.objectId}`} id={`milestone-${item.objectId}`}>
                         <div>
                           <b
-                            style={{ width: '100px' }}
+                            style={{ width: '150px' }}
                             className={`ft_18 inline-block ${item.time > timer().time ? 'fc_999' : 'fc_blue'}`}
                           >
                             {index === 0 && timer(item.time).str()}
@@ -120,7 +120,7 @@ export class MileStone extends React.PureComponent { // eslint-disable-line reac
                             <span className="pl_20">{timer().to(timer(item.time), 'str', 2)}</span>
                           </a>
                         </div>
-                        <div className="fc_999" style={{ paddingLeft: '120px' }}>{item.content}</div>
+                        <div className="fc_999" style={{ paddingLeft: '170px' }}>{item.content}</div>
                       </div>
                     ))
                   }

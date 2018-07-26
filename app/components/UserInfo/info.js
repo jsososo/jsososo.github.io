@@ -2,6 +2,7 @@ import React from 'react';
 import { Button, Input, Modal, Icon, message } from 'antd';
 import PropTypes from 'prop-types';
 import Storage from '../../utils/Storage';
+import md5 from 'js-md5';
 
 class Info extends React.Component {
   constructor(props) {
@@ -12,6 +13,12 @@ class Info extends React.Component {
       preview: '',
       editInfo: { ...props.user },
       newAvatar: '',
+      changePassword: false,
+      passwordInfo: {
+        old: '',
+        new1: '',
+        new2: '',
+      },
     };
   }
 
@@ -97,9 +104,64 @@ class Info extends React.Component {
     });
   }
 
+  inputPassword(type, val) {
+    const { passwordInfo } = this.state;
+    passwordInfo[type] = val;
+    this.setState({
+      passwordInfo,
+    });
+  }
+
+  changePassword() {
+    const { passwordInfo } = this.state;
+    const { user } = this.props;
+    if (passwordInfo.new1 !== passwordInfo.new2) {
+      message.error('新的两个不一样，逗我呢');
+      return;
+    }
+    Storage.queryBmob(
+      '_User',
+      (q) => {
+        q.equalTo('username', user.username);
+        q.equalTo('password', md5(passwordInfo.old));
+        return q;
+      },
+      (res) => {
+        if (res) {
+          Storage.setBmob(
+            '_User',
+            res.objectId,
+            {
+              password: md5(passwordInfo.new1),
+            },
+            () => {
+              message.success('改好了');
+              console.log(passwordInfo.new1, passwordInfo.new2);
+              Storage.set('user', `${user.username}-${md5(passwordInfo.new2).split('').reverse().join('')}`);
+              this.closePasswordDialog();
+            }
+          );
+        } else {
+          message.error('你怕是密码输错了');
+        }
+      }
+    );
+  }
+
+  closePasswordDialog() {
+    this.setState({
+      changePassword: false,
+      passwordInfo: {
+        old: '',
+        new1: '',
+        new2: '',
+      },
+    });
+  }
+
   render() {
     const { user } = this.props;
-    const { edit, editInfo, preview, newAvatar } = this.state;
+    const { edit, editInfo, preview, newAvatar, changePassword, passwordInfo } = this.state;
     return (
       <div className="user-info-content">
         <div className="pull-right" style={{ marginRight: '100px' }}>
@@ -112,6 +174,7 @@ class Info extends React.Component {
               <Button onClick={() => this.setState({ edit: true })}>编辑</Button>
           }
         </div>
+        {/* 头像 */}
         <div className="info-row" style={{ height: '90px' }}>
           <div className="info-label">头像：</div>
           <div className="info-show">
@@ -174,15 +237,20 @@ class Info extends React.Component {
             }
           </div>
         </div>
+        {/* 昵称 */}
         <div className="info-row">
           <div className="info-label">昵称：</div>
-          {
-            edit ?
-              <Input className="info-input" value={editInfo.username} onChange={(e) => this.changeEditInfo('username', e.target.value)} /> :
-              <div className="info-show">{user.username}</div>
-          }
+          <div className="info-show">{user.username}</div>
         </div>
+        {/* 密码 */}
         <div className="info-row">
+          <div className="info-label">密码：</div>
+          <div className="info-show">
+            <Button onClick={() => this.setState({ changePassword: true })}>修改密码</Button>
+          </div>
+        </div>
+        {/* 微信 */}
+        {/*<div className="info-row">
           <div className="info-label">微信：</div>
           {
             edit ?
@@ -197,7 +265,8 @@ class Info extends React.Component {
               </div> :
               <div className="info-show">{user.wechat || '未绑定'}</div>
           }
-        </div>
+        </div>*/}
+        {/* 邮箱 */}
         <div className="info-row">
           <div className="info-label">邮箱：</div>
           <div className="info-show">{user.email || '未绑定'}</div>
@@ -210,6 +279,41 @@ class Info extends React.Component {
         >
           <img src={preview} style={{ width: '250px', height: '250px' }}/>
         </Modal>
+        <Modal
+          visible={changePassword}
+          cancelText="不改了不改了"
+          okText="改！"
+          onCancel={() => this.closePasswordDialog()}
+          onOk={() => this.changePassword()}
+        >
+          <div className="mg_20">
+            <div className="inline-block w_100">旧密码：</div>
+            <Input
+              className="w_200"
+              value={passwordInfo.old}
+              type="password"
+              onChange={(e) => this.inputPassword('old', e.target.value)}
+            />
+          </div>
+          <div className="mg_20">
+            <div className="inline-block w_100">新密码：</div>
+            <Input
+              className="w_200"
+              value={passwordInfo.new1}
+              type="password"
+              onChange={(e) => this.inputPassword('new1', e.target.value)}
+            />
+          </div>
+          <div className="mg_20">
+            <div className="inline-block w_100">one more：</div>
+            <Input
+              className="w_200"
+              value={passwordInfo.new2}
+              type="password"
+              onChange={(e) => this.inputPassword('new2', e.target.value)}
+            />
+          </div>
+        </Modal>
       </div>
     );
   }
@@ -217,7 +321,7 @@ class Info extends React.Component {
 
 Info.propTypes = {
   user: PropTypes.object,
-  logIn: PropTypes.func,
+  changePassword: PropTypes.func,
 };
 
 export default Info;

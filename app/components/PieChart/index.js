@@ -16,7 +16,7 @@ class PieChart extends React.PureComponent { // eslint-disable-line react/prefer
     const legend = [];
     data.forEach((d) => legend.push(d.name));
     return {
-      color: ['#f93', '#3f9', '#39f', '#ff0', '#f6f', '#3ff', '#fc6', '#66f', '#9f3'],
+      color: ['#ff0', '#39f', '#93c', '#ff3', '#96f', '#9ff', '#399', '#ff9', '#390', '#ffc', '#9f9', '#966', '#f96', '#3ff', '#f9f', '#99f','#f60', '#3f3','#f69', '#999', '#F33', '#990','#f3c', '#9f0'],
       tooltip: {
         trigger: 'item',
         formatter: "{a} <br/>{b} : {c} ({d}%)",

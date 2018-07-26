@@ -130,8 +130,7 @@
   }
 
   &:hover .user-info-operation {
-    height: auto;
-    opacity: 1;
+    height: 130px;
   }
 
   .user-info-operation {
@@ -142,7 +141,6 @@
     width: 100px;
     left: -30px;
     top: 20px;
-    opacity: 0;
     padding-top: 30px;
 
     .content {
@@ -158,6 +156,7 @@
 
       .user-link {
         transition: 0.3s;
+        color: #000;
       }
 
       .user-link-out {
