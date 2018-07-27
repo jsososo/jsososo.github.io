@@ -29,6 +29,7 @@ import Notebook from '../Notebook/Loadable'; // 记事本
 import Calendar from '../Calendar/Loadable'; // 日历
 import MileStone from '../MileStone/Loadable'; // 里程碑
 import Todo from '../Todo/Loadable'; // 计划链
+import AACash from '../AACash/Loadable'; // AA记账
 
 import Development from '../Development/Loadable'; // 开发后门
 import Info from '../Info/Loadable'; // 一些说明
@@ -41,7 +42,8 @@ import Header from '../Header/Loadable'; // 头部
 import { Bmob } from '../../utils/bmob';
 import Storage  from '../../utils/Storage';
 import { makeSelectUser } from "./selectors";
-import { Modal, message } from 'antd';
+import { Modal } from 'antd';
+import { BmobInfo } from "../../const";
 
 /*
 *  判断用户是否登录，部分功能需要登录才能使用
@@ -77,30 +79,7 @@ export class App extends React.Component {
   componentWillMount() {
     this.props.initApp();
     // Bmob的初始化
-    Bmob.initialize('722fd36cfde950349f5533aabbd33439', 'dc6d4b8254a412fb5896c1348fab2f5f');
-    // 获取所有的子应用大致信息
-    Storage.queryBmob(
-      'BoxInfo',
-      (q) => {
-        q.limit = 1000;
-        return q;
-      },
-      (res) => {
-        // 把box列表按照type为key名分来排好
-        const boxInfo = {};
-        res.forEach((item) => {
-          if (!boxInfo[item.type]) {
-            boxInfo[item.type] = [];
-          }
-          boxInfo[item.type].push(item);
-        });
-        this.props.getBoxInfo(boxInfo);
-      },
-      () => {
-        message.error('获取基本信息失败');
-      },
-      'find',
-    );
+    Bmob.initialize(...BmobInfo);
     // 自动登录
     Storage.logIn(null, (res) => {
       const user = res ? res.attributes : { username: '游客', login: false };
@@ -136,6 +115,7 @@ export class App extends React.Component {
             <Route path="/kit/calendar" component={Calendar} />
             <Route path="/kit/milestone" component={MileStone} />
             <Route path="/kit/todo" component={Todo} />
+            <Route path="/kit/aa" component={AACash} />
 
             {/* 开发 */}
             <Route path="/development" component={Development} />

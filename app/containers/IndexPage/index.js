@@ -18,6 +18,7 @@ import { makeSelectUser, makeSelectBoxes } from "../App/selectors";
 import reducer from './reducer';
 import saga from './saga';
 import { setArticleInfo } from "../Article/actions";
+import { getBoxInfo } from "../App/actions";
 
 import Storage from '../../utils/Storage';
 import recentlyUsed from '../../utils/recentlyUsed';
@@ -26,6 +27,7 @@ import { shortString } from "../../utils/stringHelper";
 
 import BoxComponent from '../../components/BoxesComponent';
 import './index.scss';
+import {message} from "antd/lib/index";
 
 export class IndexPage extends React.Component { // eslint-disable-line react/prefer-stateless-function
   constructor(props) {
@@ -39,7 +41,40 @@ export class IndexPage extends React.Component { // eslint-disable-line react/pr
 
   componentWillMount() {
     this.getArticles();
-    this.getKits();
+    this.getBoxInfo();
+  }
+
+  getBoxInfo() {
+    if (!this.state.kits.length) {
+      // 获取所有的子应用大致信息
+      Storage.queryBmob(
+        'BoxInfo',
+        (q) => {
+          q.limit = 1000;
+          return q;
+        },
+        (res) => {
+          // 把box列表按照type为key名分来排好
+          const boxInfo = {};
+          res.forEach((item) => {
+            if (!boxInfo[item.type]) {
+              boxInfo[item.type] = [];
+            }
+            boxInfo[item.type].push(item);
+          });
+          this.props.getBoxInfo(boxInfo);
+          this.setState({
+            kits: boxInfo.kit,
+          }, this.getKits);
+        },
+        () => {
+          message.error('获取基本信息失败');
+        },
+        'find',
+      );
+    } else {
+      this.getKits();
+    }
   }
 
   getArticles() {
@@ -136,6 +171,7 @@ IndexPage.propTypes = {
   user: PropTypes.object.isRequired,
   boxes: PropTypes.object.isRequired,
   setArticle: PropTypes.func.isRequired,
+  getBoxInfo: PropTypes.func.isRequired,
 };
 
 const mapStateToProps = createStructuredSelector({
@@ -147,6 +183,7 @@ const mapStateToProps = createStructuredSelector({
 function mapDispatchToProps(dispatch) {
   return {
     setArticle: (data) => dispatch(setArticleInfo(data)),
+    getBoxInfo: (data) => dispatch(getBoxInfo(data)),
   };
 }
 
