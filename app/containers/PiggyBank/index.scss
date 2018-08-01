@@ -1,0 +1,156 @@
+.piggy-list-page {
+  .piggy-list-item {
+    margin-left: 20px;
+    height: 35px;
+    line-height: 35px;
+    overflow: hidden;
+    position: relative;
+    padding: 0 15px;
+    width: 500px;
+    border-radius: 2px;
+
+    &:hover {
+      .p-bg-green {
+        background: #8f8 !important;
+      }
+      .p-bg-white {
+        background: #efe8ff !important;
+      }
+    }
+
+    .del-btn {
+      float: right;
+      font-size: 16px;
+      cursor: pointer;
+      line-height: 35px;
+      margin-left: 20px;
+
+      &:hover {
+        color: #F23C3C;
+      }
+    }
+  }
+}
+
+.piggy-item-background {
+  height: 35px;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: -1;
+  white-space: nowrap;
+
+  >div {
+    display: inline-block;
+    height: 100%;
+    transition: 0.3s;
+  }
+  .p-bg-green {
+    width: 40px;
+    background: #bfb;
+  }
+  .p-bg-white {
+    background: white;
+    width: 100%;
+  }
+}
+
+.piggy-detail-page {
+  .piggy-title {
+    font-size: 16px;
+    line-height: 30px;
+    vertical-align: top;
+  }
+
+  .page-right, .page-left {
+    display: inline-block;
+    vertical-align: top;
+  }
+
+  .page-left {
+    width: 480px;
+    padding-top: 20px;
+  }
+
+  .page-right {
+    width: 720px;
+
+    .del-btn {
+      cursor: pointer;
+
+      &:hover {
+        color: #F23C3C;
+      }
+    }
+
+    .piggy-log-calendar {
+      .bg-gray {
+        background: #f3f3f3;
+        .piggy-calendar-date {
+          background: #f3f3f3;
+        }
+      }
+      .bg-green {
+        background: #dfd;
+        .piggy-calendar-date {
+          background: #dfd;
+        }
+      }
+      .bg-red {
+        background: #fdd;
+        .piggy-calendar-date {
+          background: #fdd;
+        }
+      }
+
+      .piggy-calendar-container {
+        color: #666;
+        display: inline;
+
+        .piggy-calendar-week {
+          height: 70px;
+          display: inline-block;
+          text-align: center;
+
+          >div {
+            vertical-align: top;
+          }
+          .piggy-calendar-date {
+            display: inline-block;
+            width: 80px;
+            height: 70px;
+            text-align: center;
+            padding: 10px 0;
+
+            &.record-week {
+              line-height: 50px;
+              font-weight: 900;
+            }
+          }
+        }
+      }
+    }
+  }
+
+  .piggy-progress {
+    position: relative;
+    height: 35px;
+    width: 400px;
+    line-height: 35px;
+    padding: 0 20px;
+    border: 1px solid #e5e5e5;
+    border-radius: 5px;
+    margin: 10px 20px;
+    overflow: hidden;
+
+    .text-center {
+      position: absolute;
+      width: 100%;
+    }
+
+    .p-bg-green {
+      border-radius: 5px;
+    }
+  }
+}

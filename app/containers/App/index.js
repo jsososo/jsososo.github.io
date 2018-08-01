@@ -30,6 +30,7 @@ import Calendar from '../Calendar/Loadable'; // 日历
 import MileStone from '../MileStone/Loadable'; // 里程碑
 import Todo from '../Todo/Loadable'; // 计划链
 import AACash from '../AACash/Loadable'; // AA记账
+import PiggyBank from '../PiggyBank/Loadable'; // 存钱罐
 
 import Development from '../Development/Loadable'; // 开发后门
 import Info from '../Info/Loadable'; // 一些说明
@@ -116,6 +117,7 @@ export class App extends React.Component {
             <Route path="/kit/milestone" component={MileStone} />
             <Route path="/kit/todo" component={Todo} />
             <Route path="/kit/aa" component={AACash} />
+            <Route path="/kit/piggy" component={PiggyBank} />
 
             {/* 开发 */}
             <Route path="/development" component={Development} />

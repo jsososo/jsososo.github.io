@@ -18,16 +18,18 @@ const Timer = (v = new Date(), strType) => {
     if (strType && typeof strType === 'string') {
       const timeArr = [];
       const mapType = [
+        ['yyyy', 'yy'],
         ['YYYY', 'YY'],
         ['MM', 'M'],
         ['DD', 'D'],
+        ['dd', 'd'],
         ['HH', 'H'],
         ['mm', 'm'],
         ['ss', 's'],
       ];
       let index = 0;
       // 循环每一种类型
-      while (index < 6) {
+      while (index < 8) {
         // 先判断长的格式，如果不存在再判断短的，如果都不存在则解析结束
         if (strType.indexOf(mapType[index][0]) > -1) {
           timeArr.push(Number(v.substr(strType.indexOf(mapType[index][0]), mapType[index][0].length)));
@@ -36,6 +38,9 @@ const Timer = (v = new Date(), strType) => {
           // YY格式需要前缀加上20
           if (strType.indexOf(mapType[index]) === 'YY') {
             timeArr[0] = Number('20' + v.substr(strType.indexOf('YY'), 2));
+          }
+          if (strType.indexOf(mapType[index]) === 'yy') {
+            timeArr[0] = Number('20' + v.substr(strType.indexOf('yy'), 2));
           }
         } else {
           index += 6;
@@ -65,11 +70,15 @@ const Timer = (v = new Date(), strType) => {
   date.str = (s = 'YYYY-MM-DD') => {
     let str = s;
     str = str.replace('YYYY', date.year)
+      .replace('yyyy', date.year)
       .replace('YY', String(date.year).substr(-2))
+      .replace('yy', String(date.year).substr(-2))
       .replace('MM', formatNumber(date.month))
       .replace('M', date.month)
       .replace('DD', formatNumber(date.date))
+      .replace('dd', formatNumber(date.date))
       .replace('D', date.date)
+      .replace('d', date.date)
       .replace('HH', formatNumber(date.hour))
       .replace('H', date.hour)
       .replace('mm', formatNumber(date.minute))
@@ -173,6 +182,20 @@ const Timer = (v = new Date(), strType) => {
       value: 6,
     },
   ][date.getDay()];
+  date.todayStart = new Date(date.year, date.month - 1, date.date).getTime();
+  date.todayEnd = new Date(date.year, date.month - 1, date.date + 1).getTime() - 1;
+
+  /*
+  *  获取周号。周号为，年-月-周
+  *  其中周日为一周的起点。如果 1号为周一或周一以后，则这一周都算作上个月的周号中
+  * */
+  date.week = () => {
+    const w = (date.date - date.day.value) / 7;
+    if (w <= 0) {
+      return Timer([date.year, date.month, 1]).from(-1).week();
+    }
+    return `${date.str('yyyyMM')}${Math.round(w + 0.49)}`;
+  };
 
   // 返回date对象
   date.dateObj = new Date(date.time);

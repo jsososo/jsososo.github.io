@@ -11,8 +11,6 @@ const num = (a, b = 0, c = 0) => {
   return Number((a + (c * d)).toFixed(b));
 };
 
-export const Abs = (a, b, c) => {
-  return Math.abs(num(a, b, c));
-}
+export const Abs = (a, b, c) => num(Math.abs(a), b, c);
 
 export default num;
