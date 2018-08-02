@@ -41,7 +41,7 @@ const recentlyUsed = {
           return box;
         }
       });
-      result.sort((a, b) => a.count - b.count);
+      result.sort((a, b) => b.count - a.count);
       return result;
     } catch (err) {
       console.log(err);
