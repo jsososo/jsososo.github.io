@@ -120,7 +120,7 @@ class PiggyList extends React.Component { // eslint-disable-line react/prefer-st
               <InputNumber className="w_150" min={1} precision={2} value={newInfo.total} onChange={(v) => this.changeVal(v, 'total')} />
             </div>
             <div className="mt_15">
-              <RangePicker allowClear={false} value={rangeVal} className="mr_20" onChange={(v) => this.changeVal(v, 'time')} />
+              <RangePicker disabledDate={(m) => timer(m).str('YYYYMMDD') < timer().str('YYYYMMDD')} allowClear={false} value={rangeVal} className="mr_20" onChange={(v) => this.changeVal(v, 'time')} />
               每
               <Select style={{ minWidth: '50px' }} value={newInfo.type} onChange={(v) => this.changeVal(v, 'type')}>
                 <Select.Option value="D">天</Select.Option>

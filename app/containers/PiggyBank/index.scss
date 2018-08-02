@@ -46,9 +46,21 @@
     height: 100%;
     transition: 0.3s;
   }
-  .p-bg-green {
-    width: 40px;
-    background: #bfb;
+  .piggy-item-bg {
+    font-weight: 900;
+    text-align: center;
+    vertical-align: top;
+    &.bg-green {
+      background: #bfb;
+      color: #1DC11D;
+    }
+    &.bg-blue {
+      background: #bef;
+    }
+    &.bg-red {
+      background: #fbb;
+      color: #F23C3C;
+    }
   }
   .p-bg-white {
     background: white;

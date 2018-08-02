@@ -13,7 +13,10 @@ import {
 
 const initialState = fromJS({
   list: [],
-  detail: {},
+  detail: {
+    record: {},
+    log: [],
+  },
 });
 
 function piggyBankReducer(state = initialState, action) {

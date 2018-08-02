@@ -9,7 +9,8 @@ import PropTypes from 'prop-types';
 
 import timer from '../../utils/timer';
 import Num, { Abs } from '../../utils/num';
-import { Icon, message, InputNumber, Button, Select } from 'antd';
+import { Icon, message, InputNumber, Button, Select, Modal, Input, DatePicker } from 'antd';
+import moment from 'moment';
 import PiggyLog from '../PiggyLog/Loadable';
 // import styled from 'styled-components';
 
@@ -35,11 +36,31 @@ class PiggyDetail extends React.Component { // eslint-disable-line react/prefer-
     this.state = {
       opType: 1,
       opNum: 0,
+      disable: false,
+      editModal: {
+        show: false,
+        endTime: props.detail.endTime,
+        title: props.detail.title,
+        total: props.detail.total,
+      },
     };
   }
 
   componentWillMount() {
     this.props.getDetail();
+  }
+
+  componentWillReceiveProps(nextProps) {
+    const { detail } = nextProps;
+    this.setState({
+      disable: (timer().time > detail.endTime) || (timer().time <  detail.startTime),
+      editModal: {
+        show: false,
+        endTime: nextProps.detail.endTime,
+        title: nextProps.detail.title,
+        total: nextProps.detail.total,
+      },
+    });
   }
 
   checkVal() {
@@ -89,9 +110,36 @@ class PiggyDetail extends React.Component { // eslint-disable-line react/prefer-
     return isNeed ? Num((detail.average - (detail.record[type] || 0)), 2) : (detail.record[type] || 0);
   }
 
+  changeEditInfo(v, k) {
+    const { editModal } = this.state;
+    if (typeof v === 'object') {
+      this.setState({
+        editModal: v,
+      });
+      return;
+    }
+    editModal[k] = v;
+    this.setState({
+      editModal,
+    });
+  }
+
+  saveEdit() {
+    const { editModal } = this.state;
+    const { detail, updateFun } = this.props;
+    const newDetail = {
+      ...detail,
+      ...editModal,
+    };
+    newDetail.average = Abs(editModal.total / Abs(timer(detail.startTime).to(timer(editModal.endTime), 'num', 2) / typeNumMap[detail.type], 0, 1), 2);
+    delete newDetail.show;
+    updateFun(newDetail);
+    this.changeEditInfo(false, 'show');
+  }
+
   render() {
     const { detail, updateFun } = this.props;
-    const { opType, opNum } = this.state;
+    const { opType, opNum, disable, editModal } = this.state;
     let timeProgress = Num(((timer().time - detail.startTime) / (detail.endTime - detail.startTime)) * 100, 2);
     timeProgress = timeProgress > 100 ? 100 : (timeProgress < 0 ? 0 : timeProgress);
     const numProgress = Num((detail.current / detail.total) * 100, 2);
@@ -102,7 +150,10 @@ class PiggyDetail extends React.Component { // eslint-disable-line react/prefer-
           <a href="#/kit/piggy">
             <Icon type="arrow-left" className="pointer ft_20 mr_20 mt_5 vat" />
           </a>
-          <div className="inline-block piggy-title">{detail.title}</div>
+          <div className="inline-block piggy-title">
+            {detail.title}
+            <Button className="ml_20" onClick={() => this.changeEditInfo(true, 'show')}>修改</Button>
+          </div>
           <div>
             <div className="page-left">
               {/* 时间进度 */}
@@ -128,44 +179,93 @@ class PiggyDetail extends React.Component { // eslint-disable-line react/prefer-
                 </div>
               </div>
               {/* 一些数字展示 */}
-              <div className="ft_16 ml_20 mb_10">
-                <span>计划每{typeMap[detail.type]}存</span>
-                <span className="fc_blue">¥{detail.average}</span>，
-                <span>现在每{typeMap[detail.type]}还要存</span>
-                <span className="fc_red">
-                  ¥{Abs(((detail.total - detail.current) / Abs(timer().to(timer(detail.endTime), 'num', 2) / typeNumMap[detail.type], 0, 1)), 2)}
-                </span>
-              </div>
-              <div className="ft_16 ml_20 mb_20">
-                <span>现在已存</span>
-                <span className="fc_blue">¥{this.getNowRecord()}</span>，
-                {
-                  this.getNowRecord(true) > 0 ?
-                    <span>
-                      <span>还差</span>
-                      <span className="fc_red">
-                      ¥{this.getNowRecord(true)}
-                      </span>
-                    </span> :
-                    <span>这{typeMap[detail.type]}够了</span>
-                }
-              </div>
+              {
+                !disable ?
+                  <div>
+                    <div className="ft_16 ml_20 mb_10">
+                      <span>计划每{typeMap[detail.type]}存</span>
+                      <span className="fc_blue">¥{detail.average}</span>，
+                      {
+                        detail.current < detail.total ?
+                          <span>
+                            <span>现在每{typeMap[detail.type]}还要存</span>
+                            <span className={detail.current < detail.total && 'fc_red'}>
+                              ¥{Abs(((detail.total - detail.current) / Abs(timer().to(timer(detail.endTime), 'num', 2) / typeNumMap[detail.type], 0, 1)), 2)}
+                            </span>
+                          </span> :
+                          <span>够了够了～</span>
+                      }
+                    </div>
+                    <div className="ft_16 ml_20 mb_20">
+                      <span>现在已存</span>
+                      <span className="fc_blue">¥{this.getNowRecord()}</span>，
+                      {
+                        this.getNowRecord(true) > 0 ?
+                          <span>
+                            <span>这{typeMap[detail.type]}还差</span>
+                            <span className="fc_red">¥{this.getNowRecord(true)}</span>
+                          </span> :
+                          <span>这{typeMap[detail.type]}够了</span>
+                      }
+                    </div>
+                  </div> :
+                  <div className="mt_20">
+                    这次存钱计划{timer().time < detail.startTime ? '还没开始呢' : '都结束了呢'}
+                  </div>
+              }
               {/* 操作 */}
-              <div className="operation-container ml_20">
-                <Select className="mr_10" value={opType} onChange={(v) => this.setState({ opType: v })}>
-                  <Select.Option value={1}>存入</Select.Option>
-                  <Select.Option value={-1}>取出</Select.Option>
-                </Select>
-                ¥
-                <InputNumber className="w_150 ml_5" min={0} precision={2} value={opNum} onChange={(v) => this.setState({ opNum: v })} />
-                <Button onClick={() => this.checkVal()} className="ml_20" type={opType > 0 ? 'primary' : 'danger'}>Done !</Button>
-              </div>
+              {
+                !disable &&
+                <div className="operation-container ml_20">
+                  <Select className="mr_10" value={opType} onChange={(v) => this.setState({ opType: v })}>
+                    <Select.Option value={1}>存入</Select.Option>
+                    <Select.Option value={-1}>取出</Select.Option>
+                  </Select>
+                  ¥
+                  <InputNumber className="w_150 ml_5" min={0} precision={2} value={opNum} onChange={(v) => this.setState({ opNum: v })} />
+                  <Button onClick={() => this.checkVal()} className="ml_20" type={opType > 0 ? 'primary' : 'danger'}>Done !</Button>
+                </div>
+              }
             </div>
             <div className="page-right">
-              <PiggyLog detail={detail} updateFun={updateFun} />
+              <PiggyLog disable={disable} detail={detail} updateFun={updateFun} />
             </div>
           </div>
         </div>
+        <Modal
+          onCancel={() => this.changeEditInfo({ show: false, endTime: detail.endTime, title: detail.title, total: detail.total })}
+          onOk={() => this.saveEdit()}
+          visible={editModal.show}
+          okText="改～"
+          cancelText="不改了"
+        >
+          <div>
+            换个名字：
+            <Input
+              value={editModal.title}
+              className="w_200"
+              onChange={(e) => this.changeEditInfo(e.target.value, 'title')}
+            />
+          </div>
+          <div className="mt_20">
+            改下目标：
+            <InputNumber
+              min={1}
+              precision={2}
+              value={editModal.total}
+              onChange={(v) => this.changeEditInfo(v, 'total')}
+            />
+          </div>
+          <div className="mt_20">
+            结束时间：
+            <DatePicker
+              disabledDate={(v) => timer(v).str('YYYYMMDD') < timer().str('YYYYMMDD')}
+              value={moment(editModal.endTime)}
+              allowClear={false}
+              onChange={(v) => this.changeEditInfo(timer(v).time, 'endTime')}
+            />
+          </div>
+        </Modal>
       </div>
     );
   }

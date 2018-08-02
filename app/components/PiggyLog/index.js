@@ -50,6 +50,7 @@ const getTimeName = (str) => {
 class PiggyLog extends React.PureComponent { // eslint-disable-line react/prefer-stateless-function
   // 日志表格
   getColumns() {
+    const { disable } = this.props;
     return [
       {
         key: 'time',
@@ -66,7 +67,7 @@ class PiggyLog extends React.PureComponent { // eslint-disable-line react/prefer
         key: 'operation',
         title: '操作',
         width: '100',
-        render: (v) => <Icon type="delete" className="del-btn" onClick={() => this.delLog(v)} />,
+        render: (v) => disable ? '么的操作' : <Icon type="delete" className="del-btn" onClick={() => this.delLog(v)} />,
       },
     ];
   }
@@ -154,6 +155,7 @@ class PiggyLog extends React.PureComponent { // eslint-disable-line react/prefer
 PiggyLog.propTypes = {
   updateFun: PropTypes.func.isRequired,
   detail: PropTypes.object.isRequired,
+  disable: PropTypes.bool.isRequired,
 };
 
 export default PiggyLog;
