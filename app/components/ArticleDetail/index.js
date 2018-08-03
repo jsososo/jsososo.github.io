@@ -65,8 +65,17 @@ class ArticleDetail extends React.Component { // eslint-disable-line react/prefe
       initialContent: rawInfo.content,
       onChange: (v) => this.changeInfo('content', v),
       excludeControls: ['font-family', 'indent'],
-      tabIndents: 4,
-      pasteMode: 'text',
+      tabIndents: 2,
+      pasteMode: '',
+      colors: [
+        '#000000', '#333333', '#666666', '#999999', '#cccccc', '#ffffff',
+        '#61a951', '#16a085', '#07a9fe', '#003ba5', '#8e44ad', '#f32784',
+        '#c0392b', '#d35400', '#f39c12', '#fff392', '#ffda00', '#2c3e50',
+        '#ffcccc', '#FFFFD5', '#ccffff', '#ccffcc', '#FF14E7', '#FF709B',
+      ],
+      onClick: ()=> {
+        console.log(123);
+      },
       onSave: () => saveArticle(info, true),
       media: {
         allowPasteImage: true, // 是否允许直接粘贴剪贴板图片（例如QQ截图等）到编辑器
@@ -74,11 +83,11 @@ class ArticleDetail extends React.Component { // eslint-disable-line react/prefe
         // video: true, // 开启视频插入功能
         // audio: true, // 开启音频插入功能
         validateFn: null, // 指定本地校验函数，说明见下文
-        uploadFn: function (param) {
+        uploadFn: (param) => {
           Storage.saveFile(param.file, (res) => {
             param.success(res);
           }, (event) => {
-            param.progress(event.loaded / event.total * 100);
+            param.progress((event.loaded / event.total) * 100);
           });
         }, // 指定上传函数，说明见下文
         removeConfirmFn: null, // 指定删除前的确认函数，说明见下文
@@ -86,6 +95,20 @@ class ArticleDetail extends React.Component { // eslint-disable-line react/prefe
         onChange: null, // 指定媒体库文件列表发生变化时的回调，参数为媒体库文件列表(数组)
         onInsert: null, // 指定从媒体库插入文件到编辑器时的回调，参数为被插入的媒体文件列表(数组)
       },
+      ref: (instance) => { this.editorInstance = instance; },
+      extendControls: [
+        {
+          type: 'button',
+          text: 'code',
+          className: 'preview-button',
+          onClick: () => {
+            this.editorInstance.toggleSelectionColor('#FF709B');
+            this.editorInstance.toggleSelectionBackgroundColor('#FFFFD5');
+            this.editorInstance.toggleSelectionFontFamily('Monospace');
+            this.editorInstance.toggleSelectionInlineStyle('BOLD');
+          },
+        },
+      ],
     };
 
     return (
@@ -133,7 +156,7 @@ class ArticleDetail extends React.Component { // eslint-disable-line react/prefe
             >取消</Button>
           </div>
           <div style={{ border: '1px solid #ddd', borderRadius: '10px' }}>
-            <BraftEditor {...editorProps} />
+            <BraftEditor {...editorProps} onClick={() => console.log(this)} />
           </div>
         </div> :
         <div className="article-detail">

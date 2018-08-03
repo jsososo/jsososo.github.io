@@ -18,11 +18,9 @@ const Timer = (v = new Date(), strType) => {
     if (strType && typeof strType === 'string') {
       const timeArr = [];
       const mapType = [
-        ['yyyy', 'yy'],
         ['YYYY', 'YY'],
         ['MM', 'M'],
         ['DD', 'D'],
-        ['dd', 'd'],
         ['HH', 'H'],
         ['mm', 'm'],
         ['ss', 's'],
