@@ -149,3 +149,39 @@
     }
   }
 }
+
+
+.comment-box {
+  .input-comment-container {
+    width: 100%;
+    .comment-avatar {
+      width: 70px;
+      height: 70px;
+      vertical-align: middle;
+      border-radius: 50%;
+      border: 1px solid #999;
+
+      &.no-avatar {
+        background: rgba(24, 144, 255, 0.7);
+        border-color: transparent;
+        color: white;
+        line-height: 70px;
+        font-size: 30px;
+        text-align: center;
+      }
+    }
+
+    .comment-input-area {
+      display: inline-block;
+      width: calc(100% - 200px);
+      margin-left: 20px;
+    }
+
+    .comment-btn {
+      height: 70px;
+      margin-left: 10px;
+      font-weight: 900;
+      width: 70px;
+    }
+  }
+}
