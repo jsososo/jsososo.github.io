@@ -121,9 +121,9 @@ class Aalist extends React.Component { // eslint-disable-line react/prefer-state
             <div className="aa-list">
               {list.map((t, i) => (
                 <div key={`aa-list-${i}`} className="aa-list-item">
-                  <div className="aa-list-item-title" style={{overflow: 'hidden'}}>
-                    <a href={`#/kit/aa/?id=${t.objectId}`}>{t.title}</a>
-                  </div>
+                  <a href={`#/kit/aa/?id=${t.objectId}`}>
+                    <div className="aa-list-item-title" style={{ overflow: 'hidden' }}>{t.title}</div>
+                  </a>
                   <div className="aa-list-item-user">
                     <span className="fc_999 pr_10">{shortString(t.users.join('、'), 12)}</span>
                     {t.users.length}个人的账本

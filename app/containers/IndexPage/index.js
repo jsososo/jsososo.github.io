@@ -100,11 +100,11 @@ export class IndexPage extends React.Component { // eslint-disable-line react/pr
   }
 
   getKits() {
-    const { user } = this.props;
+    const user = decodeURI(Storage.get('user').split('-')[0]);
     Storage.queryBmob(
       'RecentlyUsed',
       (q) => {
-        q.equalTo('user', user.username);
+        q.equalTo('user', user);
         return q;
       },
       (res) => {
