@@ -2,6 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Input, message, Icon, Modal, Select } from 'antd';
 import timer from '../../utils/timer';
+import Num from '../../utils/num';
 
 class Record extends React.Component {
   constructor(props) {
@@ -147,7 +148,7 @@ class Record extends React.Component {
         </div>
         <div className="record-total">
           <div className="record-left">总计：</div>
-          <div className="record-right">{totalCost}</div>
+          <div className="record-right">{Num(totalCost, 2)}</div>
         </div>
         <hr/>
         <div className="record-list">
