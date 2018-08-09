@@ -15,10 +15,7 @@ class Box extends React.Component {
   componentWillMount() {
     Storage.queryBmob(
       'BoxInfo',
-      (q) => {
-        q.limit = 1000;
-        return q;
-      },
+      undefined,
       (res) => {
         this.setState({
           list: res,

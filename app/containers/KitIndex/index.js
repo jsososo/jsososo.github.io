@@ -71,10 +71,7 @@ export class KitIndex extends React.Component { // eslint-disable-line react/pre
       // 获取所有的子应用大致信息
       Storage.queryBmob(
         'BoxInfo',
-        (q) => {
-          q.limit = 1000;
-          return q;
-        },
+        undefined,
         (res) => {
           // 把box列表按照type为key名分来排好
           const boxInfo = {};

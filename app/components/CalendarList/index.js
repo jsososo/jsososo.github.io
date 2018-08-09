@@ -43,7 +43,7 @@ class CalendarList extends React.Component { // eslint-disable-line react/prefer
   }
 
   render() {
-    const { createThing, list, selected, saveThing, delThing } = this.props;
+    const { createThing, list, selected, saveThing, delThing, tags } = this.props;
     const sDay = selected.str('YYYYMMDD');
     const { editId } = this.state;
     // 如果存在选中的信息
@@ -56,6 +56,7 @@ class CalendarList extends React.Component { // eslint-disable-line react/prefer
             list[sDay] && list[selected.str('YYYYMMDD')].map((thing) => (
               <div key={`thing-${thing.objectId}`} className="calendar-list-item">
                 <div className="content pointer" onClick={() => this.changeEditId(thing.objectId)}>
+                  {thing.tag && `【${thing.tag}】`}
                   {thing.title || '还没起名字'}
                 </div>
                 <div className="operation">
@@ -77,6 +78,7 @@ class CalendarList extends React.Component { // eslint-disable-line react/prefer
           info={editInfo}
           save={saveThing}
           delThing={delThing}
+          tags={tags}
         />
     );
   }
@@ -89,6 +91,7 @@ CalendarList.propTypes = {
   thingId: PropTypes.string,
   saveThing: PropTypes.func.isRequired,
   delThing: PropTypes.func.isRequired,
+  tags: PropTypes.array.isRequired,
 };
 
 export default CalendarList;

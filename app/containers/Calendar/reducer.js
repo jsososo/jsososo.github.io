@@ -22,6 +22,7 @@ const initialState = fromJS({
     month: timer().month,
   },
   list: {},
+  tags: [],
   selected: today,
 });
 
@@ -37,7 +38,8 @@ function calendarReducer(state = initialState, action) {
         .set('selected', fromJS(action.data));
     case QUERY_LIST:
       return state
-        .set('list', fromJS(action.data));
+        .set('list', fromJS(action.data.list))
+        .set('tags', fromJS(action.data.tags));
     default:
       return state;
   }

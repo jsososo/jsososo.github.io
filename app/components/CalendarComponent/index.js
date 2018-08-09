@@ -9,7 +9,8 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import './index.scss';
 
-import { Icon, Badge, InputNumber, Button } from 'antd';
+import { Icon, Badge, InputNumber, Button, Modal } from 'antd';
+import NoticeSetting from '../../components/NoticeSetting/Loadable';
 
 import timer, { getCalendar, formatNumber } from '../../utils/timer';
 
@@ -21,6 +22,7 @@ class CalendarComponent extends React.Component { // eslint-disable-line react/p
     this.state = {
       selectYear: false,
       selectMonth: false,
+      showSettingModal: false,
     };
   }
 
@@ -54,7 +56,8 @@ class CalendarComponent extends React.Component { // eslint-disable-line react/p
   }
 
   render() {
-    const { year, month, selected, changeSelected, list } = this.props;
+    const { year, month, selected, changeSelected, list, user } = this.props;
+    const { showSettingModal } = this.state;
     const cArr = getCalendar(year, month);
     const isThisMonth = selected.month === month && selected.year === year;
 
@@ -72,7 +75,11 @@ class CalendarComponent extends React.Component { // eslint-disable-line react/p
             }}
           >回到今天</Button>
           <Button type="primary" className="ml_20"><a href="#/kit/milestone?id=today">前往里程碑</a></Button>
+          { user && user.login &&
+            <Icon className="ft_20 ml_20 pointer" type="setting" onClick={() => this.setState({ showSettingModal: true })} />
+          }
         </div>
+        {/* 日历头 */}
         <div className="calendar-header text-center">
           <div className="pull-left ft_16">
             <Icon type="double-left" className="mr_10" onClick={() => this.changeCalendar(-1, 0, true)} />
@@ -118,6 +125,7 @@ class CalendarComponent extends React.Component { // eslint-disable-line react/p
             <Icon type="double-right" className="ml_10" onClick={() => this.changeCalendar(1, 0, true)} />
           </div>
         </div>
+        {/* 日历身体 */}
         <div className="calendar-body">
           <div className="week-day-box week-box">
             {'日一二三四五六'.split('').map((item, index) => (
@@ -147,6 +155,15 @@ class CalendarComponent extends React.Component { // eslint-disable-line react/p
             ))
           }
         </div>
+
+        {/* 设置提醒的弹窗 */}
+        <Modal
+          footer={null}
+          visible={showSettingModal}
+          onCancel={() => this.setState({ showSettingModal: false })}
+        >
+          <NoticeSetting user={user} visible={showSettingModal} />
+        </Modal>
       </div>
     );
   }
@@ -159,6 +176,7 @@ CalendarComponent.propTypes = {
   changeCalendar: PropTypes.func.isRequired,
   changeSelected: PropTypes.func.isRequired,
   list: PropTypes.object.isRequired,
+  user: PropTypes.object,
 };
 
 export default CalendarComponent;

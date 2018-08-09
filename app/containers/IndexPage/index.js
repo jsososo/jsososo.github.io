@@ -49,10 +49,7 @@ export class IndexPage extends React.Component { // eslint-disable-line react/pr
       // 获取所有的子应用大致信息
       Storage.queryBmob(
         'BoxInfo',
-        (q) => {
-          q.limit = 1000;
-          return q;
-        },
+        undefined,
         (res) => {
           // 把box列表按照type为key名分来排好
           const boxInfo = {};
@@ -83,7 +80,6 @@ export class IndexPage extends React.Component { // eslint-disable-line react/pr
       (q) => {
         q.equalTo('public', true);
         q.select('author', 'lastEdit', 'title');
-        q.limit = 1000;
         return q;
       },
       (res) => {
