@@ -1,9 +1,9 @@
 // import React from 'react';
 // import { shallow } from 'enzyme';
 
-// import { CodeIndex } from '../index';
+// import NoticeSetting from '../index';
 
-describe('<CodeIndex />', () => {
+describe('<NoticeSetting />', () => {
   it('Expect to have unit tests specified', () => {
     expect(true).toEqual(false);
   });

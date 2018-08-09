@@ -33,8 +33,8 @@ export class User extends React.PureComponent { // eslint-disable-line react/pre
         if (res) {
           const userObj = JSON.parse(JSON.stringify(res));
           userObj.login = true;
+          Storage.set('user', `${user.username}-${user.password.split('').reverse().join('')}`);
           this.props.login(userObj);
-          Storage.set('user', `${user.username}-${user.password.split('').reverse().join('')}`)
           window.location = '#/';
         }
       },

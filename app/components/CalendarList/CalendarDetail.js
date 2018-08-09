@@ -8,7 +8,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 // import styled from 'styled-components';
 import moment from 'moment';
-import { Button, Switch, Input, Icon, DatePicker, Modal, message } from 'antd';
+import { Button, Switch, Input, Icon, DatePicker, Modal, message, Select } from 'antd';
 const { TextArea } = Input;
 
 import { markdown } from '../../utils/stringHelper';
@@ -77,9 +77,9 @@ class CalendarDetail extends React.Component { // eslint-disable-line react/pref
   }
 
   render() {
-    const { info, backToList } = this.props;
+    const { info, backToList, tags } = this.props;
     const { editInfo, isEdit } = this.state;
-
+    console.log(tags);
     return (
       <div className=" calendar-list calendar-list-detail">
         {
@@ -104,7 +104,22 @@ class CalendarDetail extends React.Component { // eslint-disable-line react/pref
                       defaultValue={moment(editInfo.time)}
                       onChange={(v) => this.changeEditInfo(v._d.getTime(), 'time')}
                     />
-                    <Switch className="ml_20" checked={editInfo.milestone} onChange={(v) => this.changeEditInfo(v, 'milestone')} />
+                    {/* 里程碑 */}
+                    <span className="pl_20 pr_19">里程碑：</span>
+                    <Switch checked={editInfo.milestone} onChange={(v) => this.changeEditInfo(v, 'milestone')} />
+                    {/* tag */}
+                    <Select
+                      className="ml_20"
+                      style={{ minWidth: '70px', maxWidth: '300px' }}
+                      mode="tags"
+                      value={editInfo.tag ? [editInfo.tag] : []}
+                      placeholder="Tag"
+                      onChange={(v) => this.changeEditInfo(v[Math.max(v.length - 1, 0)], 'tag')}
+                    >
+                      { tags.map((t) =>
+                        <Select.Option key={`select-tag-${t}`} value={t}>{t}</Select.Option>
+                      )}
+                    </Select>
                   </div>
                 </div>
               </div>
@@ -114,7 +129,7 @@ class CalendarDetail extends React.Component { // eslint-disable-line react/pref
               <div className="detail-head">
                 <Icon type="arrow-left" className="pointer ft_20 mr_10 mt_5 vat" onClick={backToList} />
                 <div className="inline-block" style={{width: 'calc(100% - 30px)'}}>
-                  <span className="detail-title ft_18">{info.title || '还没起名字'}</span>
+                  <span className="detail-title ft_18">{info.tag && `【${info.tag}】`}{info.title || '还没起名字'}</span>
                   <div className="pull-right">
                     <Button type="primary" className="mr_10" onClick={() => this.changeEdit(true)}>编辑</Button>
                     {
@@ -150,6 +165,7 @@ CalendarDetail.propTypes = {
   backToList: PropTypes.func.isRequired,
   save: PropTypes.func.isRequired,
   delThing: PropTypes.func.isRequired,
+  tags: PropTypes.array.isRequired,
 };
 
 export default CalendarDetail;

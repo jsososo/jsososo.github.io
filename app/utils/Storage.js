@@ -95,7 +95,7 @@ const Storage = {
   *  @params: fun   查询条件
   *  @params: type  查询方式：（first, find, count）
   * */
-  queryBmob(table, fun, cb, errCb, type = 'first') {
+  queryBmob(table, fun = (q) => q, cb, errCb, type = 'first') {
     const query = getQueryBmob(table, fun);
     query[type]({
       success: (res) => cb && cb(res && JSON.parse(JSON.stringify(res))),

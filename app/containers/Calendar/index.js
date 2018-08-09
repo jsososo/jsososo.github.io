@@ -28,6 +28,7 @@ import Storage from '../../utils/Storage';
 import { makeSelectUser } from "../App/selectors";
 import { changeUrlQuery } from "../../utils/stringHelper";
 import { checkLogIn } from '../App/index';
+import arrayHelper from '../../utils/arrayHelper';
 
 import { message } from 'antd';
 
@@ -56,6 +57,20 @@ export class Calendar extends React.PureComponent { // eslint-disable-line react
       },
       (res) => {
         const calendarList = {};
+        // 默认的tag
+        let tags = ['生日', '纪念'];
+        // 对于生日的，给往后50年都记上
+        res.forEach((item) => {
+          if (item.tag === '生日') {
+            let count = 0;
+            while (count < 50) {
+              count += 1;
+              const newThing = JSON.parse(JSON.stringify(item));
+              newThing.time = timer(item.time).from(count, 'Y').time;
+              res.push(newThing);
+            }
+          }
+        });
         // 把事件按照日期为 key 进行分类
         res.forEach((item) => {
           if (item.time) {
@@ -65,8 +80,16 @@ export class Calendar extends React.PureComponent { // eslint-disable-line react
             }
             calendarList[dStr].push(item);
           }
+          if (item.tag) {
+            tags.push(item.tag);
+          }
         });
-        this.props.queryList(calendarList);
+        // 一口气去重
+        tags = arrayHelper.delDuplicate(tags);
+        this.props.queryList({
+          list: calendarList,
+          tags,
+        });
         if (cb) {
           cb();
         }
@@ -91,6 +114,9 @@ export class Calendar extends React.PureComponent { // eslint-disable-line react
         notice: false,
         title: '',
         content: '',
+        tag: '',
+        reminder: [],
+        periodicReminder: [],
       },
       (res) => this.getAllThing(() => {
         changeUrlQuery({
@@ -128,6 +154,10 @@ export class Calendar extends React.PureComponent { // eslint-disable-line react
 
   // 保存修改
   saveThing(thing, cb) {
+    // 生日类的，避免修改时间影响前面
+    if (thing.tag === '生日') {
+      delete thing.time;
+    }
     Storage.setBmob(
       'Thing',
       thing.objectId,
@@ -156,8 +186,8 @@ export class Calendar extends React.PureComponent { // eslint-disable-line react
   }
 
   render() {
-    const { calendar, changeCalendarInfo } = this.props;
-    const { calendarInfo, selected, list } = calendar;
+    const { calendar, changeCalendarInfo, user } = this.props;
+    const { calendarInfo, selected, list, tags } = calendar;
     return (
       <div>
         <Helmet>
@@ -171,6 +201,8 @@ export class Calendar extends React.PureComponent { // eslint-disable-line react
             {...calendarInfo}
             selected={selected}
             list={list}
+            tags={tags}
+            user={user}
           />
           <CalendarList
             saveThing={(t, cb) => this.saveThing(t, cb)}
@@ -178,6 +210,7 @@ export class Calendar extends React.PureComponent { // eslint-disable-line react
             thingId={getQueryFromUrl('id')}
             list={list}
             selected={selected}
+            tags={tags}
             delThing={(thing, cb) => this.delThing(thing, cb)}
           />
         </div>

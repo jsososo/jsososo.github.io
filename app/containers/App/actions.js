@@ -26,6 +26,7 @@ import {
   GET_BOX_INFO,
 } from './constants';
 import notice from '../../utils/notice';
+import Storage from '../../utils/Storage';
 /**
  * Load the repositories, this action starts the request saga
  *
@@ -89,7 +90,7 @@ export function queryBoxes(data) {
 
 export function getUserInfo(data) {
   if (data.username !== '游客') {
-    notice.findNotice();
+    notice.findNotice(data.username);
   }
   return {
     type: GET_USER_INFO,

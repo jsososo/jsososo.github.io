@@ -18,14 +18,14 @@ import reducer from './reducer';
 import saga from './saga';
 import { makeSelectUser } from "../App/selectors";
 
-import { Timeline } from 'antd';
+import { Timeline, message, Select } from 'antd';
 import timer from '../../utils/timer';
 import { getQueryFromUrl } from "../../utils/stringHelper";
 import recentlyUsed from '../../utils/recentlyUsed';
 import Storage from '../../utils/Storage';
 import * as Action from './actions';
-import { message } from 'antd';
 import { checkLogIn } from "../App/index";
+import arrayHelper from '../../utils/arrayHelper';
 
 export class MileStone extends React.PureComponent { // eslint-disable-line react/prefer-stateless-function
   // 页面加载或者更新之后都自动滚动到想要的位置
@@ -38,28 +38,30 @@ export class MileStone extends React.PureComponent { // eslint-disable-line reac
 
   // 获取所有的里程碑
   getAllMileStone() {
+    const username = this.props.user.username || '游客';
     Storage.queryBmob(
       'Thing',
       (q) => {
-        q.equalTo('user', this.props.user.username || '游客');
+        q.equalTo('user', username);
         q.equalTo('milestone', true);
         q.limit(1000);
 
         return q;
       },
       (res = []) => {
+        let tags = [];
         res.push({ id: 'today', time: timer().time });
-        res.sort((a, b) => a.time - b.time);
-        const list = {};
-        res.forEach((item) => {
-          const dStr = timer(item.time).str();
-          if (list[dStr]) {
-            list[dStr].push(item);
-          } else {
-            list[dStr] = [item];
+        res.forEach((t) => {
+          if (t.tag) {
+            tags.push(t.tag);
           }
         });
-        this.props.queryMileStone(list);
+        tags = arrayHelper.delDuplicate(tags);
+        this.props.queryMileStone({
+          list: res,
+          tags,
+        });
+        this.selectMileStone(Storage.get(`mile-stone-tag-${username}`));
         this.pageScroll();
       },
       () => {
@@ -67,6 +69,26 @@ export class MileStone extends React.PureComponent { // eslint-disable-line reac
       },
       'find',
     );
+  }
+
+  // 根据tag去筛选
+  selectMileStone(tag = '') {
+    const { milestone, selectMileStone, user } = this.props;
+    const list = {};
+    // 放到localStorage里
+    Storage.set(`mile-stone-tag-${user.username || '游客'}`, tag);
+    milestone.rawList.forEach((item) => {
+      if (tag && item.tag !== tag && item.id !== 'today') {
+        return;
+      }
+      const dStr = timer(item.time).str();
+      if (list[dStr]) {
+        list[dStr].push(item);
+      } else {
+        list[dStr] = [item];
+      }
+    });
+    selectMileStone({ list, tag });
   }
 
   // 页面滚动
@@ -88,6 +110,13 @@ export class MileStone extends React.PureComponent { // eslint-disable-line reac
           <meta name="jsososo" content="里程碑" />
         </Helmet>
         <div>
+          <div className="mb_20">
+            Tag：
+            <Select className="w_200 ml_20" value={milestone.selectTag} onChange={(v) => this.selectMileStone(v)}>
+              <Select.Option value="">全部</Select.Option>
+              {milestone.tags.map((t) => <Select.Option key={`mile-stone-tag-${t}`} value={t}>{t}</Select.Option>)}
+            </Select>
+          </div>
           <Timeline>
             {
               Object.keys(milestone.list).sort((a, b) => timer(a, 'YYYY-MM-DD').time - timer(b, 'YYYY-MM-DD').time).map((key) => (
@@ -138,6 +167,7 @@ MileStone.propTypes = {
   milestone: PropTypes.object.isRequired,
   user: PropTypes.object.isRequired,
   queryMileStone: PropTypes.func.isRequired,
+  selectMileStone: PropTypes.func.isRequired,
 };
 
 const mapStateToProps = createStructuredSelector({
@@ -148,6 +178,7 @@ const mapStateToProps = createStructuredSelector({
 function mapDispatchToProps(dispatch) {
   return {
     queryMileStone: (data) => dispatch(Action.queryMileStone(data)),
+    selectMileStone: (data) => dispatch(Action.selectMileStoneList(data)),
   };
 }
 
