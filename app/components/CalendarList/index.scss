@@ -1,16 +1,19 @@
 .calendar-list {
   display: inline-block;
   vertical-align: top;
-  padding: 20px;
-  padding-right: 0;
-  padding-left: 100px;
+  padding: 0 0 20px 100px;
   width: 750px;
 
   .calendar-list-item {
-    width: 100%;
-    padding: 5px;
+    width: 90%;
+    padding-left: 5px;
     height: 40px;
-    margin-top: 15px;
+    line-height: 40px;
+    transition: 0.3s;
+
+    &:hover {
+      background: #efe8ff;
+    }
 
     .content {
       display: inline-block;

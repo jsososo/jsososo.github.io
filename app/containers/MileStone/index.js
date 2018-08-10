@@ -39,6 +39,7 @@ export class MileStone extends React.PureComponent { // eslint-disable-line reac
   // 获取所有的里程碑
   getAllMileStone() {
     const username = this.props.user.username || '游客';
+    const today = timer();
     Storage.queryBmob(
       'Thing',
       (q) => {
@@ -50,10 +51,16 @@ export class MileStone extends React.PureComponent { // eslint-disable-line reac
       },
       (res = []) => {
         let tags = [];
-        res.push({ id: 'today', time: timer().time });
+        res.push({ id: 'today', time: today.time });
         res.forEach((t) => {
           if (t.tag) {
             tags.push(t.tag);
+          }
+          if (t.tag === '生日') {
+            const newTime = timer(`${today.year}${timer(t.time).str('MMDD')}`, 'YYYYMMDD');
+            if (newTime.str('YYYYMMDD') < today.str('YYYYMMDD')) {
+              t.time = newTime.from(1, 'Y').time;
+            }
           }
         });
         tags = arrayHelper.delDuplicate(tags);
@@ -143,13 +150,14 @@ export class MileStone extends React.PureComponent { // eslint-disable-line reac
                             {index === 0 && timer(item.time).str()}
                           </b>
                           <a className="mile-stone-link" href={`#/kit/calendar/?date=${timer(item.time).str()}&id=${item.id}`}>
-                            <span className="pl_20 ft_16" style={{ fontWeight: '900' }}>
+                            <span className={`${item.tag ? 'pl_15' : 'pl_20'} ft_16`} style={{ fontWeight: '900' }}>
+                              {item.tag && `【${item.tag}】`}
                               {item.title || '还没起名字'}
                             </span>
                             <span className="pl_20">{timer().to(timer(item.time), 'str', 2)}</span>
                           </a>
                         </div>
-                        <div className="fc_999" style={{ paddingLeft: '170px' }}>{item.content}</div>
+                        <div className="fc_999" style={{ paddingLeft: '170px', wordBreak: 'break-all' }}>{item.content}</div>
                       </div>
                     ))
                   }

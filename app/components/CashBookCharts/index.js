@@ -5,8 +5,8 @@
 */
 
 import React from 'react';
-import LineChart from '../LineChart';
-import PieChart from '../PieChart';
+import LineChart from '../LineChart/Loadable';
+import PieChart from '../PieChart/Loadable';
 import PropTypes from 'prop-types';
 
 import { Abs } from "../../utils/num";

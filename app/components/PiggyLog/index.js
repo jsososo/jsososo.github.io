@@ -11,7 +11,7 @@ import timer from '../../utils/timer';
 
 import { Tabs, Table, Icon } from 'antd';
 import Calendar from './Calendar';
-import LineChart from '../LineChart';
+import LineChart from '../LineChart/Loadable';
 import Num from '../../utils/num';
 // import styled from 'styled-components';
 

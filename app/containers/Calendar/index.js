@@ -58,7 +58,7 @@ export class Calendar extends React.PureComponent { // eslint-disable-line react
       (res) => {
         const calendarList = {};
         // 默认的tag
-        let tags = ['生日', '纪念'];
+        let tags = ['生日', '纪念', '远方'];
         // 对于生日的，给往后50年都记上
         res.forEach((item) => {
           if (item.tag === '生日') {

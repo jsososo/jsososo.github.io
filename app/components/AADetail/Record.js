@@ -147,7 +147,7 @@ class Record extends React.Component {
           <span className="transfer-btn" onClick={() => this.transfer()}>转账</span>
         </div>
         <div className="record-total">
-          <div className="record-left">总计：</div>
+          <div className="record-left">支出总计：</div>
           <div className="record-right">{Num(totalCost, 2)}</div>
         </div>
         <hr/>
@@ -155,6 +155,7 @@ class Record extends React.Component {
           <div className="record-detail">
             <div className="record-left">
               <Input
+                placeholder="花在哪儿啦"
                 value={newInfo.desc}
                 onChange={(e) => this.inputNew(e.target.value, 'desc')}
                 onPressEnter={() => this.addRecord()}
@@ -162,6 +163,7 @@ class Record extends React.Component {
             </div>
             <div className="record-right">
               <Input
+                placeholder="多少钱？（支持加减乘除）"
                 value={newInfo.num}
                 onChange={(e) => this.inputNew(e.target.value, 'num')}
                 onPressEnter={() => this.addRecord()}

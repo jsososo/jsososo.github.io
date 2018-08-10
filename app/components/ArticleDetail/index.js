@@ -190,8 +190,8 @@ class ArticleDetail extends React.Component { // eslint-disable-line react/prefe
               rawInfo.content === 'undefined' && <div className="mt_20 text-center ft_20"><Icon type="loading" /></div>
             }
           </div>
+          {/*
           <div className="comment-box pl_20">
-            <b>评论：</b>
             <div className="input-comment-container">
               <div className="inline-block">
                 {user.avatar ?
@@ -206,7 +206,7 @@ class ArticleDetail extends React.Component { // eslint-disable-line react/prefe
               />
               <Button className="comment-btn" type="primary">发!</Button>
             </div>
-          </div>
+          </div>*/}
         </div>
     );
   }

@@ -79,7 +79,6 @@ class CalendarDetail extends React.Component { // eslint-disable-line react/pref
   render() {
     const { info, backToList, tags } = this.props;
     const { editInfo, isEdit } = this.state;
-    console.log(tags);
     return (
       <div className=" calendar-list calendar-list-detail">
         {
@@ -88,7 +87,8 @@ class CalendarDetail extends React.Component { // eslint-disable-line react/pref
               <div>
                 <div className="inline-block" style={{width: '100%'}}>
                   <div>
-                    <Input style={{width: '200px'}} onChange={(e) => this.changeEditInfo(e.target.value, 'title')} value={editInfo.title} />
+                    <Input style={{ width: '200px' }} onChange={(e) => this.changeEditInfo(e.target.value, 'title')} value={editInfo.title} />
+                    <span className="fc_999 pl_10">标签可用于提醒，点那个小齿轮可进行设置</span>
                     <div className="pull-right">
                       <Button type="primary" onClick={() => this.cancelEdit(true)} className="mr_10">保存</Button>
                       <Button onClick={() => this.cancelEdit()}>取消</Button>
@@ -123,7 +123,13 @@ class CalendarDetail extends React.Component { // eslint-disable-line react/pref
                   </div>
                 </div>
               </div>
-              <TextArea autosize={{ minRows: 4 }} className="mt_20" value={editInfo.content} onChange={(e) => this.changeEditInfo(e.target.value, 'content')} />
+              <TextArea
+                placeholder="markdown语法哟"
+                autosize={{ minRows: 4 }}
+                className="mt_20"
+                value={editInfo.content}
+                onChange={(e) => this.changeEditInfo(e.target.value, 'content')}
+              />
             </div> :
             <div>
               <div className="detail-head">

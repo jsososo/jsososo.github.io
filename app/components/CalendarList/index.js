@@ -11,7 +11,7 @@ import PropTypes from 'prop-types';
 
 import timer from '../../utils/timer';
 
-import { Button, Switch, Modal } from 'antd';
+import { Button, Alert } from 'antd';
 import CalendarDetail from './CalendarDetail';
 import { changeUrlQuery } from "../../utils/stringHelper";
 
@@ -51,7 +51,8 @@ class CalendarList extends React.Component { // eslint-disable-line react/prefer
     return (
       !editInfo ?
         <div className="calendar-list">
-          <Button type="primary" onClick={() => createThing(selected)}>添加事件</Button>
+          <Button type="primary mb_10 mt_10 mr_20" onClick={() => createThing(selected)}>添加事件</Button>
+          <span className="fc_999">标签可用于提醒，点那个小齿轮可进行设置</span>
           {
             list[sDay] && list[selected.str('YYYYMMDD')].map((thing) => (
               <div key={`thing-${thing.objectId}`} className="calendar-list-item">

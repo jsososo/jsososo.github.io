@@ -54,8 +54,8 @@ const Notice = {
     if (!username || Storage.get(`notice-record-${username}`) === today.str()) {
       return;
     }
-    baseQuery('Piggy', 'username', piggyCb);
-    baseQuery('NoticeSetting', 'username', noticeSettingCb);
+    baseQuery('Piggy', { username }, null, ['total', 'current', 'endTime', 'startTime', 'title', 'average', 'type', 'record'], piggyCb);
+    baseQuery('NoticeSetting', { username }, null, null, noticeSettingCb);
     // 标志今天提醒过了
     Storage.set(`notice-record-${username}`, today.str());
   },
@@ -63,12 +63,13 @@ const Notice = {
 
 
 // 一个基础Bmob find的请求
-const baseQuery = (table, key, cb) => {
-  const username = Storage.get('user').split('-')[0] || '';
+const baseQuery = (table, eq, nEq, s, cb) => {
   Storage.queryBmob(
     table,
     (q) => {
-      q.equalTo(key, username);
+      eq && Object.keys(eq).forEach((k) => q.equalTo(k, eq[k]));
+      nEq && Object.keys(nEq).forEach((k) => q.notEqualTo(k, nEq[k]));
+      s && q.select(...[s]);
       return q;
     },
     (res) => res && cb(res),
@@ -105,7 +106,7 @@ const noticeSettingCb = (res) => {
     return;
   }
   NoticeSetting = res;
-  baseQuery('Thing', 'user', thingCb);
+  baseQuery('Thing', { user: username }, { tag: '' }, ['title', 'tag', 'time'], thingCb);
 };
 
 // 事件的回调
@@ -138,7 +139,6 @@ const thingCb = (res) => {
         } else {
           noticeText = `还有${rule.count}天，`;
         }
-
       }
     });
     if (showNotice) {

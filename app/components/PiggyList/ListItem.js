@@ -28,12 +28,13 @@ class ListItem extends React.PureComponent {
     const { item, delPiggy } = this.props;
     // 进度
     let progress = Math.round((item.current * 10000) / item.total) / 100;
+    const clsName = this.getClsName();
     progress = progress > 100 ? 100 : (progress < 0 ? 0 : progress);
     return (
       <div className="piggy-list-item">
         <div className="piggy-item-background">
-          <div className={`piggy-item-bg ${this.getClsName()}`} style={{ width: `${progress}%` }}>
-            {clsMap[this.getClsName()]}
+          <div className={`piggy-item-bg ${clsName}`} style={{ width: `${clsName === 'bg-red' ? 100 : progress}%` }}>
+            {clsMap[clsName]}
           </div>
           <div className="p-bg-white" />
         </div>

@@ -111,7 +111,7 @@ class NotebookDetail extends React.Component { // eslint-disable-line react/pref
                   <Icon
                     type={editInfo.star ? 'star' : 'star-o'}
                     className="ml_20 pointer"
-                    style={{ color: '#ffcc00', fontSize: '40' }}
+                    style={{ color: editInfo.star ? '#ffcc00' : '#999', fontSize: '40' }}
                     onClick={() => this.changeInfo(!editInfo.star, 'star')}
                   />
                 </Tooltip>
@@ -158,6 +158,7 @@ class NotebookDetail extends React.Component { // eslint-disable-line react/pref
           {
             edit ?
               <TextArea
+                placeholder="markdown语法～"
                 autosize={{ minRows: 6 }}
                 value={editInfo.content}
                 onChange={(e) => this.changeInfo(e.target.value, 'content')}
