@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-import { Input } from 'antd';
+import { Input, Select } from 'antd';
 
 class SearchOpts extends React.PureComponent {
   render() {
@@ -14,7 +14,7 @@ class SearchOpts extends React.PureComponent {
             defaultValue={searchOpts.search}
             style={{ width: '150px' }}
             placeholder="只能搜标题哟"
-            onChange={(e) => changeSearchOpts('search', e.target.value)}
+            onChange={(e) => changeSearchOpts('title', e.target.value)}
           />
         </div>
         <div className="inline-block">
@@ -25,6 +25,15 @@ class SearchOpts extends React.PureComponent {
             onChange={(e) => changeSearchOpts('author', e.target.value)}
           />
         </div>
+        <div className="inline-block ml_10">
+          <div className="label">标签：</div>
+          <Select value={searchOpts.tag} className="w_100" onChange={(v) => changeSearchOpts('tag', v)}>
+            <Select.Option value="">全部</Select.Option>
+            <Select.Option value="技术">技术</Select.Option>
+            <Select.Option value="远方">远方</Select.Option>
+            <Select.Option value="生活">生活</Select.Option>
+          </Select>
+        </div>
       </div>
     );
   }
@@ -32,6 +41,7 @@ class SearchOpts extends React.PureComponent {
 
 SearchOpts.propTypes = {
   changeSearchOpts: PropTypes.func.isRequired,
+  searchOpts: PropTypes.object,
 }
 
 export default SearchOpts;

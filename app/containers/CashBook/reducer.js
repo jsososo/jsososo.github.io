@@ -13,6 +13,7 @@ import {
   SHOW_ALL_DATA,
   SET_TIME_TYPE,
   SET_SPACE_TIME,
+  RESET_DATA,
 } from './constants';
 
 const initialState = fromJS({
@@ -49,6 +50,7 @@ function cashBookReducer(state = initialState, action) {
         .set('timeRange', fromJS(action.data));
     case SHOW_ALL_DATA:
       return state
+        .set('needFresh', true)
         .set('showAllData', !state.get('showAllData'));
     case SET_TIME_TYPE:
       return state
@@ -58,6 +60,21 @@ function cashBookReducer(state = initialState, action) {
       return state
         .set('needFresh', true)
         .set('space', action.data);
+    case RESET_DATA:
+      return fromJS({
+        showInput: true,
+        showAllData: true,
+        timeRange: [],
+        space: 1,
+        spaceType: 'M',
+        needFresh: false,
+        lineData: {
+          data: {},
+          types: [],
+          xAxis: [],
+        },
+        pieData: [],
+      });
     default:
       return state;
   }

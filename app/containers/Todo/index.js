@@ -48,7 +48,6 @@ export class Todo extends React.PureComponent { // eslint-disable-line react/pre
         return q;
       },
       (res) => {
-        console.log(res);
         // 这里要对todo做一个排序
         res.sort((a, b) => {
           if (a.status === b.status) {

@@ -11,3 +11,4 @@ export const SET_TIME_RANGE = 'app/CashBook/SET_TIME_RANGE';
 export const SET_TIME_TYPE = 'app/CashBook/SET_TIME_TYPE';
 export const SHOW_ALL_DATA = 'app/CashBook/SHOW_ALL_DATA';
 export const SET_SPACE_TIME = 'app/CashBook/SET_SPACE_TIME';
+export const RESET_DATA = 'app/CashBook/RESET_DATA';

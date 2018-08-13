@@ -21,7 +21,6 @@ import Storage from '../../utils/Storage';
 import { changeUrlQuery, getQueryFromUrl } from "../../utils/stringHelper";
 
 import { message } from 'antd';
-import md5 from 'js-md5';
 import ArticleList from '../../components/ArticleList';
 import ArticleDetail from '../../components/ArticleDetail';
 
@@ -41,22 +40,7 @@ export class Article extends React.PureComponent { // eslint-disable-line react/
       const newId = nextProps.article.articleInfo && nextProps.article.articleInfo.objectId;
       const oldId = article.articleInfo && article.articleInfo.objectId;
       if (newId && newId !== oldId) {
-        const loading = document.getElementById('xhr-loading');
-        loading.style.display = 'block';
-        Storage.getBmob(
-          'Article',
-          newId,
-          null,
-          (res) => {
-            loading.style.display = 'none';
-            const articleDetail = JSON.parse(JSON.stringify(res));
-            setArticleInfo({
-              ...articleDetail,
-              title: decodeURI(decodeURI(articleDetail.title)),
-              content: decodeURI(decodeURI(articleDetail.content)),
-            });
-          },
-        );
+        this.getArticleInfo(newId);
       }
     } else {
       setArticleInfo(null);
@@ -65,6 +49,25 @@ export class Article extends React.PureComponent { // eslint-disable-line react/
 
   componentWillUnmount() {
     this.props.setArticleInfo(null, false);
+  }
+
+  getArticleInfo(newId, showLoading = true) {
+    const loading = document.getElementById('xhr-loading');
+    showLoading && (loading.style.display = 'block');
+    Storage.getBmob(
+      'Article',
+      newId,
+      null,
+      (res) => {
+        loading.style.display = 'none';
+        const articleDetail = JSON.parse(JSON.stringify(res));
+        this.props.setArticleInfo({
+          ...articleDetail,
+          title: decodeURI(decodeURI(articleDetail.title)),
+          content: decodeURI(decodeURI(articleDetail.content)),
+        });
+      },
+    );
   }
 
   delArticle(id) {
@@ -92,17 +95,17 @@ export class Article extends React.PureComponent { // eslint-disable-line react/
           return q;
         },
         (q) => {
-          q.equalTo('authorId', md5(user.username || ' '));
+          q.equalTo('authorId', user.objectId || ' ');
           return q;
         },
       ],
       (q) => {
-        q.select('author', 'lastEdit', 'authorId', 'comment', 'title');
+        q.select('author', 'lastEdit', 'authorId', 'comment', 'title', 'tag');
         return q;
       },
       (res) => {
         res.sort((a, b) => b.lastEdit - a.lastEdit);
-        getArticleList(res.map(a => ({
+        getArticleList(res.map((a) => ({
           ...a,
           title: decodeURI(decodeURI(a.title)),
           content: decodeURI(decodeURI(a.content)),
@@ -114,13 +117,16 @@ export class Article extends React.PureComponent { // eslint-disable-line react/
   /*
   * 保存文章
   * */
-  saveArticle(info, edit, time) {
+  saveArticle(info, edit, time, lastEdit = true) {
     const { setArticleInfo } = this.props;
     const saveInfo = {
       ...JSON.parse(JSON.stringify(info)),
       title: encodeURI(encodeURI(info.title)),
       content: encodeURI(encodeURI(info.content)),
     };
+    if (lastEdit) {
+      saveInfo.lastEdit = new Date().getTime();
+    }
     if (info.objectId) {
       // 保存
       Storage.setBmob(
@@ -166,6 +172,7 @@ export class Article extends React.PureComponent { // eslint-disable-line react/
               list={article.list || []}
             /> :
             <ArticleDetail
+              getArticleInfo={(id) => this.getArticleInfo(id, false)}
               delArticle={(id) => this.delArticle(id)}
               user={user}
               saveArticle={(info, edit) => this.saveArticle(info, edit)}

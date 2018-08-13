@@ -8,6 +8,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Tabs } from 'antd';
 import Info from './info';
+import NoticeCenter from './NoticeCenter';
 import './index.scss';
 // import styled from 'styled-components';
 
@@ -39,8 +40,8 @@ class UserInfo extends React.Component { // eslint-disable-line react/prefer-sta
           onChange={(key) => this.changeUrl(key)}
         >
           <Tabs.TabPane
-           tab="个人信息"
-           key="info"
+            tab="个人信息"
+            key="info"
           >
             <Info user={user} changePassword={changePassword} />
           </Tabs.TabPane>
@@ -48,7 +49,7 @@ class UserInfo extends React.Component { // eslint-disable-line react/prefer-sta
             tab="消息中心"
             key="notice"
           >
-            暂未开放
+            <NoticeCenter user={user} />
           </Tabs.TabPane>
         </Tabs>
       </div>
@@ -58,7 +59,6 @@ class UserInfo extends React.Component { // eslint-disable-line react/prefer-sta
 
 UserInfo.propTypes = {
   user: PropTypes.object,
-  logIn: PropTypes.func,
   changePassword: PropTypes.func,
 };
 

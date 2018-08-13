@@ -17,8 +17,9 @@ const initialState = fromJS({
   list: [],
   searchOpts: {
     pageNo: 1,
-    search: '',
+    title: '',
     author: '',
+    tag: '',
   },
   articleInfo: null,
   editArticle: false,

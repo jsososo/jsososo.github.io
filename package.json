@@ -297,6 +297,7 @@
     "offline-plugin": "^4.8.5",
     "plop": "1.8.0",
     "pre-commit": "1.2.2",
+    "react-fa": "^5.0.0",
     "react-test-renderer": "15.6.1",
     "restler": "^3.4.0",
     "rimraf": "2.6.1",

@@ -26,6 +26,10 @@ class Login extends React.Component { // eslint-disable-line react/prefer-statel
 
   onInput(key, val) {
     const state = this.state;
+    // 名字别带空格
+    if (key === 'username') {
+      val = val.replace(/\s/g, '');
+    }
     state[key] = val;
     this.setState(state);
   }

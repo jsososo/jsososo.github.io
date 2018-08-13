@@ -115,8 +115,6 @@ export class Calendar extends React.PureComponent { // eslint-disable-line react
         title: '',
         content: '',
         tag: '',
-        reminder: [],
-        periodicReminder: [],
       },
       (res) => this.getAllThing(() => {
         changeUrlQuery({

@@ -28,9 +28,10 @@ import { CASH_BOOK_DATA } from "../../utils/constants";
 import * as Action from './actions';
 import recentlyUsed from '../../utils/recentlyUsed';
 
-import { DatePicker, Switch, Select, InputNumber } from 'antd';
+import { DatePicker, Switch, Select, InputNumber, Button, Icon } from 'antd';
+import {changeUrlQuery} from "../../utils/stringHelper";
 
-const { allData } = CASH_BOOK_DATA;
+let { allData } = CASH_BOOK_DATA;
 const { RangePicker } = DatePicker;
 const Option = Select.Option;
 
@@ -115,6 +116,10 @@ export class CashBook extends React.PureComponent { // eslint-disable-line react
       pieData,
       lineData,
     });
+  }
+
+  componentWillUnmount() {
+    this.props.resetData();
   }
 
   // 曲线图数据
@@ -227,7 +232,7 @@ export class CashBook extends React.PureComponent { // eslint-disable-line react
   }
 
   render() {
-    const { cashbook, showAllData } = this.props;
+    const { cashbook, showAllData, resetData } = this.props;
     return (
       <div>
         <Helmet>
@@ -236,8 +241,11 @@ export class CashBook extends React.PureComponent { // eslint-disable-line react
         </Helmet>
         { !cashbook.showInput &&
           <div>
+            <a href="#/kit">
+              <Icon type="arrow-left" className="pointer ft_20 mr_10 mt_5 vat" />
+            </a>
             <span>展示全部：<Switch checked={cashbook.showAllData} onChange={() => showAllData()} /></span>
-            <RangePicker disabled={cashbook.showAllData} onChange={(v) => this.changeOpts(v, 0)} />
+            <RangePicker className="ml_10 mr_10" disabled={cashbook.showAllData} onChange={(v) => this.changeOpts(v, 0)} />
             <span>
               时间间隔：
               <InputNumber className="w_100" value={cashbook.space} onChange={(v) => this.changeOpts(v, 2)} />
@@ -247,6 +255,7 @@ export class CashBook extends React.PureComponent { // eslint-disable-line react
                 <Option value="D">天</Option>
               </Select>
             </span>
+            <Button onClick={resetData} className="ml_10">重选文件</Button>
 
             <CashBookCharts
               pieData={cashbook.pieData}
@@ -268,6 +277,7 @@ CashBook.propTypes = {
   setTimeType: PropTypes.func.isRequired,
   setSpaceTime: PropTypes.func.isRequired,
   user: PropTypes.object.isRequired,
+  resetData: PropTypes.func.isRequired,
 };
 
 const mapStateToProps = createStructuredSelector({
@@ -282,6 +292,7 @@ function mapDispatchToProps(dispatch) {
     showAllData: () => dispatch(Action.showAllData()),
     setTimeType: (v) => dispatch(Action.setTimeType(v)),
     setSpaceTime: (v) => dispatch(Action.setSpaceTime(v)),
+    resetData: () => { allData = {}; dispatch(Action.resetData()); },
   };
 }
 

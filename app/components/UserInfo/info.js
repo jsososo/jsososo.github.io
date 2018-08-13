@@ -136,7 +136,6 @@ class Info extends React.Component {
             },
             () => {
               message.success('改好了');
-              console.log(passwordInfo.new1, passwordInfo.new2);
               Storage.set('user', `${user.username}-${md5(passwordInfo.new2).split('').reverse().join('')}`);
               this.closePasswordDialog();
             }

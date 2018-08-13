@@ -10,11 +10,13 @@ import ProptTypes from 'prop-types';
 import { changeUrlQuery } from "../../utils/stringHelper";
 import timer from '../../utils/timer';
 
-import { Input, Button, Icon, Tooltip, Modal } from 'antd';
-import md5 from 'js-md5';
+import { Input, Button, Icon, Tooltip, Modal, Select } from 'antd';
+import { Icon as FaIcon } from 'react-fa';
+import Comment from './Comment';
 import BraftEditor from 'braft-editor';
 
 import Storage from '../../utils/Storage';
+import { getUserInfo } from "../../utils/constants";
 
 import 'braft-editor/dist/braft.css';
 import './index.scss';
@@ -28,6 +30,10 @@ class ArticleDetail extends React.Component { // eslint-disable-line react/prefe
     this.state = {
       info: JSON.parse(JSON.stringify(props.rawInfo)),
     };
+  }
+
+  componentDidMount() {
+    getUserInfo(this.props.rawInfo.authorId, () => {});
   }
 
   componentWillReceiveProps(nextProps) {
@@ -58,7 +64,7 @@ class ArticleDetail extends React.Component { // eslint-disable-line react/prefe
   }
 
   render() {
-    const { rawInfo, edit, user, setArticleInfo, saveArticle } = this.props;
+    const { rawInfo, edit, user, setArticleInfo, saveArticle, getArticleInfo } = this.props;
     const { info } = this.state;
     const editorProps = {
       contentFormat: 'html',
@@ -73,9 +79,6 @@ class ArticleDetail extends React.Component { // eslint-disable-line react/prefe
         '#c0392b', '#d35400', '#f39c12', '#fff392', '#ffda00', '#2c3e50',
         '#ffcccc', '#FFFFD5', '#ccffff', '#ccffcc', '#FF14E7', '#FF709B',
       ],
-      onClick: ()=> {
-        console.log(123);
-      },
       onSave: () => saveArticle(info, true),
       media: {
         allowPasteImage: true, // 是否允许直接粘贴剪贴板图片（例如QQ截图等）到编辑器
@@ -120,6 +123,12 @@ class ArticleDetail extends React.Component { // eslint-disable-line react/prefe
             size="large"
             onChange={(e) => this.changeInfo('title', e.target.value)}
           />
+          <Select value={info.tag || ''} className="w_100" onChange={(v) => this.changeInfo('tag', v)}>
+            <Select.Option value="技术">技术</Select.Option>
+            <Select.Option value="远方">远方</Select.Option>
+            <Select.Option value="生活">生活</Select.Option>
+            <Select.Option value="">么有标签</Select.Option>
+          </Select>
           {
             user.username !== '游客' &&
             <div className="inline-block">
@@ -132,8 +141,8 @@ class ArticleDetail extends React.Component { // eslint-disable-line react/prefe
                 />
               </Tooltip>
               <Tooltip placement="top" title={info.author === '匿名' ? '点击取匿' : '点击设为匿名'}>
-                <Icon
-                  type="bulb"
+                <FaIcon
+                  name={info.author === '匿名' ? 'eye-slash' : 'eye'}
                   className="article-icon"
                   style={info.author === '匿名' ? {} : { color: '#ffcc00' }}
                   onClick={() => this.changeInfo('author', info.author === '匿名' ? user.username : '匿名')}
@@ -156,7 +165,7 @@ class ArticleDetail extends React.Component { // eslint-disable-line react/prefe
             >取消</Button>
           </div>
           <div style={{ border: '1px solid #ddd', borderRadius: '10px' }}>
-            <BraftEditor {...editorProps} onClick={() => console.log(this)} />
+            <BraftEditor {...editorProps} />
           </div>
         </div> :
         <div className="article-detail">
@@ -169,13 +178,13 @@ class ArticleDetail extends React.Component { // eslint-disable-line react/prefe
             >
               <Icon type="arrow-left" className="pointer ft_20 mr_20 mt_5 vat" />
             </a>
-            <h2 className="article-title">{rawInfo.title || '无题'}</h2>
+            <h2 className="article-title">{rawInfo.tag && `【${rawInfo.tag}】`}{rawInfo.title || '无题'}</h2>
             <div className="article-info">
               <div className="inline-block ml_15">{rawInfo.author}</div>
               <div className="inline-block ml_15">{timer(rawInfo.lastEdit).str('YY-M-D HH:mm')}</div>
             </div>
             {
-              md5(user.username || '') === rawInfo.authorId &&
+              (user.objectId || '') === rawInfo.authorId &&
               <div className="pull-right">
                 <Button type="primary" className="mr_15" onClick={() => setArticleInfo(info, true)}>编辑</Button>
                 <Button type="danger" onClick={() => this.delArticle()}>删除</Button>
@@ -190,23 +199,7 @@ class ArticleDetail extends React.Component { // eslint-disable-line react/prefe
               rawInfo.content === 'undefined' && <div className="mt_20 text-center ft_20"><Icon type="loading" /></div>
             }
           </div>
-          {/*
-          <div className="comment-box pl_20">
-            <div className="input-comment-container">
-              <div className="inline-block">
-                {user.avatar ?
-                  <img className="comment-avatar" src={user.avatar} /> :
-                  <Icon className="comment-avatar no-avatar" type="user" />}
-              </div>
-              <Input.TextArea
-                className="comment-input-area"
-                placeholder="随便你说啥"
-                rows={3}
-                autosize={{ minRows: 3, maxRows: 3 }}
-              />
-              <Button className="comment-btn" type="primary">发!</Button>
-            </div>
-          </div>*/}
+          <Comment user={user} info={info} getArticleInfo={getArticleInfo} />
         </div>
     );
   }
@@ -219,6 +212,7 @@ ArticleDetail.propTypes = {
   setArticleInfo: ProptTypes.func.isRequired,
   saveArticle: ProptTypes.func.isRequired,
   delArticle: ProptTypes.func.isRequired,
+  getArticleInfo: ProptTypes.func.isRequired,
 };
 
 export default ArticleDetail;

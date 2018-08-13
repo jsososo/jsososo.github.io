@@ -198,7 +198,7 @@ const piggyCb = (res) => {
         别忘了给
         { nArr.map((n, i) => (
           <a
-            key={`piggy-notice-${i}`}
+            key={key}
             onClick={() => notification.close(key)}
             href={`#/kit/piggy/?id=${n.objectId}`}
             className="fc_blue"

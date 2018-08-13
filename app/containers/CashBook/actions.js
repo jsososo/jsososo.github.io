@@ -12,6 +12,7 @@ import {
   SHOW_ALL_DATA,
   SET_TIME_TYPE,
   SET_SPACE_TIME,
+  RESET_DATA,
 } from './constants';
 
 export function defaultAction() {
@@ -57,5 +58,11 @@ export function setSpaceTime(data) {
   return {
     type: SET_SPACE_TIME,
     data,
+  };
+}
+
+export function resetData() {
+  return {
+    type: RESET_DATA,
   };
 }

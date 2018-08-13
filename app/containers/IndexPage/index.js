@@ -79,7 +79,7 @@ export class IndexPage extends React.Component { // eslint-disable-line react/pr
       'Article',
       (q) => {
         q.equalTo('public', true);
-        q.select('author', 'lastEdit', 'title');
+        q.select('author', 'lastEdit', 'title', 'tag');
         return q;
       },
       (res) => {
@@ -150,7 +150,7 @@ export class IndexPage extends React.Component { // eslint-disable-line react/pr
                   onClick={() => this.props.setArticle(article)}
                 >
                   <div className="index-article-item">
-                    {article.title || '无题'}
+                    {article.tag && `【${article.tag}】`}{article.title || '无题'}
                     <span className="pull-right">{article.author}</span>
                   </div>
                 </a>

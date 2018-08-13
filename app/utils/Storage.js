@@ -186,6 +186,12 @@ const Storage = {
       });
     }, progress);
   },
+  arrAdd(table, id, key, val, cb) {
+    this.getBmob(table, id, '', (obj) => {
+      obj.add(key, val);
+      saveBmob(obj, cb, () => message.error('评论失败咯'));
+    });
+  },
 };
 
 export default Storage;

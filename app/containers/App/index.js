@@ -85,6 +85,7 @@ export class App extends React.Component {
     Storage.logIn(null, (res) => {
       const user = res ? res.attributes : { username: '游客', login: false };
       user.login = Boolean(res);
+      user.objectId = res.id;
       this.props.getUserInfo(user);
     }, null);
   }

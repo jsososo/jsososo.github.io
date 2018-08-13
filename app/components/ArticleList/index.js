@@ -12,7 +12,6 @@ import { Icon, Button, Pagination } from 'antd';
 
 import { changeUrlQuery, shortString } from "../../utils/stringHelper";
 import timer from '../../utils/timer';
-import md5 from 'js-md5';
 
 import './index.scss';
 // import styled from 'styled-components';
@@ -28,12 +27,14 @@ class ArticleList extends React.PureComponent { // eslint-disable-line react/pre
     const { list, searchOpts } = this.props;
     const result = list.filter((item) => {
       let r = true;
-      if (searchOpts.search && item.title.indexOf(searchOpts.search) === -1) {
-        r = false;
-      }
-      if (searchOpts.author && item.author.indexOf(searchOpts.author) === -1 ) {
-        r = false;
-      }
+      ['title', 'author', 'tag'].forEach((key) => {
+        if (searchOpts[key] && !item[key]) {
+          r = false;
+        }
+        if (searchOpts[key] && item[key] && item[key].indexOf(searchOpts[key]) === -1) {
+          r = false;
+        }
+      });
       return r;
     });
     return result.slice(20 * (searchOpts.pageNo - 1), 20 * (searchOpts.pageNo));
@@ -63,9 +64,9 @@ class ArticleList extends React.PureComponent { // eslint-disable-line react/pre
               title: '',
               content: '',
               author: user.username,
-              authorId: md5(user.username || ''),
+              authorId: user.objectId || '',
               lastEdit: timer().time,
-              tags: [],
+              tag: '',
               public: false,
               comment: [],
             }, true);
@@ -88,7 +89,7 @@ class ArticleList extends React.PureComponent { // eslint-disable-line react/pre
                   setArticleInfo(a);
                 }}
               >
-                <div className="article-title">{shortString(a.title) || '无题'}</div>
+                <div className="article-title">{a.tag && `【${a.tag}】`}{shortString(a.title) || '无题'}</div>
                 <div className="pull-right">
                   <div className="article-author">{a.author}</div>
                   {
@@ -103,11 +104,12 @@ class ArticleList extends React.PureComponent { // eslint-disable-line react/pre
         </div>
         {
           list.length > 20 &&
-          <div style={{width: '770px'}}>
+          <div style={{ width: '770px' }}>
             <Pagination
               current={searchOpts.pageNo}
               total={list.length}
-              pageSize={20} className="pull-right mt_20"
+              pageSize={20}
+              className="pull-right mt_20"
               onChange={(v) => this.changeSearchOpts('pageNo', v)}
             />
           </div>
@@ -123,6 +125,7 @@ ArticleList.propTypes = {
   updateSearchOpts: PropTyps.func.isRequired,
   setArticleInfo: PropTyps.func.isRequired,
   queryArticleList: PropTyps.func.isRequired,
+  user: PropTyps.object.isRequired,
 };
 
 export default ArticleList;
