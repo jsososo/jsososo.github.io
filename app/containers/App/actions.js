@@ -27,6 +27,7 @@ import {
 } from './constants';
 import notice from '../../utils/notice';
 import { allUserInfo } from "../../utils/constants";
+import Storage from '../../utils/Storage';
 
 /**
  * Load the repositories, this action starts the request saga
@@ -93,6 +94,11 @@ export function getUserInfo(data) {
   if (data.username !== '游客') {
     notice.findNotice(data.username);
     allUserInfo[data.objectId] = data;
+    Storage.set('uName', data.username);
+    Storage.set('uId', data.objectId);
+  } else {
+    Storage.set('uName', data.username);
+    Storage.set('uId', '');
   }
   return {
     type: GET_USER_INFO,

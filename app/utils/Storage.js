@@ -95,8 +95,11 @@ const Storage = {
   *  @params: fun   查询条件
   *  @params: type  查询方式：（first, find, count）
   * */
-  queryBmob(table, fun = (q) => q, cb, errCb, type = 'first') {
+  queryBmob(table, fun = (q) => q, cb, errCb, type = 'first', showLoading = true) {
     const query = getQueryBmob(table, fun);
+    if (!showLoading) {
+      document.getElementById('xhr-loading').attributes.class = 'hide';
+    }
     query[type]({
       success: (res) => cb && cb(res && JSON.parse(JSON.stringify(res))),
       error: (err) => errCb && errCb(err),

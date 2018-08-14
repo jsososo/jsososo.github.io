@@ -6,6 +6,8 @@ import AvatarImg from './AvatarImg';
 
 import Storage from '../../utils/Storage';
 import timer from '../../utils/timer';
+import Notice from '../../utils/notice';
+import { getQueryFromUrl } from "../../utils/stringHelper";
 
 class Comment extends React.Component {
   constructor(props) {
@@ -15,6 +17,16 @@ class Comment extends React.Component {
       commentVal: '',
       showModal: false,
     };
+  }
+
+  componentDidMount() {
+    setTimeout(() => {
+      const l = getQueryFromUrl('l');
+      if (l) {
+        const cDiv = document.getElementById(`comment-${l}`);
+        window.scrollTo(0, cDiv ? cDiv.offsetTop - 200 : 0);
+      }
+    }, 200);
   }
 
   sendComment() {
@@ -49,7 +61,7 @@ class Comment extends React.Component {
           commentVal: '',
           showModal: false,
         });
-        getArticleInfo(info.objectId);
+        getArticleInfo(info.objectId, (res) => Notice.createComment(res, remind));
       }
     );
   }
@@ -85,9 +97,9 @@ class Comment extends React.Component {
         </div>
         <div className="comment-list">
           {info.comment && info.comment.map((item, index) => (
-            <div className={`comment-item comment-item-${index}`} key={`comment-${index}`}>
+            <div id={`comment-${index}`} className={`comment-item comment-item-${index}`} key={`comment-${index}`}>
               <div className="inline-block w_150">
-                <AvatarImg id={item.userId} ref={ (a) => this[`comment-${index}`] = a } showName isAuthor={user.objectId === info.authorId} isHide={info.author === '匿名'} />
+                <AvatarImg id={item.userId} ref={(a) => this[`comment-${index}`] = a} showName isAuthor={item.userId === info.authorId} isHide={info.author === '匿名'} />
               </div>
               <div className="comment-content">
                 <div className="pb_20">#{index + 1}：{item.content}</div>

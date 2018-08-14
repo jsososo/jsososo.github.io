@@ -1490,6 +1490,7 @@
     xhr.onreadystatechange = function() {
       // 关闭loading
       var loading = document.getElementById('xhr-loading');
+      loading.attributes.class = '';
       loading.style.display = 'none';
 
       if (xhr.readyState === 4) {
@@ -1541,7 +1542,9 @@
                            " (NodeJS " + process.versions.node + ")");
     }
     var loading = document.getElementById('xhr-loading');
-    loading.style.display = 'block';
+    if (loading.attributes.class === 'hide') {
+      loading.style.display = 'block';
+    }
     xhr.send(data);
     return promise._thenRunCallbacks(options);
   };

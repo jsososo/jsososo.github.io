@@ -1,11 +1,28 @@
 import React from 'react';
 import Storage from './Storage';
 import timer from './timer';
+import { getUserInfo } from "./constants";
 import { notification } from 'antd';
+import { shortString } from "./stringHelper";
 
 const today = timer();
 
 let NoticeSetting = [];
+
+const noticeMap = {
+  ARTICLE_COMMENT: {
+    title: '新的评论',
+    content: (content) => (
+      <div>
+        你在
+        <a onClick={() => Notice.commentRead(content.articleId)} className="fc_blue" href={`#/article/?id=${content.articleId}&l=${content.location}`}>{content.title}</a>
+        中被提到啦～
+      </div>
+    ),
+  },
+};
+
+let NoticeList = [];
 
 const Notice = {
   // 来自主动创建的提醒（如评论）
@@ -15,12 +32,39 @@ const Notice = {
       val,
     );
   },
+  // 创建评论提醒
+  createComment: (articleInfo, remind) => {
+    remind.forEach((name) => {
+      getUserInfo(
+        name,
+        (u) => {
+          Notice.create({
+            userId: u.objectId,
+            type: 'ARTICLE_COMMENT',
+            content: {
+              title: shortString(decodeURI(decodeURI(articleInfo.attributes.title || '')), 7),
+              articleId: articleInfo.id,
+              location: articleInfo.attributes.comment.length,
+            },
+            time: timer().time,
+            isRead: false,
+          });
+        },
+        'name',
+      );
+    });
+  },
   // 获取提醒 (获取主动创建的提醒)
-  get: (id, cb, isRead = false, type) => {
+  get: (id, cb, isRead = false, type, showLoading = false) => {
+    const uId = Storage.get('uId');
+    if (!uId) {
+      cb();
+      return;
+    }
     Storage.queryBmob(
       'Notice',
       (q) => {
-        q.equalTo('username', username);
+        q.equalTo('userId', uId);
         if (id) {
           q.equalTo('id', id);
         }
@@ -35,10 +79,43 @@ const Notice = {
       cb,
       null,
       'find',
+      showLoading
     );
+  },
+  // 循环调用，每两分钟查询一次
+  getInfo: () => {
+    Notice.get(
+      '',
+      (res) => {
+        if (res && res.length > 0) {
+          NoticeList = res;
+          res.forEach((n) => {
+            notification.open({
+              key: `notice-${n.objectId}`,
+              message: noticeMap[n.type].title,
+              duration: null,
+              onClose: () => Notice.read(n.objectId),
+              description: noticeMap[n.type].content(n.content),
+            });
+          });
+        }
+        setTimeout(() => {
+          Notice.getInfo();
+        }, 1000 * 120);
+      },
+    );
+  },
+  // 评论设置为已读
+  commentRead: (aId) => {
+    NoticeList.forEach((n) => {
+      if (n.content.articleId === aId) {
+        Notice.read(n.objectId);
+      }
+    });
   },
   // 提醒设置为已读
   read: (id) => {
+    notification.close(`notice-${id}`);
     Storage.setBmob(
       'Notice',
       id,
@@ -49,7 +126,7 @@ const Notice = {
   },
   // 寻找提醒（不计入数据存储，调各个应用的接口拉数据去判断是否要提醒）
   findNotice: () => {
-    const username = Storage.get('user').split('-')[0]
+    const username = Storage.get('uName');
     // 今天提醒过就不提醒了
     if (!username || Storage.get(`notice-record-${username}`) === today.str()) {
       return;
@@ -60,7 +137,6 @@ const Notice = {
     Storage.set(`notice-record-${username}`, today.str());
   },
 };
-
 
 // 一个基础Bmob find的请求
 const baseQuery = (table, eq, nEq, s, cb) => {
@@ -80,7 +156,7 @@ const baseQuery = (table, eq, nEq, s, cb) => {
 
 // NoticeSetting相关
 const noticeSettingCb = (res) => {
-  const username = Storage.get('user').split('-')[0];
+  const username = Storage.get('uName');
   // 如果发现他没有noticeSetting，给他创建三个系统的提醒
   if (!res.length) {
     const sysSetting = [

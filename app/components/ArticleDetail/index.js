@@ -113,7 +113,6 @@ class ArticleDetail extends React.Component { // eslint-disable-line react/prefe
         },
       ],
     };
-
     return (
       edit ?
         <div className="article-edit">
@@ -172,7 +171,7 @@ class ArticleDetail extends React.Component { // eslint-disable-line react/prefe
           <div>
             <a
               onClick={() => {
-                changeUrlQuery({ id: undefined });
+                changeUrlQuery({ id: undefined, l: undefined });
                 setArticleInfo(null, false);
               }}
             >
@@ -186,7 +185,9 @@ class ArticleDetail extends React.Component { // eslint-disable-line react/prefe
             {
               (user.objectId || '') === rawInfo.authorId &&
               <div className="pull-right">
-                <Button type="primary" className="mr_15" onClick={() => setArticleInfo(info, true)}>编辑</Button>
+                <Button type="primary" className="mr_15" onClick={() => {changeUrlQuery({ l: '' });setArticleInfo(info, true);}}>
+                  编辑
+                </Button>
                 <Button type="danger" onClick={() => this.delArticle()}>删除</Button>
               </div>
             }

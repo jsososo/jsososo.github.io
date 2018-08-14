@@ -51,7 +51,7 @@ export class Article extends React.PureComponent { // eslint-disable-line react/
     this.props.setArticleInfo(null, false);
   }
 
-  getArticleInfo(newId, showLoading = true) {
+  getArticleInfo(newId, showLoading = true, cb) {
     const loading = document.getElementById('xhr-loading');
     showLoading && (loading.style.display = 'block');
     Storage.getBmob(
@@ -66,6 +66,7 @@ export class Article extends React.PureComponent { // eslint-disable-line react/
           title: decodeURI(decodeURI(articleDetail.title)),
           content: decodeURI(decodeURI(articleDetail.content)),
         });
+        cb && cb(res);
       },
     );
   }
@@ -145,6 +146,7 @@ export class Article extends React.PureComponent { // eslint-disable-line react/
         saveInfo,
         (res) => {
           info.objectId = res.id;
+          changeUrlQuery({ id: res.id });
           setArticleInfo(info, edit, time);
           message.success('保存成功~');
         }
@@ -172,7 +174,7 @@ export class Article extends React.PureComponent { // eslint-disable-line react/
               list={article.list || []}
             /> :
             <ArticleDetail
-              getArticleInfo={(id) => this.getArticleInfo(id, false)}
+              getArticleInfo={(id, cb) => this.getArticleInfo(id, false, cb)}
               delArticle={(id) => this.delArticle(id)}
               user={user}
               saveArticle={(info, edit) => this.saveArticle(info, edit)}

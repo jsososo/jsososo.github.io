@@ -115,6 +115,9 @@ export const getUserInfo = (val, cb, key = 'id') => {
         return q;
       },
       (res) => {
+        if (!res) {
+          return;
+        }
         allUserInfo.id[res.objectId] = res;
         allUserInfo.name[res.username] = res;
         cb(res);

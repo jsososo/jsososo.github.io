@@ -45,6 +45,7 @@ import Storage  from '../../utils/Storage';
 import { makeSelectUser } from "./selectors";
 import { Modal } from 'antd';
 import { BmobInfo } from "../../const";
+import Notice from '../../utils/notice';
 
 /*
 *  判断用户是否登录，部分功能需要登录才能使用
@@ -88,6 +89,7 @@ export class App extends React.Component {
       user.objectId = res.id;
       this.props.getUserInfo(user);
     }, null);
+    Notice.getInfo();
   }
 
   /*
