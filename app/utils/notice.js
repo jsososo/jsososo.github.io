@@ -103,6 +103,12 @@ const Notice = {
           Notice.getInfo();
         }, 1000 * 120);
       },
+      (err) => {
+        console.log(err);
+        setTimeout(() => {
+          Notice.getInfo();
+        }, 1000 * 120);
+      }
     );
   },
   // 评论设置为已读
@@ -157,6 +163,9 @@ const baseQuery = (table, eq, nEq, s, cb) => {
 // NoticeSetting相关
 const noticeSettingCb = (res) => {
   const username = Storage.get('uName');
+  if (username === '游客') {
+    return;
+  }
   // 如果发现他没有noticeSetting，给他创建三个系统的提醒
   if (!res.length) {
     const sysSetting = [

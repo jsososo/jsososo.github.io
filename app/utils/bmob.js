@@ -1326,7 +1326,7 @@
   };
 
   // Set the server for Bmob to talk to.
-  Bmob.serverURL = "https://api.bmob.cn";
+  Bmob.serverURL = "https://api2.bmob.cn";
   // Bmob.serverURL = "http://192.168.1.60:8080";
   Bmob.fileURL = "http://file.bmob.cn";
 
