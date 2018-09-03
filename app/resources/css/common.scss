@@ -409,8 +409,22 @@ textarea {
   }
   code {
     color: #F23C3C;
-    padding: 3px;
+    padding: 3px 7px;
     background: rgb(255, 239, 183);
+    border-radius: 3px;
+  }
+
+  pre {
+    background: #494949;
+    color: #ddd;
+    padding: 10px;
+    border-radius: 10px;
+    font-size: 15px;
+
+    code {
+      background: none;
+      color: #ddd;
+    }
   }
   a {
     color: #1890ff;

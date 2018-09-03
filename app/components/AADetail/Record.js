@@ -61,6 +61,7 @@ class Record extends React.Component {
       try {
         num = eval(num);
         newInfo.desc += `【${newInfo.num}】`;
+        desc = newInfo.desc;
       } catch (err) {
         message.warning('金额你写的啥呀');
         return;
@@ -137,6 +138,17 @@ class Record extends React.Component {
     });
   }
 
+  addDivide() {
+    const { info } = this.props;
+    const time = timer();
+    info.list.unshift({
+      time: time.time,
+      desc: `--分割专用${time.str('YY.M.D H:m:s')}--`,
+      num: 0,
+    });
+    this.props.updateFun(info.list);
+  }
+
   render() {
     const { info, total } = this.props;
     const { totalCost, newInfo } = this.state;
@@ -145,6 +157,7 @@ class Record extends React.Component {
         <div className="record-name">
           {info.name}
           <span className="transfer-btn" onClick={() => this.transfer()}>转账</span>
+          <span className="transfer-btn" onClick={() => this.addDivide()}>分割专用</span>
         </div>
         <div className="record-total">
           <div className="record-left">支出总计：</div>
