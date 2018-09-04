@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>花哨的字</title>
+</head>
+<style>
+  .content > div {
+    width: 300px;
+    height: 50px;
+    line-height: 50px;
+    text-align: center;
+    font-size: 24px;
+    font-weight: 900;
+    display: inline-block;
+    vertical-align: top;
+  }
+
+  .content {
+    margin-top: 20px;
+  }
+
+  pre {
+    display: inline-block;
+    vertical-align: top;
+  }
+
+  #t-1 {
+    color: black;
+    text-shadow: 0 0 3px white;
+    background: black;
+  }
+  #t-2 {
+    color: #1890ff;
+    text-shadow: 2px 3px 0 #63b2ff;
+  }
+  #t-3 {
+    -webkit-text-stroke: 1px #F23C3C;
+    color: transparent;
+  }
+  #t-4 {
+    position: relative;
+    color: transparent;
+    font-size: 30px;
+    -webkit-text-stroke: 3px #1DC11D;
+  }
+  #t-4::before, #t-4::after {
+    position: absolute;
+    width: 300px;
+    text-align: center;
+    color: transparent;
+    content: 'hello world';
+    font-size: 30px;
+    left: 0;
+  }
+  #t-4::before {
+    -webkit-text-stroke: 2px yellow;
+  }
+  #t-4::after {
+    -webkit-text-stroke: 1px #F23C3C;
+  }
+
+</style>
+<body>
+
+  <div class="content">
+    <div id="t-1">hello world</div>
+    <pre>  #t-1 {
+    color: black;
+    text-shadow: 0 0 3px white;
+    background: black;
+  }</pre>
+  </div>
+
+  <div class="content">
+    <div id="t-2">hello world</div>
+    <pre>  #t-2 {
+    color: #1890ff;
+    text-shadow: 2px 3px 0 #63b2ff;
+  }</pre>
+  </div>
+
+  <div class="content">
+    <div id="t-3">hello world</div>
+    <pre>  #t-3 {
+    -webkit-text-stroke: 1px #F23C3C;
+    color: transparent;
+  }</pre>
+  </div>
+
+  <div class="content">
+    <div id="t-4">hello world</div>
+    <pre>  #t-3 {
+    -webkit-text-stroke: 1px #F23C3C;
+    color: transparent;
+  }</pre>
+  </div>
+
+  <div class="content">
+    <div id="t-5">hello world</div>
+    <pre></pre>
+  </div>
+</body>
+</html>
