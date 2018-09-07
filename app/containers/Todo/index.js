@@ -37,7 +37,7 @@ export class Todo extends React.PureComponent { // eslint-disable-line react/pre
   }
 
   // 查询获取所有的todo事件
-  queryAllList() {
+  queryAllList(update = true) {
     const { user } = this.props;
     Storage.queryBmob(
       'Thing',
@@ -48,11 +48,14 @@ export class Todo extends React.PureComponent { // eslint-disable-line react/pre
         return q;
       },
       (res) => {
+        if (!update) {
+          return;
+        }
         // 这里要对todo做一个排序
         res.sort((a, b) => {
-          if (a.status === b.status) {
-            return timer(a.createdAt, 'YYYY-MM-DD HH:mm:ss').time < timer(b.createdAt, 'YYYY-MM-DD HH:mm:ss').time;
-          }
+          // if (a.status === b.status) {
+          //   return timer(a.createdAt, 'YYYY-MM-DD HH:mm:ss').time < timer(b.createdAt, 'YYYY-MM-DD HH:mm:ss').time;
+          // }
           if (a.status === 2 && b.status !== 2) {
             return 1;
           }
