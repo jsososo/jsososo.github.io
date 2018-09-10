@@ -160,8 +160,8 @@ class NoticeSetting extends React.Component { // eslint-disable-line react/prefe
               </div>
               <Input disabled={selectThing.isSys} value={selectThing.tag} onChange={(e) => this.changeTagName(e.target.value)} className="w_200" />
               <div>
-                { selectThing.rules.map((r, index) => (
-                  <div className="mt_10">
+                { selectThing.rules && selectThing.rules.map((r, index) => (
+                  <div className="mt_10" key={`n-rule-${index}`}>
                     <Select value={r.type} className="w_100" onChange={(v) => this.changeRule(index, { type: v })}>
                       <Select.Option value="YYYYMMDD">提前</Select.Option>
                       <Select.Option value="Date">每隔</Select.Option>
