@@ -43,11 +43,13 @@ export class Calendar extends React.PureComponent { // eslint-disable-line react
 
   componentWillReceiveProps(nextProps) {
     this.updateFromUrl(nextProps);
+    if (nextProps.user.objectId && nextProps.user.objectid !== this.props.user.objectid) {
+      this.getAllThing(null, nextProps.user);
+    }
   }
 
   // 获取当前用户的所有事情列表
-  getAllThing(cb) {
-    const { user } = this.props;
+  getAllThing(cb, user = this.props.user) {
     Storage.queryBmob(
       'Thing',
       (q) => {

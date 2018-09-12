@@ -222,7 +222,7 @@ export class CashBook extends React.PureComponent { // eslint-disable-line react
       });
       D = D.from(1, 'D');
     }
-    return [arrayHelper.objToArr(dataObj), types];
+    return [Object.values(dataObj), types];
   }
 
   changeOpts(v, type) {

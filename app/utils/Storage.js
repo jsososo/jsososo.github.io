@@ -139,7 +139,7 @@ const Storage = {
   /*
   *  用户登录
   * */
-  logIn(userInfo, cb) {
+  logIn(userInfo, cb, errCb = () => message.error('登录失败了 TAT')) {
     if (!userInfo) {
       const storageInfo = Storage.get('user');
       if (!storageInfo) {
@@ -153,9 +153,7 @@ const Storage = {
     const { username, password } = userInfo;
     Bmob.User.logIn(username, password, {
       success: cb,
-      error: () => {
-        message.error('登录失败了 TAT');
-      },
+      error: errCb,
     });
   },
 

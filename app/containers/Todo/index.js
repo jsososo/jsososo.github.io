@@ -36,9 +36,14 @@ export class Todo extends React.PureComponent { // eslint-disable-line react/pre
     }
   }
 
+  componentWillReceiveProps(nextProps) {
+    if (nextProps.user.objectId && nextProps.user.objectId !== this.props.user.objectId) {
+      this.queryAllList(true, nextProps.user);
+    }
+  }
+
   // 查询获取所有的todo事件
-  queryAllList(update = true) {
-    const { user } = this.props;
+  queryAllList(update = true, user = this.props.user) {
     Storage.queryBmob(
       'Thing',
       (q) => {

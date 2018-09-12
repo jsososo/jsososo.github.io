@@ -3,6 +3,7 @@ import { Button, Input, Modal, Icon, message } from 'antd';
 import PropTypes from 'prop-types';
 import Storage from '../../utils/Storage';
 import md5 from 'js-md5';
+import wxQR from '../../resources/img/wx-qr.png';
 
 class Info extends React.Component {
   constructor(props) {
@@ -97,10 +98,9 @@ class Info extends React.Component {
     if (newAvatar) {
       editInfo.avatar = newAvatar;
     }
-    const _this = this;
     Storage.updateUser(editInfo, () => {
-      _this.cancelEdit();
-      _this.props.logIn(editInfo);
+      this.cancelEdit();
+      this.props.logIn(editInfo);
     });
   }
 
@@ -155,6 +155,34 @@ class Info extends React.Component {
         new1: '',
         new2: '',
       },
+    });
+  }
+
+  unbindWx() {
+    const { editInfo } = this.state;
+    Modal.confirm({
+      content: '确认解除绑定？',
+      okText: '解除',
+      cancelText: '别吧',
+      onOk: () => {
+        editInfo.wechat = '';
+        editInfo.wxOpenId = '';
+        this.setState({ editInfo }, this.updateInfo);
+      },
+    });
+  }
+
+  showQr() {
+    Modal.info({
+      content: (
+        <div style={{ marginTop: '-10px'}}>
+          <div>微信扫码登陆小程序绑定哟</div>
+          <div className="mt_10">
+            <img src={wxQR} height="80px" />
+          </div>
+        </div>
+      ),
+
     });
   }
 
@@ -248,24 +276,25 @@ class Info extends React.Component {
             <Button onClick={() => this.setState({ changePassword: true })}>修改密码</Button>
           </div>
         </div>
-        {/* 微信 */}
-        {/*<div className="info-row">
+        <div className="info-row">
           <div className="info-label">微信：</div>
           {
             edit ?
               <div className="info-show">
                 {
-                  !user.wechat ? '暂未开放' :
+                  !user.wechat ?
+                    <div>未绑定 <span className="fc_blue pointer pl_10" onClick={() => this.showQr()}>点我绑定</span></div> :
                     <div>
                       {user.wechat}
-                      <Button className="ml_20" type="danger">解除绑定</Button>
+                      <Button className="ml_20" type="danger" onClick={() => this.unbindWx()}>解除绑定</Button>
                     </div>
                 }
               </div> :
-              <div className="info-show">{user.wechat || '未绑定'}</div>
+              <div className="info-show">
+                {user.wechat || (<div>未绑定 <span className="fc_blue pointer pl_10" onClick={() => this.showQr()}>点我绑定</span></div>)}
+              </div>
           }
-        </div>*/}
-        {/* 邮箱 */}
+        </div>
         <div className="info-row">
           <div className="info-label">邮箱：</div>
           <div className="info-show">{user.email || '未绑定'}</div>
@@ -320,7 +349,7 @@ class Info extends React.Component {
 
 Info.propTypes = {
   user: PropTypes.object,
-  changePassword: PropTypes.func,
+  logIn: PropTypes.func,
 };
 
 export default Info;

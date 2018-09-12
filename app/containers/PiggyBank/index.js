@@ -39,6 +39,13 @@ export class PiggyBank extends React.PureComponent { // eslint-disable-line reac
     }
   }
 
+  componentWillReceiveProps(nextProps) {
+    if (nextProps.user.objectId && nextProps.user.objectId !== this.props.user.objectId) {
+      console.log(123);
+      this.getPiggyList(nextProps.user);
+    }
+  }
+
   getPiggyDetail() {
     const id = getQueryFromUrl('id');
     Storage.queryBmob(
@@ -53,8 +60,10 @@ export class PiggyBank extends React.PureComponent { // eslint-disable-line reac
     );
   }
 
-  getPiggyList() {
-    const { user } = this.props;
+  getPiggyList(user = this.props.user) {
+    if (!user.objectId) {
+      return;
+    }
     Storage.queryBmob(
       'Piggy',
       (q) => {

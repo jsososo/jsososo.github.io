@@ -242,7 +242,7 @@ const thingCb = (res) => {
           </div>
         ),
       });
-  }
+    }
   });
 };
 

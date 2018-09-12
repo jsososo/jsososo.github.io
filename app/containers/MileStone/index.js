@@ -36,9 +36,17 @@ export class MileStone extends React.PureComponent { // eslint-disable-line reac
     }
   }
 
+  componentWillReceiveProps(nextProps) {
+    if (nextProps.user.username && nextProps.user.username !== this.props.user.username) {
+      this.getAllMileStone(nextProps.user.username);
+    }
+  }
+
   // 获取所有的里程碑
-  getAllMileStone() {
-    const username = this.props.user.username || '游客';
+  getAllMileStone(username = this.props.user.username) {
+    if (username === '游客') {
+      return;
+    }
     const today = timer();
     Storage.queryBmob(
       'Thing',

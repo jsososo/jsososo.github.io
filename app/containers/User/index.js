@@ -26,7 +26,7 @@ import Storage from '../../utils/Storage';
 import { message } from 'antd';
 
 export class User extends React.PureComponent { // eslint-disable-line react/prefer-stateless-function
-  login(user) {
+  login(user, errCb) {
     Storage.logIn(
       user,
       (res) => {
@@ -39,6 +39,7 @@ export class User extends React.PureComponent { // eslint-disable-line react/pre
           window.location = '#/';
         }
       },
+      errCb,
     );
   }
 
@@ -74,7 +75,7 @@ export class User extends React.PureComponent { // eslint-disable-line react/pre
         </Helmet>
         {
           user.login ?
-            <UserInfo logIn={(u) => this.props.login(u)} user={user} changePassword={(info) => this.changePassword(info)} /> :
+            <UserInfo logIn={(u) => this.login(u, () => {})} user={user} /> :
             <Login login={(u) => this.login(u)} create={(u) => this.create(u)} />
         }
       </div>

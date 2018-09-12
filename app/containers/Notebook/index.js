@@ -50,11 +50,23 @@ export class Notebook extends React.PureComponent { // eslint-disable-line react
     this.props.selectTags(sTags);
   }
 
+  componentWillReceiveProps(nextProps) {
+    if (nextProps.user.objectId && nextProps.user.objectId !== this.props.user.objectId) {
+      this.queryNoteBooks(null, nextProps.user);
+      this.queryAllTags(nextProps.user);
+      const { user } = nextProps;
+      const sTags = Storage.get(`p_n_select_tags_${user.username}`, true, '[]');
+      this.props.selectTags(sTags);
+    }
+  }
+
   /*
   *  查找所有该用户的notebook
   * */
-  queryNoteBooks(cb) {
-    const { user } = this.props;
+  queryNoteBooks(cb, user = this.props.user) {
+    if (!user.login) {
+      return;
+    }
     Storage.queryBmob(
       'Notebook',
       (q) => {
@@ -91,6 +103,9 @@ export class Notebook extends React.PureComponent { // eslint-disable-line react
   * */
   createNote() {
     const { user } = this.props;
+    if (user.login) {
+      return;
+    }
     Storage.createBmob(
       'Notebook',
       {
@@ -116,8 +131,7 @@ export class Notebook extends React.PureComponent { // eslint-disable-line react
   /*
   *  获取所有的标签
   * */
-  queryAllTags() {
-    const { user } = this.props;
+  queryAllTags(user = this.props.user) {
     Storage.queryBmob(
       'Tags',
       (q) => {

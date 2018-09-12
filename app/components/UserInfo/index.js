@@ -30,7 +30,7 @@ class UserInfo extends React.Component { // eslint-disable-line react/prefer-sta
   }
 
   render() {
-    const { user, changePassword } = this.props;
+    const { user, logIn } = this.props;
     const { current } = this.state;
     return (
       <div>
@@ -43,7 +43,7 @@ class UserInfo extends React.Component { // eslint-disable-line react/prefer-sta
             tab="个人信息"
             key="info"
           >
-            <Info user={user} changePassword={changePassword} />
+            <Info user={user} logIn={logIn}/>
           </Tabs.TabPane>
           <Tabs.TabPane
             tab="消息中心"
@@ -59,7 +59,7 @@ class UserInfo extends React.Component { // eslint-disable-line react/prefer-sta
 
 UserInfo.propTypes = {
   user: PropTypes.object,
-  changePassword: PropTypes.func,
+  logIn: PropTypes.func,
 };
 
 export default UserInfo;
