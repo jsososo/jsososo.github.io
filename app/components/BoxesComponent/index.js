@@ -17,7 +17,7 @@ class BoxesComponent extends React.PureComponent { // eslint-disable-line react/
       <a href={boxInfo.url}>
         <div className="box-component">
           <div className="box-bg-color" style={{ background: boxInfo.color }} />
-          <div style={{ background: `url(${boxInfo.img})`, backgroundSize: '100px 100px' }} className="box-bg-img" />
+          <div style={{ background: `url(${boxInfo.img})` }} className="box-bg-img" />
           <div className="box-name">{boxInfo.name}</div>
         </div>
       </a>

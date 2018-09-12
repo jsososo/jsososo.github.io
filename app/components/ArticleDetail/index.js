@@ -11,7 +11,6 @@ import { changeUrlQuery } from "../../utils/stringHelper";
 import timer from '../../utils/timer';
 
 import { Input, Button, Icon, Tooltip, Modal, Select } from 'antd';
-import { Icon as FaIcon } from 'react-fa';
 import Comment from './Comment';
 import BraftEditor from 'braft-editor';
 
@@ -140,9 +139,8 @@ class ArticleDetail extends React.Component { // eslint-disable-line react/prefe
                 />
               </Tooltip>
               <Tooltip placement="top" title={info.author === '匿名' ? '点击取匿' : '点击设为匿名'}>
-                <FaIcon
-                  name={info.author === '匿名' ? 'eye-slash' : 'eye'}
-                  className="article-icon"
+                <i
+                  className={`iconfont icon-${info.author === '匿名' ? 'niming' : 'yanjing'}`}
                   style={info.author === '匿名' ? {} : { color: '#ffcc00' }}
                   onClick={() => this.changeInfo('author', info.author === '匿名' ? user.username : '匿名')}
                 />

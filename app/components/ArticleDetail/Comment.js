@@ -1,7 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Input, Button, message, Modal } from 'antd';
-import { Icon as FaIcon } from 'react-fa';
 import AvatarImg from './AvatarImg';
 
 import Storage from '../../utils/Storage';
@@ -92,7 +91,7 @@ class Comment extends React.Component {
             autosize={{ minRows: 3, maxRows: 3 }}
           />
           <Button className="comment-btn" type="primary" onClick={() => this.sendComment()}>
-            <FaIcon name="paper-plane" size="lg" />
+            <i className="iconfont icon-zhifeiji" style={{ fontSize: '30px' }} />
           </Button>
         </div>
         <div className="comment-list">
