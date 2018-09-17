@@ -103,7 +103,7 @@ export class Notebook extends React.PureComponent { // eslint-disable-line react
   * */
   createNote() {
     const { user } = this.props;
-    if (user.login) {
+    if (!user.login) {
       return;
     }
     Storage.createBmob(
