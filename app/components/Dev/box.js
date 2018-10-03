@@ -136,6 +136,10 @@ class SingleBox extends React.Component {
           <Input className="w_200" value={info.img} onChange={(e) => this.changeInfo('img', e.target.value)}/>
         </div>
         <div className="mt_10">
+          <div className="w_100 inline-block">imgSize: </div>
+          <Input className="w_200" value={info.imgSize} onChange={(e) => this.changeInfo('imgSize', e.target.value)}/>
+        </div>
+        <div className="mt_10">
           <div className="w_100 inline-block">keyWords: </div>
           <Input className="w_200" value={info.keyWords} onChange={(e) => this.changeInfo('keyWords', e.target.value)}/>
         </div>

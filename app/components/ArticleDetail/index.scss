@@ -48,7 +48,6 @@
 
     p {
       min-height: 20px;
-      text-indent: 2em !important;
       white-space: pre-wrap;
     }
 
@@ -79,8 +78,7 @@
     }
 
     ul, ol {
-      list-style-type: disc !important;
-      margin-left: calc(20px + 2em);
+      margin-left: 1em;
       margin-top: 5px;
       margin-bottom: 5px;
     }
@@ -131,15 +129,15 @@
     background: #494949 !important;
     color: #ddd !important;
     padding: 15px !important;
-    border-radius: 15px !important;
+    border-radius: 10px !important;
     font-size: 15px !important;
     margin-bottom: 10px !important;
-    font-family: Consolas, Menlo, Courier, monospace;
+    //font-family: Consolas, Menlo, Courier, monospace;
   }
 
-  .braft-float-left+div {
-    height: 0;
-  }
+  //.bff-left+div, .bff-right+div {
+  //  height: 0;
+  //}
 
   blockquote {
     margin: 10px 20px !important;
@@ -150,19 +148,29 @@
   }
 }
 .DraftEditor-editorContainer .public-DraftEditor-content >div {
-  pre {
+  .public-DraftStyleDefault-pre {
     margin-left: 20px;
     margin-right: 20px;
+    background: #494949 !important;
+    color: #ddd !important;
+    padding: 15px !important;
+    border-radius: 10px !important;
+    font-size: 15px !important;
+    margin-bottom: 10px !important;
   }
 
-  ul, ol {
-    margin-left: 20px;
+  .bf-hr {
+    width: 92%;
+    margin: auto;
+  }
+  .public-DraftStyleDefault-ltr {}
+
+  .bff-left+div, .bff-right+div {
+    height: 0;
   }
 
-  >div {
-    .public-DraftStyleDefault-block {
-      text-indent: 2em !important;
-    }
+  a {
+    color: #1890ff !important;
   }
 }
 

@@ -12,12 +12,13 @@ import timer from '../../utils/timer';
 
 import { Input, Button, Icon, Tooltip, Modal, Select } from 'antd';
 import Comment from './Comment';
-import BraftEditor from 'braft-editor';
+import BraftEditor, { EditorState } from 'braft-editor';
+import { ContentUtils } from 'braft-utils'
 
 import Storage from '../../utils/Storage';
 import { getUserInfo } from "../../utils/constants";
 
-import 'braft-editor/dist/braft.css';
+import 'braft-editor/dist/index.css';
 import './index.scss';
 // import styled from 'styled-components';
 
@@ -28,6 +29,7 @@ class ArticleDetail extends React.Component { // eslint-disable-line react/prefe
 
     this.state = {
       info: JSON.parse(JSON.stringify(props.rawInfo)),
+      editorInfo: EditorState.createFrom(''),
     };
   }
 
@@ -36,17 +38,16 @@ class ArticleDetail extends React.Component { // eslint-disable-line react/prefe
   }
 
   componentWillReceiveProps(nextProps) {
+    const info = JSON.parse(JSON.stringify(nextProps.rawInfo));
     this.setState({
-      info: JSON.parse(JSON.stringify(nextProps.rawInfo)),
+      info,
+      editorInfo: EditorState.createFrom(info.content),
     });
   }
 
   changeInfo(k, v) {
     const { info } = this.state;
     info[k] = v;
-    if (k === 'content' || k === 'title') {
-      info[k] = v;
-    }
     this.setState({
       info,
     });
@@ -62,23 +63,32 @@ class ArticleDetail extends React.Component { // eslint-disable-line react/prefe
     });
   }
 
+  saveArticleInfo(edit) {
+    const { info, editorInfo } = this.state;
+    info.content = editorInfo.toHTML();
+    this.props.saveArticle(info, edit);
+  }
+
   render() {
-    const { rawInfo, edit, user, setArticleInfo, saveArticle, getArticleInfo } = this.props;
-    const { info } = this.state;
+    const { rawInfo, edit, user, setArticleInfo, getArticleInfo } = this.props;
+    const { info, editorInfo } = this.state;
     const editorProps = {
-      contentFormat: 'html',
-      initialContent: rawInfo.content,
-      onChange: (v) => this.changeInfo('content', v),
+      value: editorInfo,
+      onChange: (v) => this.setState({ editorInfo: v }),
       excludeControls: ['font-family', 'indent'],
-      tabIndents: 2,
-      pasteMode: '',
       colors: [
         '#000000', '#333333', '#666666', '#999999', '#cccccc', '#ffffff',
         '#61a951', '#16a085', '#07a9fe', '#003ba5', '#8e44ad', '#f32784',
         '#c0392b', '#d35400', '#f39c12', '#fff392', '#ffda00', '#2c3e50',
         '#ffcccc', '#FFFFD5', '#ccffff', '#ccffcc', '#FF14E7', '#FF709B',
       ],
-      onSave: () => saveArticle(info, true),
+      onSave: () => this.saveArticleInfo(true),
+      // tab换行
+      onTab: (event) => {
+        this.setState({ editorInfo: ContentUtils.insertText(editorInfo, '\t') });
+        event.preventDefault();
+        return false;
+      },
       media: {
         allowPasteImage: true, // 是否允许直接粘贴剪贴板图片（例如QQ截图等）到编辑器
         image: true, // 开启图片插入功能
@@ -97,17 +107,15 @@ class ArticleDetail extends React.Component { // eslint-disable-line react/prefe
         onChange: null, // 指定媒体库文件列表发生变化时的回调，参数为媒体库文件列表(数组)
         onInsert: null, // 指定从媒体库插入文件到编辑器时的回调，参数为被插入的媒体文件列表(数组)
       },
-      ref: (instance) => { this.editorInstance = instance; },
       extendControls: [
+        'separator',
         {
+          key: 'my-code-btn', // 控件唯一标识，必传
           type: 'button',
-          text: 'code',
-          className: 'preview-button',
+          title: 'code', // 指定鼠标悬停提示文案
+          text: 'code', // 指定按钮文字，此处可传入jsx，若已指定html，则text不会显示
           onClick: () => {
-            this.editorInstance.toggleSelectionColor('#FF709B');
-            this.editorInstance.toggleSelectionBackgroundColor('#FFFFD5');
-            this.editorInstance.toggleSelectionFontFamily('Monospace');
-            this.editorInstance.toggleSelectionInlineStyle('BOLD');
+            // this.setState({})
           },
         },
       ],
@@ -148,8 +156,8 @@ class ArticleDetail extends React.Component { // eslint-disable-line react/prefe
             </div>
           }
           <div className="pull-right">
-            <Button type="primary" className="mr_15" onClick={() => saveArticle(info, false)}>保存</Button>
-            <Button type="primary" className="mr_15" onClick={() => saveArticle(info, true)}>暂存</Button>
+            <Button type="primary" className="mr_15" onClick={() => this.saveArticleInfo(false)}>保存</Button>
+            <Button type="primary" className="mr_15" onClick={() => this.saveArticleInfo(true)}>暂存</Button>
             <Button
               onClick={() => {
                 if (rawInfo.objectId) {
