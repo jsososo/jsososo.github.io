@@ -55,7 +55,7 @@ const Notice = {
     });
   },
   // 获取提醒 (获取主动创建的提醒)
-  get: (id, cb, isRead = false, type, showLoading = false) => {
+  get: (id, cb, errCb = (err) => console.log(err) , isRead = false, type, showLoading = false) => {
     const uId = Storage.get('uId');
     if (!uId) {
       cb();
@@ -68,16 +68,14 @@ const Notice = {
         if (id) {
           q.equalTo('id', id);
         }
-        if (isRead !== null) {
-          q.equalTo('isRead', isRead);
-        }
+        q.equalTo('isRead', isRead);
         if (type) {
           q.equalTo('type', type);
         }
         return q;
       },
       cb,
-      null,
+      errCb,
       'find',
       showLoading
     );

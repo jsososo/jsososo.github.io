@@ -77,7 +77,7 @@ class Aadetail extends React.PureComponent { // eslint-disable-line react/prefer
     return (
       <div className="aa-detail">
         <a href="#/kit/aa">
-          <Icon type="arrow-left" className="pointer ft_20 mr_20 mt_5 vat"/>
+          <Icon type="arrow-left" className="pointer ft_20 mr_20 mt_5 vat" />
         </a>
         <h2 className="title fc_666 inline-block">{detail.title}</h2>
         <div className="balance-content mt_20 ml_20 ft_16">{this.renderBalance()}</div>

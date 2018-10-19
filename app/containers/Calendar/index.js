@@ -92,9 +92,7 @@ export class Calendar extends React.PureComponent { // eslint-disable-line react
           list: calendarList,
           tags,
         });
-        if (cb) {
-          cb();
-        }
+        cb && cb();
       },
       () => message.error('获取事件失败'),
       'find',

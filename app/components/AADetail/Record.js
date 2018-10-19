@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Input, message, Icon, Modal, Select } from 'antd';
+import { Input, message, Icon, Modal, Select, Pagination } from 'antd';
 import timer from '../../utils/timer';
 import Num from '../../utils/num';
 
@@ -14,6 +14,7 @@ class Record extends React.Component {
         num: '',
       },
       totalCost: 0,
+      pageNo: 1,
     };
   }
 
@@ -151,7 +152,9 @@ class Record extends React.Component {
 
   render() {
     const { info, total } = this.props;
-    const { totalCost, newInfo } = this.state;
+    const { totalCost, newInfo, pageNo } = this.state;
+    const infoList = info.list.slice((pageNo - 1) * 20, pageNo * 20);
+    console.log(info.list, (pageNo - 1) * 20);
     return (
       <div className="record-item" style={{ width: `${100 / total}%` }}>
         <div className="record-name">
@@ -184,7 +187,7 @@ class Record extends React.Component {
             </div>
           </div>
           {
-            info.list.map((r) => (
+            infoList.map((r) => (
               <div className="record-detail" key={`${r.time}`}>
                 <div className="record-left">
                   <Icon type="delete" className="del-btn" onClick={() => this.delRecord(r.time, r.num)} />{r.desc}
@@ -194,6 +197,19 @@ class Record extends React.Component {
             ))
           }
         </div>
+        {
+          info.list.length > 20 &&
+          <div className="mt_10">
+            <Pagination
+              onChange={(v) => this.setState({ pageNo: v })}
+              className="pull-right"
+              size="small"
+              total={info.list.length}
+              current={pageNo}
+              pageSize={20}
+            />
+          </div>
+        }
       </div>
     );
   }

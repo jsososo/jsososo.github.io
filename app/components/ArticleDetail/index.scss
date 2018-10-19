@@ -52,21 +52,21 @@
     }
 
     .image-wrap {
-      margin: 10px;
+      vertical-align: top;
+
+      img {
+        margin: 10px;
+      }
     }
 
-    .image-wrap+p {
-      min-height: 0;
-    }
-
-    pre {
-      background: #494949;
-      color: #ddd;
-      padding: 15px;
-      border-radius: 15px;
-      font-size: 15px;
-      margin: 0 20px 10px 20px;
-    }
+    //pre {
+    //  background: #494949;
+    //  color: #ddd;
+    //  padding: 15px;
+    //  border-radius: 15px;
+    //  font-size: 15px;
+    //  margin: 0 20px 10px 20px;
+    //}
 
     blockquote {
       margin: 10px 20px;
@@ -125,15 +125,15 @@
     text-indent: 0 !important;
   }
 
-  pre {
-    background: #494949 !important;
-    color: #ddd !important;
-    padding: 15px !important;
-    border-radius: 10px !important;
-    font-size: 15px !important;
-    margin-bottom: 10px !important;
-    //font-family: Consolas, Menlo, Courier, monospace;
-  }
+  //pre {
+  //  background: #494949 !important;
+  //  color: #ddd !important;
+  //  padding: 15px !important;
+  //  border-radius: 10px !important;
+  //  font-size: 15px !important;
+  //  margin-bottom: 10px !important;
+  //  //font-family: Consolas, Menlo, Courier, monospace;
+  //}
 
   //.bff-left+div, .bff-right+div {
   //  height: 0;
@@ -148,16 +148,16 @@
   }
 }
 .DraftEditor-editorContainer .public-DraftEditor-content >div {
-  .public-DraftStyleDefault-pre {
-    margin-left: 20px;
-    margin-right: 20px;
-    background: #494949 !important;
-    color: #ddd !important;
-    padding: 15px !important;
-    border-radius: 10px !important;
-    font-size: 15px !important;
-    margin-bottom: 10px !important;
-  }
+  //.public-DraftStyleDefault-pre {
+  //  margin-left: 20px;
+  //  margin-right: 20px;
+  //  background: #494949 !important;
+  //  color: #ddd !important;
+  //  padding: 15px !important;
+  //  border-radius: 10px !important;
+  //  font-size: 15px !important;
+  //  margin-bottom: 10px !important;
+  //}
 
   .bf-hr {
     width: 92%;
@@ -233,4 +233,14 @@
       }
     }
   }
+}
+
+.article-content .image-wrap img{
+  display: block; /*用于消除图片默认的下边距，或者用line-height:0;也行*/
+}
+.article-content .image-wrap + p:empty{
+  display: none;
+}
+.bff-left:hover{
+  z-index: 2;
 }

@@ -13,15 +13,38 @@ import timer from '../../utils/timer';
 import { Input, Button, Icon, Tooltip, Modal, Select } from 'antd';
 import Comment from './Comment';
 import BraftEditor, { EditorState } from 'braft-editor';
-import { ContentUtils } from 'braft-utils'
+import { ContentUtils } from 'braft-utils';
+import CodeHighlighter from 'braft-extensions/dist/code-highlighter';
+import 'prismjs/components/prism-java';
+// import 'prismjs/components/prism-php';
+import Prism from 'prismjs';
 
 import Storage from '../../utils/Storage';
 import { getUserInfo } from "../../utils/constants";
 
 import 'braft-editor/dist/index.css';
 import './index.scss';
+import 'braft-extensions/dist/code-highlighter.css';
 // import styled from 'styled-components';
 
+const options = {
+  syntaxs: [
+    {
+      name: 'JavaScript',
+      syntax: 'javascript',
+    }, {
+      name: 'HTML',
+      syntax: 'html',
+    }, {
+      name: 'CSS',
+      syntax: 'css',
+    }, {
+      name: 'JAVA',
+      syntax: 'java',
+    },
+  ],
+};
+BraftEditor.use(CodeHighlighter(options));
 
 class ArticleDetail extends React.Component { // eslint-disable-line react/prefer-stateless-function
   constructor(props) {
@@ -45,6 +68,13 @@ class ArticleDetail extends React.Component { // eslint-disable-line react/prefe
     });
   }
 
+  componentDidUpdate() {
+    document.getElementsByTagName('pre').className = "lang-javascript";
+    Prism.highlightAll();
+    // Prism.highlightAllUnder(document, true, (res) => console.log(111));
+    // console.log(Prism.highlight('var a = "b', Prism.languages.javascript, 'javascript'));
+  }
+
   changeInfo(k, v) {
     const { info } = this.state;
     info[k] = v;
@@ -65,7 +95,8 @@ class ArticleDetail extends React.Component { // eslint-disable-line react/prefe
 
   saveArticleInfo(edit) {
     const { info, editorInfo } = this.state;
-    info.content = editorInfo.toHTML();
+    info.content = editorInfo.toHTML().replace('language-', 'lang-').replace(/\<br\/\>/g, '\n');
+    console.log(info.content);
     this.props.saveArticle(info, edit);
   }
 
