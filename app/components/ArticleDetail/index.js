@@ -69,10 +69,9 @@ class ArticleDetail extends React.Component { // eslint-disable-line react/prefe
   }
 
   componentDidUpdate() {
-    document.getElementsByTagName('pre').className = "lang-javascript";
-    Prism.highlightAll();
-    // Prism.highlightAllUnder(document, true, (res) => console.log(111));
-    // console.log(Prism.highlight('var a = "b', Prism.languages.javascript, 'javascript'));
+    if (!this.props.edit) {
+      Prism.highlightAll();
+    }
   }
 
   changeInfo(k, v) {
@@ -95,7 +94,7 @@ class ArticleDetail extends React.Component { // eslint-disable-line react/prefe
 
   saveArticleInfo(edit) {
     const { info, editorInfo } = this.state;
-    info.content = editorInfo.toHTML().replace('language-', 'lang-').replace(/\<br\/\>/g, '\n');
+    info.content = editorInfo.toHTML().replace(/\<br\/\>/g, '\n');
     console.log(info.content);
     this.props.saveArticle(info, edit);
   }
