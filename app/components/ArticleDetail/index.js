@@ -16,6 +16,7 @@ import BraftEditor, { EditorState } from 'braft-editor';
 import { ContentUtils } from 'braft-utils';
 import CodeHighlighter from 'braft-extensions/dist/code-highlighter';
 import 'prismjs/components/prism-java';
+import 'prismjs/components/prism-python';
 // import 'prismjs/components/prism-php';
 import Prism from 'prismjs';
 
@@ -41,6 +42,9 @@ const options = {
     }, {
       name: 'JAVA',
       syntax: 'java',
+    }, {
+      name: 'Python',
+      syntax: 'python',
     },
   ],
 };
@@ -70,7 +74,12 @@ class ArticleDetail extends React.Component { // eslint-disable-line react/prefe
 
   componentDidUpdate() {
     if (!this.props.edit) {
-      Prism.highlightAll();
+      // Prism.highlightAll 这个方法里面的 document.querySelectorAll 有点问题，自己写一下
+      // Prism.highlightAll();
+
+      const elements = document.querySelectorAll('[class*="language-"], [class*="language-"] code, [class*="lang-"], [class*="lang-"] code');
+
+      elements.forEach((el) => el && Prism.highlightElement(el, false));
     }
   }
 
@@ -95,7 +104,6 @@ class ArticleDetail extends React.Component { // eslint-disable-line react/prefe
   saveArticleInfo(edit) {
     const { info, editorInfo } = this.state;
     info.content = editorInfo.toHTML().replace(/\<br\/\>/g, '\n');
-    console.log(info.content);
     this.props.saveArticle(info, edit);
   }
 
@@ -113,12 +121,6 @@ class ArticleDetail extends React.Component { // eslint-disable-line react/prefe
         '#ffcccc', '#FFFFD5', '#ccffff', '#ccffcc', '#FF14E7', '#FF709B',
       ],
       onSave: () => this.saveArticleInfo(true),
-      // tab换行
-      onTab: (event) => {
-        this.setState({ editorInfo: ContentUtils.insertText(editorInfo, '\t') });
-        event.preventDefault();
-        return false;
-      },
       media: {
         allowPasteImage: true, // 是否允许直接粘贴剪贴板图片（例如QQ截图等）到编辑器
         image: true, // 开启图片插入功能
