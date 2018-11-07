@@ -91,7 +91,7 @@ class Comment extends React.Component {
             autosize={{ minRows: 3, maxRows: 3 }}
           />
           <Button className="comment-btn" type="primary" onClick={() => this.sendComment()}>
-            <i className="iconfont icon-zhifeiji" style={{ fontSize: '30px' }} />
+            <i className="iconfont icon-zhifeiji-copy" style={{ fontSize: '30px' }} />
           </Button>
         </div>
         <div className="comment-list">

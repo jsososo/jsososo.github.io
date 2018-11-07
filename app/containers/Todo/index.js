@@ -31,7 +31,7 @@ import { checkLogIn } from "../App/index";
 export class Todo extends React.PureComponent { // eslint-disable-line react/prefer-stateless-function
   componentDidMount() {
     if (checkLogIn('任务链')) {
-      recentlyUsed.set('任务链', 'kit', this.props.user.username);
+      recentlyUsed.set('任务链', 'kit');
       this.queryAllList();
     }
   }
@@ -44,11 +44,14 @@ export class Todo extends React.PureComponent { // eslint-disable-line react/pre
 
   // 查询获取所有的todo事件
   queryAllList(update = true, user = this.props.user) {
+    if (!user.objectId) {
+      return;
+    }
     Storage.queryBmob(
       'Thing',
       (q) => {
         q.equalTo('isTodo', true);
-        q.equalTo('user', user.username || '游客');
+        q.equalTo('userId', user.objectId);
         q.limit(1000);
         return q;
       },
@@ -89,7 +92,7 @@ export class Todo extends React.PureComponent { // eslint-disable-line react/pre
     Storage.createBmob(
       'Thing',
       {
-        user: user.username,
+        userId: user.objectId,
         time: 0,
         startTime: 0,
         endTime: 0,

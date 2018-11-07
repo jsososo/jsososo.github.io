@@ -34,8 +34,8 @@ import { message } from 'antd';
 
 export class Calendar extends React.PureComponent { // eslint-disable-line react/prefer-stateless-function
   componentWillMount() {
-    if (this.props.user.username !== '游客') {
-      recentlyUsed.set('日历', 'kit', this.props.user.username);
+    if (this.props.user.objectId) {
+      recentlyUsed.set('日历', 'kit');
     }
     this.updateFromUrl(this.props);
     this.getAllThing();
@@ -43,17 +43,20 @@ export class Calendar extends React.PureComponent { // eslint-disable-line react
 
   componentWillReceiveProps(nextProps) {
     this.updateFromUrl(nextProps);
-    if (nextProps.user.objectId && nextProps.user.objectid !== this.props.user.objectid) {
+    if (nextProps.user.objectId && nextProps.user.objectId !== this.props.user.objectId) {
       this.getAllThing(null, nextProps.user);
     }
   }
 
   // 获取当前用户的所有事情列表
   getAllThing(cb, user = this.props.user) {
+    if (!user.objectId) {
+      return;
+    }
     Storage.queryBmob(
       'Thing',
       (q) => {
-        q.equalTo('user', user.username || '游客');
+        q.equalTo('userId', user.objectId);
         q.limit(1000);
         return q;
       },
@@ -108,7 +111,7 @@ export class Calendar extends React.PureComponent { // eslint-disable-line react
     Storage.createBmob(
       'Thing',
       {
-        user: user.username,
+        userId: user.objectId,
         time: selected.time,
         milestone: false,
         notice: false,

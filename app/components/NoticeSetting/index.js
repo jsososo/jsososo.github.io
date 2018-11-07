@@ -40,7 +40,7 @@ class NoticeSetting extends React.Component { // eslint-disable-line react/prefe
     Storage.queryBmob(
       'NoticeSetting',
       (q) => {
-        q.equalTo('username', user.username);
+        q.equalTo('userId', user.objectId);
         q.equalTo('type', 'thing');
         return q;
       },
@@ -73,7 +73,7 @@ class NoticeSetting extends React.Component { // eslint-disable-line react/prefe
         rules: [],
         tag: timer().str('YYMDHms'),
         type: 'thing',
-        username: user.username,
+        userId: user.objectId,
         isSys: false,
       },
       (res) => this.getThingSettingList(res.id),
@@ -119,7 +119,7 @@ class NoticeSetting extends React.Component { // eslint-disable-line react/prefe
     Storage.queryBmob(
       'NoticeSetting',
       (q) => {
-        q.equalTo('username', user.username);
+        q.equalTo('userId', user.objectId);
         q.equalTo('tag', selectThing.tag);
         q.notEqualTo('objectId', selectThing.objectId);
         return q;

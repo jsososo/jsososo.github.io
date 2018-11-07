@@ -37,8 +37,8 @@ const Option = Select.Option;
 
 export class CashBook extends React.PureComponent { // eslint-disable-line react/prefer-stateless-function
   componentWillMount() {
-    if (this.props.user.username !== '游客') {
-      recentlyUsed.set('账单统计', 'kit', this.props.user.username);
+    if (this.props.user.objectId) {
+      recentlyUsed.set('账单统计', 'kit');
     }
   }
 

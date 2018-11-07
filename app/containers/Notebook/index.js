@@ -38,7 +38,7 @@ export class Notebook extends React.PureComponent { // eslint-disable-line react
     if (checkLogIn('记事本')) {
       this.queryNoteBooks();
       this.queryAllTags();
-      recentlyUsed.set('记事本', 'kit', this.props.user.username);
+      recentlyUsed.set('记事本', 'kit');
     } else {
       this.props.updateNotebook([]);
     }
@@ -70,7 +70,7 @@ export class Notebook extends React.PureComponent { // eslint-disable-line react
     Storage.queryBmob(
       'Notebook',
       (q) => {
-        q.equalTo('author', user.username);
+        q.equalTo('userId', user.objectId);
         q.limit(1000);
         return q;
       },
@@ -109,7 +109,7 @@ export class Notebook extends React.PureComponent { // eslint-disable-line react
     Storage.createBmob(
       'Notebook',
       {
-        author: user.username,
+        userId: user.objectId,
         created: timer().time,
         lastEdit: timer().time,
         title: '',
@@ -135,7 +135,7 @@ export class Notebook extends React.PureComponent { // eslint-disable-line react
     Storage.queryBmob(
       'Tags',
       (q) => {
-        q.equalTo('username', user.username);
+        q.equalTo('userId', user.objectId);
         return q;
       },
       (res) => {
@@ -151,7 +151,7 @@ export class Notebook extends React.PureComponent { // eslint-disable-line react
     const { user, notebook } = this.props;
     const { tagsBmob } = notebook;
     const value = {
-      username: user.username,
+      userId: user.objectId,
       notebook: tags,
     };
     const callback = () => {

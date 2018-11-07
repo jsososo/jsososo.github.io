@@ -31,27 +31,28 @@ export class MileStone extends React.PureComponent { // eslint-disable-line reac
   // 页面加载或者更新之后都自动滚动到想要的位置
   componentDidMount() {
     if (checkLogIn('里程碑')) {
-      recentlyUsed.set('里程碑', 'kit', this.props.user.username);
+      recentlyUsed.set('里程碑', 'kit');
       this.getAllMileStone();
     }
   }
 
   componentWillReceiveProps(nextProps) {
-    if (nextProps.user.username && nextProps.user.username !== this.props.user.username) {
-      this.getAllMileStone(nextProps.user.username);
+    if (nextProps.user.objectId && nextProps.user.objectId !== this.props.user.objectId) {
+      this.getAllMileStone(nextProps.user);
     }
   }
 
   // 获取所有的里程碑
-  getAllMileStone(username = this.props.user.username) {
-    if (username === '游客') {
+  getAllMileStone(user = this.props.user) {
+    const [uid, username] = [user.objectId, user.username];
+    if (!uid) {
       return;
     }
     const today = timer();
     Storage.queryBmob(
       'Thing',
       (q) => {
-        q.equalTo('user', username);
+        q.equalTo('userId', uid);
         q.equalTo('milestone', true);
         q.limit(1000);
 

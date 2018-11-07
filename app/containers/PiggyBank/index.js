@@ -35,13 +35,12 @@ export class PiggyBank extends React.PureComponent { // eslint-disable-line reac
   componentWillMount() {
     if (checkLogIn('存钱罐')) {
       this.getPiggyList();
-      recentlyUsed.set('存钱罐', 'kit', this.props.user.username);
+      recentlyUsed.set('存钱罐', 'kit');
     }
   }
 
   componentWillReceiveProps(nextProps) {
     if (nextProps.user.objectId && nextProps.user.objectId !== this.props.user.objectId) {
-      console.log(123);
       this.getPiggyList(nextProps.user);
     }
   }
@@ -67,7 +66,7 @@ export class PiggyBank extends React.PureComponent { // eslint-disable-line reac
     Storage.queryBmob(
       'Piggy',
       (q) => {
-        q.equalTo('username', user.username);
+        q.equalTo('userId', user.objectId);
         return q;
       },
       (res) => {
@@ -81,7 +80,7 @@ export class PiggyBank extends React.PureComponent { // eslint-disable-line reac
 
   createPiggy(val) {
     const { user } = this.props;
-    val.username = user.username;
+    val.userId = user.objectId;
     Storage.createBmob(
       'Piggy',
       val,

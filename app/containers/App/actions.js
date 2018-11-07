@@ -91,8 +91,8 @@ export function queryBoxes(data) {
 }
 
 export function getUserInfo(data) {
-  if (data.username !== '游客') {
-    notice.findNotice(data.username);
+  if (data.objectId) {
+    notice.findNotice(data.objectId);
     allUserInfo[data.objectId] = data;
     Storage.set('uName', data.username);
     Storage.set('uId', data.objectId);

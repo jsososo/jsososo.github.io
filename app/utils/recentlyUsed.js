@@ -2,6 +2,8 @@ import Storage from './Storage';
 import timer from './timer';
 import getBox from './const/box';
 
+const userId = Storage.get('uId');
+
 const recentlyUsed = {
   get: (type, rUObj, boxes) => {
     try {
@@ -48,15 +50,15 @@ const recentlyUsed = {
       return [];
     }
   },
-  set: (name, type, username) => {
+  set: (name, type) => {
     Storage.queryBmob(
       'RecentlyUsed',
       (q) => {
-        q.equalTo('user', username);
+        q.equalTo('userId', userId);
         return q;
       },
       (res) => {
-        const rU = res || { user: username, value: '{}' };
+        const rU = res || { userId, value: '{}' };
         rU.value = JSON.parse(rU.value);
 
         const date = timer().str('YYYYMMDD');

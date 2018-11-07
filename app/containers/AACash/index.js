@@ -35,22 +35,31 @@ export class Aacash extends React.PureComponent { // eslint-disable-line react/p
   componentWillMount() {
     if (checkLogIn('AA对账')) {
       this.getAAList();
-      recentlyUsed.set('AA对账', 'kit', this.props.user.username);
+      recentlyUsed.set('AA对账', 'kit');
+    }
+  }
+
+  componentWillReceiveProps(nextProps) {
+    if (nextProps.user.objectId && nextProps.user.objectId !== this.props.user.objectId) {
+      this.getAAList(nextProps.user);
     }
   }
 
   // 获取所有的aa列表
-  getAAList() {
-    const { user, queryAllList } = this.props;
+  getAAList(user = this.props.user) {
+    const { queryAllList } = this.props;
+    if (!user.objectId) {
+      return;
+    }
     Storage.queryBmob(
       'AACash',
       (q) => {
-        q.equalTo('username', user.username);
-        q.select("updatedAt", "title", "users");
+        q.equalTo('userId', user.objectId);
+        q.select('updatedAt', 'title', 'users');
         return q;
       },
       (res) => {
-        res.sort((a, b) => timer(a.updatedAt, 'YYYY-MM-DD HH:mm:ss').time < timer(b.updatedAt, 'YYYY-MM-DD HH:mm:ss'))
+        res.sort((a, b) => timer(a.updatedAt, 'YYYY-MM-DD HH:mm:ss').time < timer(b.updatedAt, 'YYYY-MM-DD HH:mm:ss'));
         queryAllList(res);
       },
       null,
@@ -108,10 +117,10 @@ export class Aacash extends React.PureComponent { // eslint-disable-line react/p
     });
     Storage.createBmob(
       'AACash',
-      { title, info, users, username: user.username },
+      { title, info, users, userId: user.objectId },
       (res) => {
         this.getAAList();
-        changeUrlQuery({ id: res.id })
+        changeUrlQuery({ id: res.id });
       }
     );
   }

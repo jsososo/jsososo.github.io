@@ -43,7 +43,7 @@ export class KitIndex extends React.Component { // eslint-disable-line react/pre
     Storage.queryBmob(
       'RecentlyUsed',
       (q) => {
-        q.equalTo('user', user.username);
+        q.equalTo('userId', user.objectId);
         return q;
       },
       (res) => {
@@ -58,7 +58,7 @@ export class KitIndex extends React.Component { // eslint-disable-line react/pre
           Storage.createBmob(
             'RecentlyUsed',
             {
-              user: user.username,
+              userId: user.objectId,
               value: '{}',
             },
           );

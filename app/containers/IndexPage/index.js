@@ -115,7 +115,7 @@ export class IndexPage extends React.Component { // eslint-disable-line react/pr
           Storage.createBmob(
             'RecentlyUsed',
             {
-              user: user.username,
+              userId: user.objectId,
               value: '{}',
             },
           );

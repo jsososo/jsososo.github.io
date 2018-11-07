@@ -130,15 +130,15 @@ const Notice = {
   },
   // 寻找提醒（不计入数据存储，调各个应用的接口拉数据去判断是否要提醒）
   findNotice: () => {
-    const username = Storage.get('uName');
+    const userId = Storage.get('uId');
     // 今天提醒过就不提醒了
-    if (!username || Storage.get(`notice-record-${username}`) === today.str()) {
+    if (!userId || Storage.get(`notice-record-${userId}`) === today.str()) {
       return;
     }
-    baseQuery('Piggy', { username }, null, ['total', 'current', 'endTime', 'startTime', 'title', 'average', 'type', 'record'], piggyCb);
-    baseQuery('NoticeSetting', { username }, null, null, noticeSettingCb);
+    baseQuery('Piggy', { userId }, null, ['total', 'current', 'endTime', 'startTime', 'title', 'average', 'type', 'record'], piggyCb);
+    baseQuery('NoticeSetting', { userId }, null, null, noticeSettingCb);
     // 标志今天提醒过了
-    Storage.set(`notice-record-${username}`, today.str());
+    Storage.set(`notice-record-${userId}`, today.str());
   },
 };
 
@@ -160,8 +160,8 @@ const baseQuery = (table, eq, nEq, s, cb) => {
 
 // NoticeSetting相关
 const noticeSettingCb = (res) => {
-  const username = Storage.get('uName');
-  if (username === '游客') {
+  const userId = Storage.get('uId');
+  if (!userId) {
     return;
   }
   // 如果发现他没有noticeSetting，给他创建三个系统的提醒
@@ -183,13 +183,13 @@ const noticeSettingCb = (res) => {
     sysSetting.forEach((item) => {
       item.isSys = true;
       item.type = 'thing';
-      item.username = username;
+      item.userId = userId;
       Storage.createBmob('NoticeSetting', item);
     });
     return;
   }
   NoticeSetting = res;
-  baseQuery('Thing', { user: username }, { tag: '' }, ['title', 'tag', 'time'], thingCb);
+  baseQuery('Thing', { userId }, { tag: '' }, ['title', 'tag', 'time'], thingCb);
 };
 
 // 事件的回调
@@ -213,14 +213,19 @@ const thingCb = (res) => {
         }
       } else if (timer(item.time).from(-1 * rule.count).str(rule.type) === today.str(rule.type)) {
         showNotice = true;
-        if (rule.count === 0) {
-          noticeText = '就是今天啦,';
-        } else if (rule.count === 1) {
-          noticeText = '明天明天！';
-        } else if (rule.count === 2) {
-          noticeText = '后天就是啦，';
-        } else {
-          noticeText = `还有${rule.count}天，`;
+        const isYMD = (rule.type === 'YYYYMMDD');
+        switch (rule.count) {
+          case 0:
+            noticeText = isYMD ? '就是今天啦,' : `今天就是${today.year - timer(item.time).year}周年了，`;
+            return;
+          case 1:
+            noticeText = isYMD ? '明天明天！' : `明天就要${today.year - timer(item.time).year}周年啦，`;
+            return;
+          case 2:
+            noticeText = isYMD ? '后天就是啦，' : `后天就要${today.year - timer(item.time).year}周年啦，`;
+            return;
+          default:
+            noticeText = isYMD ? `还有${rule.count}天，` : `还有${rule.count}天就要${today.year - timer(item.time).year}周年啦，`;
         }
       }
     });

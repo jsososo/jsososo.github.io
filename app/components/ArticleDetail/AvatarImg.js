@@ -29,7 +29,7 @@ class AvatarImg extends React.Component {
     const { showName, isAuthor, isHide } = this.props;
     return (
       <div>
-        <div>
+        <div className="inline-block">
           {
             (!avatar || (isAuthor && isHide)) ?
               <Icon className="comment-avatar no-avatar" type="user" /> :
@@ -37,7 +37,7 @@ class AvatarImg extends React.Component {
           }
         </div>
         {
-          showName && <div className="ml_10">{ isHide ? '匿名' : name }{ isAuthor && '（作者）' }</div>
+          showName && <div className="ml_10 inline-block">{ isHide ? '匿名' : name }{ isAuthor && '（作者）' }</div>
         }
       </div>
     );
