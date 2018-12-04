@@ -87,7 +87,7 @@ export class Development extends React.Component { // eslint-disable-line react/
 
 Development.propTypes = {
   dispatch: PropTypes.func.isRequired,
-  user: PropTypes.func.isRequired,
+  user: PropTypes.object.isRequired,
 };
 
 const mapStateToProps = createStructuredSelector({

@@ -19,9 +19,7 @@ module.exports = require('./webpack.base.babel')({
     new webpack.optimize.ModuleConcatenationPlugin(),
     new webpack.optimize.CommonsChunkPlugin({
       name: 'vendor',
-      children: true,
-      minChunks: 2,
-      async: true,
+      minChunks: (module) => module.context && module.context.match(/react|antd|bmob/i),
     }),
 
     // Minify and optimize the index.html

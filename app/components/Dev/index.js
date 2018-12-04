@@ -9,6 +9,10 @@ import Box from './box';
 import Data from './data';
 // import styled from 'styled-components';
 
+import BraftEditor from 'braft-editor'
+// 引入编辑器样式
+import 'braft-editor/dist/index.css'
+
 
 class Dev extends React.Component { // eslint-disable-line react/prefer-stateless-function
   constructor(props) {
@@ -16,6 +20,7 @@ class Dev extends React.Component { // eslint-disable-line react/prefer-stateles
 
     this.state = {
       selected: '',
+      editorState: BraftEditor.createEditorState(null)
     };
   }
 
@@ -33,7 +38,7 @@ class Dev extends React.Component { // eslint-disable-line react/prefer-stateles
           selected === '' &&
             <ul style={{ listStyleType: 'none', fontSize: '16px' }} className="pointer">
               <li className="mt_10" onClick={() => this.setState({ selected: 'box' })}>box信息</li>
-              <li className="mt_10" onClick={() => this.setState({ selected: 'data' })}>数据库批量修改</li>
+              <li className="mt_10" onClick={() => this.setState({ selected: 'data' })}>删掉重复的提示</li>
             </ul>
         }
         { selected === 'box' && <Box goBack={() => this.goBack()} /> }

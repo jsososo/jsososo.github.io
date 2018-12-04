@@ -18,8 +18,7 @@ import {makeSelectToast} from './selectors';
 // import { Helmet } from 'react-helmet';
 // import styled from 'styled-components';
 import { Switch, Route, HashRouter } from 'react-router-dom';
-import recentlyUsed from '../../utils/recentlyUsed';
-import IndexPage from '../IndexPage'; // 首页
+import IndexPage from '../IndexPage/Loadable'; // 首页
 import ImagePage from '../ImagePage/Loadable'; // 图片首页
 import SearchPage from '../SearchPage/Loadable'; // 搜索页
 

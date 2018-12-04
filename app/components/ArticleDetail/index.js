@@ -53,7 +53,6 @@ BraftEditor.use(CodeHighlighter(options));
 class ArticleDetail extends React.Component { // eslint-disable-line react/prefer-stateless-function
   constructor(props) {
     super(props);
-
     this.state = {
       info: JSON.parse(JSON.stringify(props.rawInfo)),
       editorInfo: EditorState.createFrom(''),
@@ -114,6 +113,7 @@ class ArticleDetail extends React.Component { // eslint-disable-line react/prefe
       value: editorInfo,
       onChange: (v) => this.setState({ editorInfo: v }),
       excludeControls: ['font-family', 'indent'],
+      stripPastedStyles: true,
       colors: [
         '#000000', '#333333', '#666666', '#999999', '#cccccc', '#ffffff',
         '#61a951', '#16a085', '#07a9fe', '#003ba5', '#8e44ad', '#f32784',
@@ -139,18 +139,6 @@ class ArticleDetail extends React.Component { // eslint-disable-line react/prefe
         onChange: null, // 指定媒体库文件列表发生变化时的回调，参数为媒体库文件列表(数组)
         onInsert: null, // 指定从媒体库插入文件到编辑器时的回调，参数为被插入的媒体文件列表(数组)
       },
-      extendControls: [
-        'separator',
-        {
-          key: 'my-code-btn', // 控件唯一标识，必传
-          type: 'button',
-          title: 'code', // 指定鼠标悬停提示文案
-          text: 'code', // 指定按钮文字，此处可传入jsx，若已指定html，则text不会显示
-          onClick: () => {
-            // this.setState({})
-          },
-        },
-      ],
     };
     return (
       edit ?
