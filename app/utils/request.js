@@ -100,9 +100,6 @@ let fetchCall = options => fetch(options.url, options.params)
     if (json && json.success) { //只有result为1xx的结果才算成功
       return json;
     } else {
-      if(json.code=="login.timeout"){
-        window.location.href="//f.superboss.cc/static/newNoSession.html#"
-      }
       throw json;
     }
   }).catch(err => {

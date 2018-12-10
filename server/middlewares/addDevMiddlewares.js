@@ -29,13 +29,6 @@ module.exports = function addDevMiddlewares(app, webpackConfig) {
   // artifacts, we use it instead
   const fs = middleware.fileSystem;
   if (argv.type == 'online') {
-    app.get('*.rjson$', (req, res) => {
-      rest.get("http://datacollect.superboss.cc", {
-        headers: req.headers
-      }).on('complete', function (data) {
-        res.send(data)
-      })
-    });
 
     app.get('*', (req, res) => {
       fs.readFile(path.join(compiler.outputPath, 'index.html'), (err, file) => {
