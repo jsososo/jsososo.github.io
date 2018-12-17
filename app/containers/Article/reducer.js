@@ -18,8 +18,10 @@ const initialState = fromJS({
   searchOpts: {
     pageNo: 1,
     title: '',
-    author: '',
+    sort: 'createdAt',
+    down: true,
     tag: '',
+    public: false,
   },
   articleInfo: null,
   editArticle: false,

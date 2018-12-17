@@ -13,12 +13,64 @@
     </script>
     <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
     <meta name="format-detection" content="telephone=no">
-    <title>emmm</title>
+    <style>
+      .loading-container {
+        text-align: center;
+        color: #999;
+        font-size: 20px;
+        font-weight: bold;
+      }
+      .loading-container img {
+        transform: rotate(0deg);
+        animation: loadingIcon 2s infinite linear;
+      }
+      @keyframes loadingIcon {
+        from {
+          width: 100px;
+          height: 100px;
+          transform: rotate(0deg);
+        }
+        27% {
+          width: 130px;
+          height: 130px;
+          transform: rotate(0deg);
+        }
+        39% {
+          width: 130px;
+          height: 130px;
+          transform: rotate(360deg);
+        }
+        60% {
+          width: 70px;
+          height: 70px;
+          transform: rotate(360deg);
+        }
+        73% {
+          width: 70px;
+          height: 70px;
+          transform: rotate(0deg);
+        }
+        to {
+          width: 100px;
+          height: 100px;
+          transform: rotate(0deg);
+        }
+      }
+    </style>
+    <title>soso</title>
   </head>
   <body>
     <div id="xhr-loading">
       <div class="xhr-loading-icon"></div>
     </div>
-    <div id="root">你的网可太差了~</div>
+    <div id="root">
+      <div class="loading-container">
+        <div style="padding-top: 100px;height: 150px;">
+          <img src="./resources/img/justsoso.png" width="100" alt="">
+        </div>
+        <div>-S_os_O-</div>
+        <div>jsososo@outlook.com</div>
+      </div>
+    </div>
   </body>
 </html>

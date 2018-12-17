@@ -101,11 +101,10 @@ export class Article extends React.PureComponent { // eslint-disable-line react/
         },
       ],
       (q) => {
-        q.select('author', 'lastEdit', 'authorId', 'comment', 'title', 'tag');
+        q.select('author', 'lastEdit', 'authorId', 'comment', 'title', 'tag', 'public');
         return q;
       },
       (res) => {
-        res.sort((a, b) => b.lastEdit - a.lastEdit);
         getArticleList(res.map((a) => ({
           ...a,
           title: decodeURI(decodeURI(a.title)),

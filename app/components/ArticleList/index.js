@@ -26,17 +26,18 @@ class ArticleList extends React.PureComponent { // eslint-disable-line react/pre
   getList() {
     const { list, searchOpts } = this.props;
     const result = list.filter((item) => {
-      let r = true;
-      ['title', 'author', 'tag'].forEach((key) => {
-        if (searchOpts[key] && !item[key]) {
-          r = false;
-        }
-        if (searchOpts[key] && item[key] && item[key].indexOf(searchOpts[key]) === -1) {
-          r = false;
-        }
-      });
-      return r;
-    });
+      if (searchOpts.public && !item.public) {
+        return false;
+      }
+      if (item.tag && item.tag === searchOpts.tag) {
+        return false;
+      }
+      const val = `${item.title} ${item.author}`;
+      if (val && searchOpts.title && !val.match(new RegExp(searchOpts.title, 'i'))) {
+        return false;
+      }
+      return true;
+    }).sort((a, b) => (searchOpts.down ? 1 : -1) * (timer(a[searchOpts.sort]).time - timer(b[searchOpts.sort].time)));
     return result.slice(20 * (searchOpts.pageNo - 1), 20 * (searchOpts.pageNo));
   }
 
@@ -96,7 +97,7 @@ class ArticleList extends React.PureComponent { // eslint-disable-line react/pre
                     a.comment && a.comment.length > 0 &&
                     <div className="inline-block"><Icon type="message" className="pr_5" />{a.comment.length}</div>
                   }
-                  <div className="article-time">{timer(a.lastEdit).str('YY-M-D HH:mm')}</div>
+                  <div className="article-time">{timer(a[searchOpts.sort]).str('YY-M-D HH:mm')}</div>
                 </div>
               </div>
             ))
