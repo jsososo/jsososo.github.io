@@ -154,7 +154,6 @@ class Record extends React.Component {
     const { info, total } = this.props;
     const { totalCost, newInfo, pageNo } = this.state;
     const infoList = info.list.slice((pageNo - 1) * 20, pageNo * 20);
-    console.log(info.list, (pageNo - 1) * 20);
     return (
       <div className="record-item" style={{ width: `${100 / total}%` }}>
         <div className="record-name">

@@ -88,10 +88,7 @@ export class IndexPage extends React.Component { // eslint-disable-line react/pr
           articles: res.map(a => ({ ...a, title: shortString(decodeURI(decodeURI(a.title))) })).slice(0, 5),
         });
       },
-      (err) => {
-        console.log(err);
-      },
-      'find',
+      null, 'find',
     );
   }
 

@@ -14,17 +14,13 @@ class Box extends React.Component {
 
   componentWillMount() {
     Storage.queryBmob(
-      'BoxInfo',
-      undefined,
+      'BoxInfo', undefined,
       (res) => {
         this.setState({
           list: res,
         });
       },
-      (err) => {
-        console.log(err);
-      },
-      'find',
+      null, 'find',
     );
   }
 

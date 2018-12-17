@@ -105,7 +105,7 @@ class Aalist extends React.Component { // eslint-disable-line react/prefer-state
   }
 
   render() {
-    const { list } = this.props;
+    const { list, user } = this.props;
     const { create } = this.state;
     return (
       <div>
@@ -128,9 +128,12 @@ class Aalist extends React.Component { // eslint-disable-line react/prefer-state
                     <span className="fc_999 pr_10">{shortString(t.users.join('、'), 12)}</span>
                     {t.users.length}个人的账本
                   </div>
-                  <div className="delete-btn" onClick={() => this.delAA(t.objectId)}>
-                    <Icon type="delete"/>
-                  </div>
+                  {
+                    t.userId === user.objectId &&
+                    <div className="delete-btn" onClick={() => this.delAA(t.objectId)}>
+                      <Icon type="delete" />
+                    </div>
+                  }
                 </div>
               ))}
             </div>
@@ -163,6 +166,7 @@ Aalist.propTypes = {
   list: PropTypes.array.isRequired,
   createFun: PropTypes.func.isRequired,
   delFun: PropTypes.func.isRequired,
+  user: PropTypes.object.isRequired,
 };
 
 export default Aalist;

@@ -54,8 +54,8 @@ export class Aacash extends React.PureComponent { // eslint-disable-line react/p
     Storage.queryBmob(
       'AACash',
       (q) => {
-        q.equalTo('userId', user.objectId);
-        q.select('updatedAt', 'title', 'users');
+        q.equalTo('userIds', user.objectId);
+        q.select('updatedAt', 'title', 'users', 'userId');
         return q;
       },
       (res) => {
@@ -87,22 +87,13 @@ export class Aacash extends React.PureComponent { // eslint-disable-line react/p
         q.equalTo('objectId', getQueryFromUrl('id'));
         return q;
       },
-      (res) => {
-        this.props.getAADetail(res);
-      }
+      (res) => this.props.getAADetail(res),
     );
   }
 
   // 更新aa
   updateAA(val) {
-    Storage.setBmob(
-      'AACash',
-      val.objectId,
-      val,
-      () => {
-        this.getAADetail()
-      }
-    );
+    Storage.setBmob('AACash', val.objectId, val, () => this.getAADetail());
   }
 
   // 新建一个aa
@@ -117,7 +108,7 @@ export class Aacash extends React.PureComponent { // eslint-disable-line react/p
     });
     Storage.createBmob(
       'AACash',
-      { title, info, users, userId: user.objectId },
+      { title, info, users, userId: user.objectId, userIds: [user.objectId] },
       (res) => {
         this.getAAList();
         changeUrlQuery({ id: res.id });
@@ -127,7 +118,7 @@ export class Aacash extends React.PureComponent { // eslint-disable-line react/p
 
   render() {
     const id = getQueryFromUrl('id');
-    const { aacash } = this.props;
+    const { aacash, user } = this.props;
     return (
       <div>
         <Helmet>
@@ -139,13 +130,15 @@ export class Aacash extends React.PureComponent { // eslint-disable-line react/p
             id ?
               <AADetail
                 detail={aacash.detail}
-                getDetail={(id) => this.getAADetail(id)}
+                getDetail={(val) => this.getAADetail(val)}
                 updateFun={(val) => this.updateAA(val)}
+                user={user}
               /> :
               <AAList
                 list={aacash.list}
-                delFun={(id) => this.delAA(id)}
+                delFun={(val) => this.delAA(val)}
                 createFun={(u, t) => this.createAA(u, t)}
+                user={user}
               />
           }
         </div>

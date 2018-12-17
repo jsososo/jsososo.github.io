@@ -17,17 +17,13 @@ class Data extends React.Component {
   }
 
   componentWillMount() {
-    Storage.queryBmob('NoticeSetting', null, (res) => {
-      res.sort((a, b) => timer(a.craetedAt).time - timer(b.craetedAt).time);
-      const obj = {};
-      res.forEach((item) => {
-        const key = `${item.tag}-${item.username}`;
-        if (obj[key]) {
-          Storage.delBmob('NoticeSetting', item.objectId);
-        }
-        obj[key] = 1;
-      })
-    }, null, 'find');
+    // Storage.queryBmob('AACash', null, (res) => {
+    //   const obj = {};
+    //   res.forEach((item, index) => {
+    //     item.userIds = [item.userId];
+    //     Storage.setBmob('AACash', item.objectId, item, console.log('ok: ', index));
+    //   });
+    // }, null, 'find');
   }
 
   render() {
