@@ -43,28 +43,19 @@ class Aadetail extends React.Component { // eslint-disable-line react/prefer-sta
       if (id !== user.objectId) {
         getUserInfo(id, (v) => {
           userList.push(v);
-          console.log(userList);
           this.setState({ userList });
         });
       }
     });
   }
 
-  updateFun(list, i) {
-    const { detail } = this.props;
-    detail.info[i].list = list;
-    this.props.updateFun(detail);
-  }
-
   transferRecord(u1, u2, num) {
-    const { detail } = this.props;
-    const info = detail.info.find((i) => i.name === u1);
-    info.list.unshift({
+    const { detail, updateFun } = this.props;
+    updateFun(null, true, detail.users.indexOf(u1), {
       time: timer().time,
       desc: `收到${u2}的转账`,
       num,
     });
-    this.updateFun(info.list, detail.users.indexOf(u1));
   }
 
   findUser() {
@@ -99,7 +90,7 @@ class Aadetail extends React.Component { // eslint-disable-line react/prefer-sta
     const result = [];
     const costArr = info.map((item) => {
       let c = 0;
-      item.list.forEach((a) => c += a.num);
+      item.list.forEach((a) => !a.del && (c += a.num));
       c = Num(c, 2);
       return {
         cost: c,
@@ -143,7 +134,7 @@ class Aadetail extends React.Component { // eslint-disable-line react/prefer-sta
   }
 
   render() {
-    const { detail, user } = this.props;
+    const { detail, user, updateFun } = this.props;
     const { showModal, searchUser, userList, findUser } = this.state;
     return (
       <div className="aa-detail">
@@ -161,7 +152,7 @@ class Aadetail extends React.Component { // eslint-disable-line react/prefer-sta
             detail.info && detail.info.map((record, i) =>
               <Record
                 users={detail.users}
-                updateFun={(list) => this.updateFun(list, i)}
+                updateFun={(t, v) => updateFun(null, t, i, v)}
                 total={detail.info.length}
                 key={`record-${i}`}
                 info={record}

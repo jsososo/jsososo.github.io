@@ -29,20 +29,14 @@ class Record extends React.Component {
   getTotalCost(props) {
     const { info } = props;
     let totalCost = 0;
-    info.list.forEach((r) => {
-      totalCost += r.num;
-    });
-    this.setState({
-      totalCost,
-    });
+    info.list.forEach((r) => !r.del && (totalCost += r.num));
+    this.setState({ totalCost });
   }
 
   inputNew(v, k) {
     const { newInfo } = this.state;
     newInfo[k] = v;
-    this.setState({
-      newInfo,
-    });
+    this.setState({ newInfo });
   }
 
   addRecord(transfer) {
@@ -75,11 +69,6 @@ class Record extends React.Component {
       desc = `转账给${newInfo.desc}`;
     }
     num = Math.round(num * 100) / 100;
-    info.list.unshift({
-      time: timer().time,
-      desc,
-      num,
-    });
     this.setState({
       newInfo: {
         desc: '',
@@ -87,19 +76,24 @@ class Record extends React.Component {
       },
       totalCost: totalCost + num,
     });
-    this.props.updateFun(info.list);
+    this.props.updateFun(true, {
+      time: timer().time,
+      desc,
+      num,
+    });
   }
 
   delRecord(t, num) {
-    const { info } = this.props;
+    // const { info } = this.props;
     const { totalCost } = this.state;
     Modal.confirm({
       content: '不要了？',
       okText: '嗯',
       cancelText: '没',
       onOk: () => {
-        info.list = info.list.filter((r) => r.time !== t);
-        this.props.updateFun(info.list);
+        // const delItem = info.list.find((r) => r.time === t);
+        // delItem.del = true;
+        this.props.updateFun(false, t);
         this.setState({
           totalCost: totalCost - num,
         });
@@ -140,14 +134,12 @@ class Record extends React.Component {
   }
 
   addDivide() {
-    const { info } = this.props;
     const time = timer();
-    info.list.unshift({
+    this.props.updateFun(true, {
       time: time.time,
       desc: `--分割专用${time.str('YY.M.D H:m:s')}--`,
       num: 0,
     });
-    this.props.updateFun(info.list);
   }
 
   render() {
@@ -186,7 +178,7 @@ class Record extends React.Component {
             </div>
           </div>
           {
-            infoList.map((r) => (
+            infoList.map((r) => ( !r.del &&
               <div className="record-detail" key={`${r.time}`}>
                 <div className="record-left">
                   <Icon type="delete" className="del-btn" onClick={() => this.delRecord(r.time, r.num)} />{r.desc}

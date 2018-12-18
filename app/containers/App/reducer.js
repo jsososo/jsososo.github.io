@@ -17,12 +17,14 @@ import {
   LOAD_REPOS_ERROR,
   GET_BOX_INFO,
   QUERY_BOXES,
+  SET_LOADING,
   GET_USER_INFO,
 } from './constants';
 
 // The initial state of the App
 const initialState = fromJS({
   loading: false,
+  reqLoading: false,
   error: false,
   currentUser: false,
   boxes: {},
@@ -49,6 +51,9 @@ function appReducer(state = initialState, action) {
     case GET_USER_INFO:
       return state
         .set('user', fromJS(action.data));
+    case SET_LOADING:
+      return state
+        .set('reqLoading', fromJS(action.data));
     default:
       return state;
   }

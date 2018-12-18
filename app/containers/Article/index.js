@@ -23,6 +23,7 @@ import { changeUrlQuery, getQueryFromUrl } from "../../utils/stringHelper";
 import { message } from 'antd';
 import ArticleList from '../../components/ArticleList';
 import ArticleDetail from '../../components/ArticleDetail';
+import { setSpinning as AppSpinning } from "../App/actions";
 
 export class Article extends React.PureComponent { // eslint-disable-line react/prefer-stateless-function
   componentWillMount() {
@@ -87,7 +88,8 @@ export class Article extends React.PureComponent { // eslint-disable-line react/
   *  获取所有的文章
   * */
   queryArticleList() {
-    const { user, getArticleList } = this.props;
+    const { user, getArticleList, setSpinning } = this.props;
+    setSpinning(true);
     Storage.queryBmobOr(
       'Article',
       [
@@ -105,6 +107,7 @@ export class Article extends React.PureComponent { // eslint-disable-line react/
         return q;
       },
       (res) => {
+        setSpinning(false);
         getArticleList(res.map((a) => ({
           ...a,
           title: decodeURI(decodeURI(a.title)),
@@ -118,7 +121,8 @@ export class Article extends React.PureComponent { // eslint-disable-line react/
   * 保存文章
   * */
   saveArticle(info, edit, time, lastEdit = true) {
-    const { setArticleInfo } = this.props;
+    const { setArticleInfo, setSpinning } = this.props;
+    setSpinning(true);
     const saveInfo = {
       ...JSON.parse(JSON.stringify(info)),
       title: encodeURI(encodeURI(info.title)),
@@ -135,6 +139,7 @@ export class Article extends React.PureComponent { // eslint-disable-line react/
         saveInfo,
         () => {
           setArticleInfo(info, edit, time);
+          setSpinning(false);
           message.success('保存成功~');
         }
       );
@@ -147,6 +152,7 @@ export class Article extends React.PureComponent { // eslint-disable-line react/
           info.objectId = res.id;
           changeUrlQuery({ id: res.id });
           setArticleInfo(info, edit, time);
+          setSpinning(false);
           message.success('保存成功~');
         }
       );
@@ -193,6 +199,7 @@ Article.propTypes = {
   getArticleList: PropTypes.func.isRequired,
   updateSearchOpts: PropTypes.func.isRequired,
   setArticleInfo: PropTypes.func.isRequired,
+  setSpinning: PropTypes.func.isRequired,
 };
 
 const mapStateToProps = createStructuredSelector({
@@ -205,6 +212,7 @@ function mapDispatchToProps(dispatch) {
     getArticleList: (list) => dispatch(Action.getArticleList(list)),
     updateSearchOpts: (data) => dispatch(Action.updateSearchOpts(data)),
     setArticleInfo: (data, edit, time) => dispatch(Action.setArticleInfo(data, edit, time)),
+    setSpinning: (v) => dispatch(AppSpinning(v)),
   };
 }
 

@@ -27,6 +27,7 @@ import Storage from '../../utils/Storage';
 import timer from '../../utils/timer';
 import { changeUrlQuery, getQueryFromUrl } from "../../utils/stringHelper";
 import { checkLogIn } from "../App";
+import { setSpinning as AppSpinning } from "../App/actions";
 
 import './index.scss';
 import recentlyUsed from "../../utils/recentlyUsed";
@@ -80,20 +81,39 @@ export class Aacash extends React.PureComponent { // eslint-disable-line react/p
   }
 
   // 获取aa的详细信息
-  getAADetail() {
+  getAADetail(cb = (v) => this.props.getAADetail(v)) {
     Storage.queryBmob(
       'AACash',
       (q) => {
         q.equalTo('objectId', getQueryFromUrl('id'));
         return q;
-      },
-      (res) => this.props.getAADetail(res),
+      }, (v) => cb(v),
     );
   }
 
   // 更新aa
-  updateAA(val) {
-    Storage.setBmob('AACash', val.objectId, val, () => this.getAADetail());
+  updateAA(a, b, c, d) {
+    const { setSpinning } = this.props;
+    setSpinning(true);
+    if (!a) {
+      this.getAADetail((v) => {
+        if (b) {
+          v.info[c].list.unshift(d);
+        } else {
+          const delItem = v.info[c].list.find((r) => r.time === d);
+          delItem.del = true;
+        }
+        Storage.setBmob('AACash', v.objectId, v, () => {
+          this.props.getAADetail(v);
+          setSpinning(false);
+        });
+      });
+    } else {
+      Storage.setBmob('AACash', a.objectId, a, () => {
+        this.props.getAADetail(a);
+        setSpinning(false);
+      });
+    }
   }
 
   // 新建一个aa
@@ -131,7 +151,7 @@ export class Aacash extends React.PureComponent { // eslint-disable-line react/p
               <AADetail
                 detail={aacash.detail}
                 getDetail={(val) => this.getAADetail(val)}
-                updateFun={(val) => this.updateAA(val)}
+                updateFun={(a, b, c, d) => this.updateAA(a, b, c, d)}
                 user={user}
               /> :
               <AAList
@@ -152,6 +172,7 @@ Aacash.propTypes = {
   user: PropTypes.object.isRequired,
   queryAllList: PropTypes.func.isRequired,
   getAADetail: PropTypes.func.isRequired,
+  setSpinning: PropTypes.func.isRequired,
 };
 
 const mapStateToProps = createStructuredSelector({
@@ -163,6 +184,7 @@ function mapDispatchToProps(dispatch) {
   return {
     queryAllList: (list) => dispatch(Action.queryAAList(list)),
     getAADetail: (data) => dispatch(Action.getAADetail(data)),
+    setSpinning: (data) => dispatch(AppSpinning(data)),
   };
 }
 

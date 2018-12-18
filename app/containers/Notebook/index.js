@@ -30,6 +30,7 @@ import arrayHelper from "../../utils/arrayHelper";
 import Storage from '../../utils/Storage';
 import { makeSelectUser } from "../App/selectors";
 import { checkLogIn } from "../App/index";
+import { setSpinning as AppSetSpinning } from "../App/actions";
 
 const Option = Select.Option;
 
@@ -64,6 +65,7 @@ export class Notebook extends React.PureComponent { // eslint-disable-line react
   *  查找所有该用户的notebook
   * */
   queryNoteBooks(cb, user = this.props.user) {
+    this.props.setSpinning(true);
     if (!user.login) {
       return;
     }
@@ -87,6 +89,7 @@ export class Notebook extends React.PureComponent { // eslint-disable-line react
           title: decodeURI(decodeURI(n.title)),
           content: decodeURI(decodeURI(n.content)),
         })));
+        this.props.setSpinning(false);
         if (cb) {
           cb();
         }
@@ -169,6 +172,7 @@ export class Notebook extends React.PureComponent { // eslint-disable-line react
   *  保存单个笔记
   * */
   saveChange(info, cb) {
+    this.props.setSpinning(true);
     const saveInfo = {
       ...JSON.parse(JSON.stringify(info)),
       lastEdit: timer().time,
@@ -298,6 +302,7 @@ Notebook.propTypes = {
   selectTags: PropTypes.func.isRequired,
   changeTags: PropTypes.func.isRequired,
   user: PropTypes.object.isRequired,
+  setSpinning: PropTypes.func.isRequired,
 };
 
 const mapStateToProps = createStructuredSelector({
@@ -310,6 +315,7 @@ function mapDispatchToProps(dispatch) {
     updateNotebook: (d) => dispatch(Action.updateNotebook(d)),
     selectTags: (d) => dispatch(Action.selectTags(d)),
     changeTags: (d) => dispatch(Action.changeTags(d)),
+    setSpinning: (d) => dispatch(AppSetSpinning(d)),
   };
 }
 

@@ -139,6 +139,10 @@ class SingleBox extends React.Component {
           <div className="w_100 inline-block">keyWords: </div>
           <Input className="w_200" value={info.keyWords} onChange={(e) => this.changeInfo('keyWords', e.target.value)}/>
         </div>
+        <div className="mt_10">
+          <div className="w_100 inline-block">wxUrl: </div>
+          <Input className="w_200" value={info.wxUrl} onChange={(e) => this.changeInfo('wxUrl', e.target.value)} />
+        </div>
         <Button style={{marginLeft: '100px'}} className="mt_10" onClick={() => this.saveChange()}>保存</Button>
       </div>
     )

@@ -33,6 +33,11 @@ const makeSelectBoxes = () => createSelector(
   (globalState) => globalState.get('boxes').toJS()
 );
 
+const makeSelectReqLoading = () => createSelector(
+  selectGlobal,
+  (globalState) => globalState.get('reqLoading')
+);
+
 export {
   selectGlobal,
   makeSelectUser,
@@ -40,4 +45,5 @@ export {
   makeSelectError,
   makeSelectLocation,
   makeSelectBoxes,
+  makeSelectReqLoading,
 };

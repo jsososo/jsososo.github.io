@@ -20,3 +20,4 @@ export const QUERY_BOXES = 'person_web/APP/QUERY_BOXES';
 export const GET_USER_INFO = 'person_web/App/GET_USER_INFO';
 
 export const GET_BOX_INFO = 'person_web/App/GET_BOX_INFO';
+export const SET_LOADING = 'person_web/App/SET_LOADING';

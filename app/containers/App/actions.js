@@ -24,6 +24,7 @@ import {
   QUERY_BOXES,
   GET_USER_INFO,
   GET_BOX_INFO,
+  SET_LOADING,
 } from './constants';
 import notice from '../../utils/notice';
 import { allUserInfo } from "../../utils/constants";
@@ -109,6 +110,13 @@ export function getUserInfo(data) {
 export function getBoxInfo(data) {
   return {
     type: GET_BOX_INFO,
+    data,
+  };
+}
+
+export function setSpinning(data) {
+  return {
+    type: SET_LOADING,
     data,
   };
 }

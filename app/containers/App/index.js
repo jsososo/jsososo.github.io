@@ -14,7 +14,7 @@ import {createStructuredSelector} from 'reselect';
 import * as Action from './actions';
 import {compose} from 'redux';
 import saga from './saga';
-import {makeSelectToast} from './selectors';
+import {makeSelectReqLoading, makeSelectToast} from './selectors';
 // import { Helmet } from 'react-helmet';
 // import styled from 'styled-components';
 import { Switch, Route, HashRouter } from 'react-router-dom';
@@ -42,7 +42,7 @@ import Header from '../Header/Loadable'; // 头部
 import { Bmob } from '../../utils/bmob';
 import Storage  from '../../utils/Storage';
 import { makeSelectUser } from "./selectors";
-import { Modal } from 'antd';
+import { Modal, Spin } from 'antd';
 import { BmobInfo } from "../../const";
 import Notice from '../../utils/notice';
 
@@ -104,36 +104,38 @@ export class App extends React.Component {
   render() {
     return (
       <HashRouter>
-        <div style={{width: '1260px', margin: '120px auto', padding: '0 30px'}}>
-          <Header logOut={() => this.logOut()} />
-          <Switch>
-            <Route exact path="/" component={IndexPage} />
-            <Route path="/img" component={ImagePage} />
-            <Route path="/search" component={SearchPage} />
+        <Spin spinning={this.props.loading}>
+          <div style={{width: '1260px', margin: '120px auto', padding: '0 30px'}}>
+            <Header logOut={() => this.logOut()} />
+            <Switch>
+              <Route exact path="/" component={IndexPage} />
+              <Route path="/img" component={ImagePage} />
+              <Route path="/search" component={SearchPage} />
 
-            {/* 工具类 */}
-            <Route path="/kit" exact component={Kit} />
-            <Route path="/kit/cashbook" component={CashBook} />
-            <Route path="/kit/notebook" component={Notebook} />
-            <Route path="/kit/calendar" component={Calendar} />
-            <Route path="/kit/milestone" component={MileStone} />
-            <Route path="/kit/todo" component={Todo} />
-            <Route path="/kit/aa" component={AACash} />
-            <Route path="/kit/piggy" component={PiggyBank} />
+              {/* 工具类 */}
+              <Route path="/kit" exact component={Kit} />
+              <Route path="/kit/cashbook" component={CashBook} />
+              <Route path="/kit/notebook" component={Notebook} />
+              <Route path="/kit/calendar" component={Calendar} />
+              <Route path="/kit/milestone" component={MileStone} />
+              <Route path="/kit/todo" component={Todo} />
+              <Route path="/kit/aa" component={AACash} />
+              <Route path="/kit/piggy" component={PiggyBank} />
 
-            {/* 开发 */}
-            <Route path="/development" component={Development} />
+              {/* 开发 */}
+              <Route path="/development" component={Development} />
 
-            {/* 个人中心 */}
-            <Route path="/user" component={User} />
+              {/* 个人中心 */}
+              <Route path="/user" component={User} />
 
-            {/* 说明 */}
-            <Route path="/info/" component={Info} />
+              {/* 说明 */}
+              <Route path="/info/" component={Info} />
 
-            {/* 文章 */}
-            <Route path="/article" component={Article} />
-          </Switch>
-        </div>
+              {/* 文章 */}
+              <Route path="/article" component={Article} />
+            </Switch>
+          </div>
+        </Spin>
       </HashRouter>
     );
   }
@@ -145,9 +147,11 @@ App.propTypes = {
   getUserInfo: PropTypes.func.isRequired,
   user: PropTypes.object.isRequired,
   getBoxInfo: PropTypes.func.isRequired,
+  loading: PropTypes.bool.isRequired,
 }
 const mapStateToProps = createStructuredSelector({
   user: makeSelectUser(),
+  loading: makeSelectReqLoading(),
 });
 
 function mapDispatchToProps(dispatch) {
