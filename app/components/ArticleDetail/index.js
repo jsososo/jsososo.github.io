@@ -113,20 +113,20 @@ class ArticleDetail extends React.Component { // eslint-disable-line react/prefe
       value: editorInfo,
       onChange: (v) => this.setState({ editorInfo: v }),
       excludeControls: [ 'indent'],
-      // extendControls: [
-      //   {
-      //     key: 'custom-button',
-      //     type: 'button',
-      //     text: 'code',
-      //     onClick: () => {
-      //       let eI = ContentUtils.insertText(editorInfo, ' ');
-      //       eI = ContentUtils.insertHTML(eI, '<code>code</code>', 'paste');
-      //       this.setState({
-      //         editorInfo: ContentUtils.insertText(eI, ' '),
-      //       });
-      //     },
-      //   },
-      // ],
+      extendControls: [
+        {
+          key: 'custom-button',
+          type: 'button',
+          text: 'code',
+          onClick: () => {
+            let eI = ContentUtils.insertText(editorInfo, ' ');
+            eI = ContentUtils.insertHTML(eI, '<code>code</code>', 'paste');
+            this.setState({
+              editorInfo: ContentUtils.insertText(eI, ' '),
+            });
+          },
+        },
+      ],
       stripPastedStyles: true,
       colors: [
         '#000000', '#333333', '#666666', '#999999', '#cccccc', '#ffffff',
