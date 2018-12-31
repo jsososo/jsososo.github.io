@@ -37,7 +37,8 @@ class ArticleList extends React.PureComponent { // eslint-disable-line react/pre
         return false;
       }
       return true;
-    }).sort((a, b) => (searchOpts.down ? 1 : -1) * (timer(a[searchOpts.sort]).time - timer(b[searchOpts.sort].time)));
+    });
+    result.sort((a, b) => (searchOpts.down ? -1 : 1) * (timer(a[searchOpts.sort]).time - timer(b[searchOpts.sort]).time));
     return result.slice(20 * (searchOpts.pageNo - 1), 20 * (searchOpts.pageNo));
   }
 

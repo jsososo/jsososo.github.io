@@ -42,10 +42,14 @@
     min-height: 450px;
     overflow: hidden;
 
+    .braft-code span {
+      border-radius: 5px;
+    }
+
     code {
-      color: #ff7c00;
-      background: #fdf9d5;
-      padding: 0 6px;
+      color: #c7254e;
+      background: #f9f2f4;
+      border-radius: 5px;
     }
 
     a {

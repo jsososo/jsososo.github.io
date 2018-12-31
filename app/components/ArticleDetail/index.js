@@ -112,7 +112,7 @@ class ArticleDetail extends React.Component { // eslint-disable-line react/prefe
     const editorProps = {
       value: editorInfo,
       onChange: (v) => this.setState({ editorInfo: v }),
-      excludeControls: [ 'indent'],
+      excludeControls: ['indent'],
       extendControls: [
         {
           key: 'custom-button',
@@ -120,7 +120,7 @@ class ArticleDetail extends React.Component { // eslint-disable-line react/prefe
           text: 'code',
           onClick: () => {
             let eI = ContentUtils.insertText(editorInfo, ' ');
-            eI = ContentUtils.insertHTML(eI, '<code>code</code>', 'paste');
+            eI = ContentUtils.insertHTML(eI, '<p class="braft-code"><span style="color: #c7254e;background: #f9f2f4;"><code> code </code></span></p>', 'paste');
             this.setState({
               editorInfo: ContentUtils.insertText(eI, ' '),
             });
