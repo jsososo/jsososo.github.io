@@ -45,10 +45,10 @@ class Calendar extends React.Component {
 
   getWeek(d) {
     const { year, month } = this.state;
-    return timer([year,  month, d || 1]).week();
+    return timer([year, month, d || 1]).week();
   }
 
-  getDateClsName(y, m , d) {
+  getDateClsName(y, m, d) {
     const { detail } = this.props;
     if (d === 0 || detail.type !== 'D') {
       return '';
@@ -65,6 +65,19 @@ class Calendar extends React.Component {
       return 'bg-green';
     }
     return 'bg-red';
+  }
+
+  changeTime(type, value) {
+    const { state } = this;
+    state[type] = value;
+    if (state.month <= 0) {
+      state.month += 12;
+      state.year -= 1;
+    } else if (state.month > 12) {
+      state.month -= 12;
+      state.year += 1;
+    }
+    this.setState(state);
   }
 
   getMonthClsName(year, month) {
@@ -100,16 +113,14 @@ class Calendar extends React.Component {
             style={{ width: '70px' }}
             precision={0}
             value={year}
-            min={timer(detail.startTime).year}
-            max={timer(detail.endTime).year}
-            onChange={(v) => this.setState({ year: v })}
+            onChange={(v) => this.changeTime('year', v)}
           />年
           <InputNumber
             className="ml_10"
             style={{ width: '60px' }}
             precision={0}
             value={month}
-            onChange={(v) => this.setState({ month: v })}
+            onChange={(v) => this.changeTime('month', v)}
           />月
           {
             detail.type === 'M' && detail.record[timer([year, month, 1]).str('YYYYMM')] &&

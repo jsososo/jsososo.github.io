@@ -24,6 +24,7 @@ import Storage from '../../utils/Storage';
 import recentlyUsed from '../../utils/recentlyUsed';
 import arrayHelper from '../../utils/arrayHelper';
 import { shortString } from "../../utils/stringHelper";
+import timer from '../../utils/timer';
 
 import BoxComponent from '../../components/BoxesComponent';
 import './index.scss';
@@ -83,9 +84,9 @@ export class IndexPage extends React.Component { // eslint-disable-line react/pr
         return q;
       },
       (res) => {
-        res.sort((a, b) => b.lastEdit - a.lastEdit);
+        res.sort((a, b) => timer(b.createdAt).time - timer(a.createdAt).time);
         this.setState({
-          articles: res.map(a => ({ ...a, title: shortString(decodeURI(decodeURI(a.title))) })).slice(0, 5),
+          articles: res.map(a => ({ ...a, title: shortString(decodeURI(decodeURI(a.title))) })),
         });
       },
       null, 'find',
@@ -123,7 +124,7 @@ export class IndexPage extends React.Component { // eslint-disable-line react/pr
 
   render() {
     const { kits, articles } = this.state;
-    const [showKits, showArticles] = [kits.slice(0, 4), articles.slice(0, 5)];
+    const [showKits, showArticles] = [kits.slice(0, 4), articles.slice(0, 8)];
     return (
       <div>
         <Helmet>

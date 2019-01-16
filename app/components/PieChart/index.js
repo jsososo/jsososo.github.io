@@ -16,15 +16,15 @@ class PieChart extends React.PureComponent { // eslint-disable-line react/prefer
     const legend = [];
     data.forEach((d) => legend.push(d.name));
     return {
-      color: ['#ff0', '#39f', '#93c', '#ff3', '#96f', '#9ff', '#399', '#ff9', '#390', '#ffc', '#9f9', '#966', '#f96', '#3ff', '#f9f', '#99f','#f60', '#3f3','#f69', '#999', '#F33', '#990','#f3c', '#9f0'],
+      color: ['#39a9a9', '#9f9', '#966', '#39f', '#9f0', '#069', '#fbb500', '#cc3ee4', '#Faa', '#fb0000', '#93c', '#390', '#8f69da', '#ff3', '#484848', '#0c3', '#f9f', '#99f', '#f17625', '#02b8d0', '#3f3', '#f69', '#999', '#990', '#1a6d5c', '#c0ca62', '#0052ff', '#fbb998', '#3ff', '#b7798e'],
       tooltip: {
         trigger: 'item',
-        formatter: "{a} <br/>{b} : {c} ({d}%)",
+        formatter: '{a} <br/>{b} : {c} ({d}%)',
       },
       legend: {
         orient: 'vertical',
         left: '68%',
-        top: 30 + ((17-legend.length) * 12 > 0 ? (17-legend.length) * 12 : 0),
+        top: 30 + ((17 - legend.length) * 12 > 0 ? (17 - legend.length) * 12 : 0),
         data: legend,
         type: 'scroll',
       },

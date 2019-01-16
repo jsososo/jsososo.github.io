@@ -5,6 +5,7 @@
  */
 
 import { fromJS } from 'immutable';
+import timer from '../../utils/timer';
 import {
   DEFAULT_ACTION,
   SHOW_CHARTS,
@@ -18,8 +19,8 @@ import {
 
 const initialState = fromJS({
   showInput: true,
-  showAllData: true,
-  timeRange: [],
+  showAllData: false,
+  timeRange: [timer().from(-1, 'Y').moment, timer().from(1, 'M').moment],
   space: 1,
   spaceType: 'M',
   needFresh: false,
@@ -63,8 +64,8 @@ function cashBookReducer(state = initialState, action) {
     case RESET_DATA:
       return fromJS({
         showInput: true,
-        showAllData: true,
-        timeRange: [],
+        showAllData: false,
+        timeRange: [timer().from(-1, 'Y').moment, timer().from(1, 'M').moment],
         space: 1,
         spaceType: 'M',
         needFresh: false,

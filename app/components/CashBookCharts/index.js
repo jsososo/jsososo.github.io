@@ -9,7 +9,7 @@ import LineChart from '../LineChart/Loadable';
 import PieChart from '../PieChart/Loadable';
 import PropTypes from 'prop-types';
 
-import { Abs } from "../../utils/num";
+import { Abs } from '../../utils/num';
 
 
 import './style.scss';

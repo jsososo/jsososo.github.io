@@ -4,6 +4,7 @@
 * */
 
 import num from './num';
+import moment from 'moment';
 
 export const formatNumber = (n) => {
   n = n.toString();
@@ -51,7 +52,9 @@ const Timer = (v = new Date(), strType) => {
         timeArr[1] = 0;
       }
       value =  new Date(...timeArr);
-    } else {
+    } else if (typeof v === 'object' && v instanceof Array) {
+      v[1] -= 1;
+      value = new Date(...v);
     }
   } catch (err) {
     value = new Date();
@@ -136,6 +139,7 @@ const Timer = (v = new Date(), strType) => {
   date.minute = date.getMinutes();
   date.second = date.getSeconds();
   date.time = date.getTime();
+  date.moment = moment(date);
   date.day = [
     {
       cn: '星期天',

@@ -14,7 +14,7 @@ import { compose } from 'redux';
 import injectSaga from 'utils/injectSaga';
 import injectReducer from 'utils/injectReducer';
 import makeSelectCashBook from './selectors';
-import { makeSelectUser } from "../App/selectors";
+import { makeSelectUser } from '../App/selectors';
 import reducer from './reducer';
 import saga from './saga';
 
@@ -24,12 +24,12 @@ import CashBookInput from '../../components/CashBookInput';
 import timer from '../../utils/timer';
 import arrayHelper from '../../utils/arrayHelper';
 import Num, { Abs } from '../../utils/Num';
-import { CASH_BOOK_DATA } from "../../utils/constants";
+import { CASH_BOOK_DATA } from '../../utils/constants';
 import * as Action from './actions';
 import recentlyUsed from '../../utils/recentlyUsed';
 
 import { DatePicker, Switch, Select, InputNumber, Button, Icon } from 'antd';
-import {changeUrlQuery} from "../../utils/stringHelper";
+import { changeUrlQuery } from '../../utils/stringHelper';
 
 let { allData } = CASH_BOOK_DATA;
 const { RangePicker } = DatePicker;
@@ -48,53 +48,8 @@ export class CashBook extends React.PureComponent { // eslint-disable-line react
     }
   }
 
-  // 处理数据
-  handleData(data) {
-    // 总金额
-    let totalNum = 0;
-    // 反转收支记录数组，时间从早到晚
-    data['收支记录'] = data['收支记录'].reverse();
-    data['收支记录'].forEach((r) => {
-      if (!allData[r['时间']]) {
-        allData[r['时间']] = {
-          keys: ['收入', '支出', '盈余', '总额'],
-          '收入': 0,
-          '支出': 0,
-          '盈余': 0,
-          '总额': 0,
-        };
-      }
-      const dayR = allData[r['时间']];
-      const num = Num(r['金额'], 2);
-
-      // 去掉特别大异常数据
-      if (Abs(num) > 800000) {
-        return;
-      }
-
-      // 去掉转账
-      if (r['账目分类'] === '转账') {
-        return;
-      }
-
-      // 当前日期下还没存过这个类目
-      if (dayR.keys.indexOf(r['账目分类']) < 0) {
-        dayR.keys.push(r['账目分类']);
-        dayR[r['账目分类']] = num;
-      } else { // 当前日期下已存在这个类目
-        dayR[r['账目分类']] += num;
-      }
-      // 公共类型的每日统计
-      if (num < 0) {
-        dayR['支出'] += num;
-      } else {
-        dayR['收入'] += num;
-      }
-      dayR['盈余'] += num;
-      totalNum += num;
-      dayR['总额'] = totalNum;
-    });
-    this.getChartsData();
+  componentWillUnmount() {
+    this.props.resetData();
   }
 
   // 获取图表数据
@@ -118,14 +73,14 @@ export class CashBook extends React.PureComponent { // eslint-disable-line react
     });
   }
 
-  componentWillUnmount() {
-    this.props.resetData();
-  }
-
   // 曲线图数据
   getLineData(start, end, types, props) {
     // 循环用
     let D = timer(start.time);
+    const trueStart = Object.keys(allData).reverse().find((k) => k <= start.str('YYYY/MM/DD'));
+    if (trueStart) {
+      D = timer(trueStart, 'YYYY/MM/DD');
+    }
     // 下一个标点的时间
     let nD = timer(start.time);
     const xAxis = [];
@@ -140,12 +95,13 @@ export class CashBook extends React.PureComponent { // eslint-disable-line react
     const { space, spaceType } = props.cashbook;
     // 临时对象，遍历每天时作临时存储数据
     let tempObj = {
-      '总额': {
+      总额: {
         name: '总额',
         value: 0,
       },
     };
     while (D.str('YYYYMMDD') !== end.str('YYYYMMDD')) {
+      // debugger
       const r = allData[D.str('YYYY/MM/DD')] || {
         keys: [],
       };
@@ -154,19 +110,17 @@ export class CashBook extends React.PureComponent { // eslint-disable-line react
         if (k !== 'keys') {
           if (tempObj[k] && k !== '总额') {
             tempObj[k].value += r[k];
+          } else if (k === '总额') {
+            tempObj[k].value = r[k] || tempObj[k].value;
           } else {
-            if (k === '总额') {
-              tempObj[k].value = r[k] || tempObj[k].value;
-            } else {
-              tempObj[k] = {
-                name: k,
-                value: r[k],
-              };
-            }
+            tempObj[k] = {
+              name: k,
+              value: r[k],
+            };
           }
         }
       });
-      if (D.time === nD.time) {
+      if (D.str() === nD.str()) {
         xAxis.push(D.str('YY.M.D'));
         types.forEach((t) => {
           if (tempObj[t]) {
@@ -181,7 +135,7 @@ export class CashBook extends React.PureComponent { // eslint-disable-line react
         });
         nD = nD.from(space, spaceType);
         tempObj = {
-          '总额': {
+          总额: {
             naem: '总额',
             value: tempObj['总额'].value,
           },
@@ -225,8 +179,57 @@ export class CashBook extends React.PureComponent { // eslint-disable-line react
     return [Object.values(dataObj), types];
   }
 
+  // 处理数据
+  handleData(data) {
+    // 总金额
+    let totalNum = 0;
+    // 反转收支记录数组，时间从早到晚
+    data['收支记录'] = data['收支记录'].reverse();
+    data['收支记录'].forEach((r) => {
+      if (!allData[r['时间']]) {
+        allData[r['时间']] = {
+          keys: ['收入', '支出', '盈余', '总额'],
+          收入: 0,
+          支出: 0,
+          盈余: 0,
+          总额: 0,
+        };
+      }
+      const dayR = allData[r['时间']];
+      const num = Num(r['金额'], 2);
+
+      // 去掉特别大异常数据
+      if (Abs(num) > 800000) {
+        return;
+      }
+
+      // 去掉转账
+      if (r['账目分类'] === '转账') {
+        return;
+      }
+
+      // 当前日期下还没存过这个类目
+      if (dayR.keys.indexOf(r['账目分类']) < 0) {
+        dayR.keys.push(r['账目分类']);
+        dayR[r['账目分类']] = num;
+      } else { // 当前日期下已存在这个类目
+        dayR[r['账目分类']] += num;
+      }
+      // 公共类型的每日统计
+      if (num < 0) {
+        dayR['支出'] += num;
+      } else {
+        dayR['收入'] += num;
+      }
+      dayR['盈余'] += num;
+      totalNum += num;
+      dayR['总额'] = totalNum;
+    });
+    this.getChartsData();
+  }
+
   changeOpts(v, type) {
-    const {setTimeRange, setTimeType, setSpaceTime} = this.props;
+    const { setTimeRange, setTimeType, setSpaceTime } = this.props;
     const func = [setTimeRange, setTimeType, setSpaceTime];
     func[type](v);
   }
@@ -245,7 +248,7 @@ export class CashBook extends React.PureComponent { // eslint-disable-line react
               <Icon type="arrow-left" className="pointer ft_20 mr_10 mt_5 vat" />
             </a>
             <span>展示全部：<Switch checked={cashbook.showAllData} onChange={() => showAllData()} /></span>
-            <RangePicker className="ml_10 mr_10" disabled={cashbook.showAllData} onChange={(v) => this.changeOpts(v, 0)} />
+            <RangePicker value={cashbook.timeRange} className="ml_10 mr_10" disabled={cashbook.showAllData} onChange={(v) => this.changeOpts(v, 0)} />
             <span>
               时间间隔：
               <InputNumber className="w_100" value={cashbook.space} onChange={(v) => this.changeOpts(v, 2)} />
