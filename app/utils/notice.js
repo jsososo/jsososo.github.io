@@ -192,6 +192,13 @@ const noticeSettingCb = (res) => {
   baseQuery('Thing', { userId }, { tag: '' }, ['title', 'tag', 'time'], thingCb);
 };
 
+const noticeStr = (num, t = false) => {
+  if (num) {
+    return `${num}周年${t ? '了' : '啦'}`;
+  }
+  return t ? '了' : '到了';
+};
+
 // 事件的回调
 const thingCb = (res) => {
   res.forEach((item) => {
@@ -216,16 +223,16 @@ const thingCb = (res) => {
         const isYMD = (rule.type === 'YYYYMMDD');
         switch (rule.count) {
           case 0:
-            noticeText = isYMD ? '就是今天啦,' : `今天就是${today.year - timer(item.time).year}周年了，`;
+            noticeText = isYMD ? '就是今天啦,' : `今天就是${noticeStr((today.year - timer(item.time).year), true)}，`;
             return;
           case 1:
-            noticeText = isYMD ? '明天明天！' : `明天就要${today.year - timer(item.time).year}周年啦，`;
+            noticeText = isYMD ? '明天明天！' : `明天就要${noticeStr(today.year - timer(item.time).year)}，`;
             return;
           case 2:
-            noticeText = isYMD ? '后天就是啦，' : `后天就要${today.year - timer(item.time).year}周年啦，`;
+            noticeText = isYMD ? '后天就是啦，' : `后天就要${noticeStr(today.year - timer(item.time).year)}，`;
             return;
           default:
-            noticeText = isYMD ? `还有${rule.count}天，` : `还有${rule.count}天就要${today.year - timer(item.time).year}周年啦，`;
+            noticeText = isYMD ? `还有${rule.count}天，` : `还有${noticeStr(today.year - timer(item.time).year)}，`;
         }
       }
     });

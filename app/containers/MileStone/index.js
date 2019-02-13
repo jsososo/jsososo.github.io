@@ -67,6 +67,7 @@ export class MileStone extends React.PureComponent { // eslint-disable-line reac
           }
           if (t.tag === '生日') {
             const newTime = timer(`${today.year}${timer(t.time).str('MMDD')}`, 'YYYYMMDD');
+            t.time = newTime.time;
             if (newTime.str('YYYYMMDD') < today.str('YYYYMMDD')) {
               t.time = newTime.from(1, 'Y').time;
             }

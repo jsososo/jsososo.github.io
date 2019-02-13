@@ -70,7 +70,13 @@ export class PiggyBank extends React.PureComponent { // eslint-disable-line reac
         return q;
       },
       (res) => {
-        res.sort((a, b) => timer(a.updatedAt, 'YYYY-MM-DD HH:mm:ss').time - timer(b.updatedAt, 'YYYY-MM-DD HH:mm:ss').time);
+        const now = timer().time;
+        res.sort((a, b) => {
+          if ((now - a.endTime) * (now - b.endTime) < 0) {
+            return (b.endTime - a.endTime);
+          }
+          return timer(a.updatedAt, 'YYYY-MM-DD HH:mm:ss').time - timer(b.updatedAt, 'YYYY-MM-DD HH:mm:ss').time;
+        });
         this.props.getPiggyList(res);
       },
       null,

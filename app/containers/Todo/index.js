@@ -148,7 +148,10 @@ export class Todo extends React.PureComponent { // eslint-disable-line react/pre
       return;
     }
     const { todo } = this.props;
-    const thing = todo.list.find((item) => item.objectId === id);
+    const index = todo.list.findIndex((item) => item.objectId === id);
+    const thing = todo.list[index];
+    todo.list[index] = { ...thing, ...editInfo };
+    this.props.queryList(todo.list);
     Storage.setBmob(
       'Thing',
       id,
@@ -156,7 +159,7 @@ export class Todo extends React.PureComponent { // eslint-disable-line react/pre
         ...thing,
         ...editInfo,
       },
-      cb,
+      null,
       () => {
         message.error('失败了= =');
       }
@@ -192,7 +195,7 @@ export class Todo extends React.PureComponent { // eslint-disable-line react/pre
 Todo.propTypes = {
   todo: PropTypes.object.isRequired,
   queryList: PropTypes.func.isRequired,
-  user: PropTypes.object.isRequired
+  user: PropTypes.object.isRequired,
 };
 
 const mapStateToProps = createStructuredSelector({

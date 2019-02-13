@@ -8,18 +8,18 @@ import timer from '../../utils/timer';
 
 const clsMap = {
   'bg-blue': '',
-  'bg-red': 'FAIL',
+  'bg-gray': 'FAIL',
   'bg-green': 'SUCCESS',
 };
 
 class ListItem extends React.PureComponent {
   getClsName() {
     const { item } = this.props;
-    if (item.current > item.total) {
+    if (item.current >= item.total) {
       return 'bg-green';
     }
     if (timer().time > item.endTime && item.current < item.total) {
-      return 'bg-red';
+      return 'bg-gray';
     }
     return 'bg-blue';
   }
