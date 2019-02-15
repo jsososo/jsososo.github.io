@@ -21,7 +21,7 @@ const initialState = fromJS({
     sort: 'createdAt',
     down: true,
     tag: '',
-    public: false,
+    public: true,
   },
   articleInfo: null,
   editArticle: false,

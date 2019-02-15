@@ -29,7 +29,7 @@ class ArticleList extends React.PureComponent { // eslint-disable-line react/pre
       if (searchOpts.public && !item.public) {
         return false;
       }
-      if (item.tag && item.tag === searchOpts.tag) {
+      if (searchOpts.tag && item.tag !== searchOpts.tag) {
         return false;
       }
       const val = `${item.title} ${item.author}`;

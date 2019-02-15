@@ -88,7 +88,7 @@ export class Todo extends React.PureComponent { // eslint-disable-line react/pre
 
   // 新增事件
   createNewTodo(parent = '') {
-    const { user } = this.props;
+    const { user, todo, queryList } = this.props;
     Storage.createBmob(
       'Thing',
       {
@@ -107,12 +107,13 @@ export class Todo extends React.PureComponent { // eslint-disable-line react/pre
         status: 0,
       },
       (res) => {
-        changeUrlQuery({ id: res.id, edit: 1 });
+        const thing = JSON.parse(JSON.stringify(res));
+        todo.list.push(thing);
+        queryList(todo.list);
         if (parent) {
           this.updateParentStatusTo1(parent, res.id);
-        } else {
-          this.queryAllList();
         }
+        changeUrlQuery({ id: res.id, edit: 1 });
       },
     );
   }
@@ -152,6 +153,7 @@ export class Todo extends React.PureComponent { // eslint-disable-line react/pre
     const thing = todo.list[index];
     todo.list[index] = { ...thing, ...editInfo };
     this.props.queryList(todo.list);
+    changeUrlQuery({ edit: 0 });
     Storage.setBmob(
       'Thing',
       id,

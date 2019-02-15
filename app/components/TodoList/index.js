@@ -110,7 +110,7 @@ class TodoList extends React.Component { // eslint-disable-line react/prefer-sta
         } else {
           result.push(this.getThing(tC));
         }
-        result = [...result, ...(this.findAllChildren(tC))];
+        result = [...result, ...(this.findAllChildren(tC, onlyId))];
       });
     }
     return result;

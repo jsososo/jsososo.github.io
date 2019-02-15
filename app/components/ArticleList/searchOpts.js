@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-import { Input, Select, Icon, Tooltip } from 'antd';
+import { Input, Select, Icon, Tooltip, Switch } from 'antd';
 
 class SearchOpts extends React.PureComponent {
   changeSort(v) {
@@ -41,14 +41,9 @@ class SearchOpts extends React.PureComponent {
             <Select.Option value="3">修改 <Icon type="arrow-up" /></Select.Option>
           </Select>
         </div>
-        <Tooltip placement="top" title={searchOpts.public ? '点击可查看全部文章' : '点击隐藏私密文章' }>
-          <Icon
-            className="ml_20 pointer"
-            style={{ fontSize: '24px' }}
-            type={!searchOpts.public ? 'unlock' : 'lock'}
-            onClick={() => changeSearchOpts('public', !searchOpts.public)}
-          />
-        </Tooltip>
+        <div className="inline-block ml_20">
+          显示私密：<Switch checked={!searchOpts.public} onChange={() => changeSearchOpts('public', !searchOpts.public)} />
+        </div>
       </div>
     );
   }

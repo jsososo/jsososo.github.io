@@ -10,7 +10,7 @@ import ProptTypes from 'prop-types';
 import { changeUrlQuery } from "../../utils/stringHelper";
 import timer from '../../utils/timer';
 
-import { Input, Button, Icon, Tooltip, Modal, Select } from 'antd';
+import { Input, Button, Icon, Tooltip, Modal, Select, Switch } from 'antd';
 import Comment from './Comment';
 import BraftEditor, { EditorState } from 'braft-editor';
 import { ContentUtils } from 'braft-utils';
@@ -173,19 +173,22 @@ class ArticleDetail extends React.Component { // eslint-disable-line react/prefe
             user.username !== '游客' &&
             <div className="inline-block">
               <Tooltip placement="top" title={info.public ? '点击设为私密(只有你能看见)' : '点击设为公开(会出现在所有人的首页)'}>
-                <Icon
-                  style={info.public ? {} : { color: '#ffcc00' }}
-                  type={info.public ? 'unlock' : 'lock'}
-                  className="article-icon"
-                  onClick={() => this.changeInfo('public', !info.public)}
-                />
+                <div className="inline-block ml_20">
+                  公开：
+                  <Switch
+                    checked={info.public}
+                    onChange={() => this.changeInfo('public', !info.public)}
+                  />
+                </div>
               </Tooltip>
               <Tooltip placement="top" title={info.author === '匿名' ? '点击取匿' : '点击设为匿名'}>
-                <i
-                  className={`iconfont icon-${info.author === '匿名' ? 'niming' : 'yanjing'}`}
-                  style={info.author === '匿名' ? {} : { color: '#ffcc00' }}
-                  onClick={() => this.changeInfo('author', info.author === '匿名' ? user.username : '匿名')}
-                />
+                <div className="inline-block ml_20">
+                  匿名：
+                  <Switch
+                    checked={info.author === '匿名'}
+                    onChange={() => this.changeInfo('author', info.author === '匿名' ? user.username : '匿名')}
+                  />
+                </div>
               </Tooltip>
             </div>
           }
