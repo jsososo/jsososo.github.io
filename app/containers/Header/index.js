@@ -56,7 +56,7 @@ export class Header extends React.Component { // eslint-disable-line react/prefe
               <span className="header-title-txt">没用的工具</span>
             </h1>
           </a>
-          <a href="//music.jsososo.com" className="header-link" target="_blank">
+          <a href="http://music.jsososo.com" className="header-link" target="_blank">
             <h1 className="header-item">
               <i className="iconfont icon-1" style={{ fontSize: '30px' }} />
               <span className="header-title-txt">随便听听歌</span>
