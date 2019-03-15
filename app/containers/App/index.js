@@ -36,6 +36,7 @@ import Info from '../Info/Loadable'; // 一些说明
 import User from '../User/Loadable'; // 用户页面
 
 import Article from '../Article/Loadable'; // 文章
+import CodingDemo from '../CodingDemo/Loadable'; // 一些例子
 
 import Header from '../Header/Loadable'; // 头部
 
@@ -133,6 +134,7 @@ export class App extends React.Component {
 
               {/* 文章 */}
               <Route path="/article" component={Article} />
+              <Route path="/demo/:id/" component={CodingDemo} />
             </Switch>
           </div>
         </Spin>
