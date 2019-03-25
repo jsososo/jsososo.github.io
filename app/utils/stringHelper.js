@@ -34,8 +34,8 @@ export function changeUrlQuery(obj) {
   const query = getQueryFromUrl();
   const url = window.location.hash.split('?')[0];
 
-  const newQuery = {...query, ...obj};
-  let queryArr = [];
+  const newQuery = { ...query, ...obj };
+  const queryArr = [];
   Object.keys(newQuery).forEach((key) => {
     if (newQuery[key] !== undefined && newQuery[key] !== '') {
       queryArr.push(`${key}=${newQuery[key]}`);
@@ -80,4 +80,46 @@ function replaceTextForMarkdown(str) {
     result = result.replace(item.reg, item.fun);
   });
   return result;
+}
+
+
+/*
+* 将一个字符串中的url都转换成链接
+* */
+export function urlToLink(str = '') {
+  const arr = str.match(/(((http(s?):\/\/)|www)[^\s\t\r\n]+)/g);
+  if (!arr) {
+    return str;
+  }
+  let result = str;
+  arr.forEach((val) => result = result.replace(val, `<a target="_blank" href="${val.replace(/^www/, 'http://www')}">${val}</a>`));
+  return result;
+}
+
+/*
+*  字符串的公式计算
+* */
+export function stringCalculate(str, toFixed, errReturn) {
+  try {
+    if (!str) {
+      throw({ err: 'empty' });
+    }
+    const num = Number(eval(str));
+
+    if (typeof num !== 'number') {
+      throw({ err: 'not number' });
+    }
+
+    if (isNaN(num)) {
+      throw({ err: 'NaN' });
+    }
+
+    if (toFixed !== undefined) {
+      return num.toFixed(toFixed);
+    }
+
+    return num;
+  } catch (err) {
+    return errReturn;
+  }
 }

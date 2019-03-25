@@ -7,8 +7,9 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Modal, Button, Input, Icon, InputNumber, message } from 'antd';
+import Back from '../Back';
 import ArrayHelper from '../../utils/arrayHelper';
-import { shortString } from "../../utils/stringHelper";
+import { shortString } from '../../utils/stringHelper';
 
 // import styled from 'styled-components';
 
@@ -110,9 +111,7 @@ class Aalist extends React.Component { // eslint-disable-line react/prefer-state
     return (
       <div>
         <div>
-          <a href="#/kit/">
-            <Icon type="arrow-left" className="pointer ft_20 mr_20 mt_5 vat"/>
-          </a>
+          <Back />
           <Button type="primary" onClick={() => this.showCreateAA()}>新建一个AA账单</Button>
         </div>
         {
@@ -147,13 +146,13 @@ class Aalist extends React.Component { // eslint-disable-line react/prefer-state
             <Input className="w_100" value={create.title} placeholder="起个名字" onChange={(e) => this.inputTitle(e.target.value)} />
             <span>
               要添加
-              <InputNumber defaultValue={2} min={2} precision={0} onChange={(v) => this.changeCount(v) } />
+              <InputNumber defaultValue={2} min={2} precision={0} onChange={(v) => this.changeCount(v)} />
               个人（添加完后不能修改）
             </span>
           </div>
           <div>
             {create.users.map((u, i) =>
-              <Input key={`input-${i}`} className="mt_20" value={u} onChange={(e) => this.changeUserName(e.target.value, i)}/>)
+              <Input key={`input-${i}`} className="mt_20" value={u} onChange={(e) => this.changeUserName(e.target.value, i)} />)
             }
           </div>
         </Modal>

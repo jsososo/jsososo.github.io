@@ -12,6 +12,7 @@ import { createStructuredSelector } from 'reselect';
 
 import { makeSelectUser } from "../../containers/App/selectors";
 import { Icon, Input } from 'antd';
+import MyIcon from '../../components/Icon';
 import './index.scss';
 
 import Avatar from '../../components/Avator';
@@ -58,7 +59,7 @@ export class Header extends React.Component { // eslint-disable-line react/prefe
           </a>
           <a href="http://music.jsososo.com" className="header-link" target="_blank">
             <h1 className="header-item">
-              <i className="iconfont icon-1" style={{ fontSize: '30px' }} />
+              <MyIcon type="listen" size={30} color="#777" />
               <span className="header-title-txt">随便听听歌</span>
             </h1>
           </a>

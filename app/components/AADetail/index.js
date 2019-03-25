@@ -10,7 +10,8 @@ import Record from './Record';
 
 import timer from '../../utils/timer';
 import Num from '../../utils/Num';
-import { Icon, Modal, Input, Button, Tag } from 'antd';
+import { Icon, Modal, Input, Button } from 'antd';
+import Back from '../Back';
 import { getUserInfo } from "../../utils/constants";
 import Storage from '../../utils/Storage';
 
@@ -138,9 +139,7 @@ class Aadetail extends React.Component { // eslint-disable-line react/prefer-sta
     const { showModal, searchUser, userList, findUser } = this.state;
     return (
       <div className="aa-detail">
-        <a href="#/kit/aa">
-          <Icon type="arrow-left" className="pointer ft_20 mr_20 mt_5 vat" />
-        </a>
+        <Back url="#/kit/aa" />
         <h2 className="title fc_666 inline-block">{detail.title}</h2>
         {
           user.objectId === detail.userId &&

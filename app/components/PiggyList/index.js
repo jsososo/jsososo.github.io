@@ -13,6 +13,7 @@ import moment from 'moment';
 
 import ListItem from './ListItem';
 import { Button, message, DatePicker, Icon, Modal, InputNumber, Select, Input } from 'antd';
+import Back from '../Back';
 const RangePicker = DatePicker.RangePicker;
 
 // import styled from 'styled-components';
@@ -89,9 +90,7 @@ class PiggyList extends React.Component { // eslint-disable-line react/prefer-st
     return (
       <div className="piggy-list-page">
         <div>
-          <a href="#/kit/">
-            <Icon type="arrow-left" className="pointer ft_20 mr_20 mt_5 vat" />
-          </a>
+          <Back />
           <Button type="primary" onClick={() => this.setState({ showModal: true })}>新建一个存钱罐</Button>
         </div>
         <div className="piggy-list-container pd_20">

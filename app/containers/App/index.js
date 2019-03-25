@@ -8,13 +8,13 @@
 
 import React from 'react';
 import injectSaga from 'utils/injectSaga';
-import {connect} from 'react-redux';
+import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
-import {createStructuredSelector} from 'reselect';
+import { createStructuredSelector } from 'reselect';
 import * as Action from './actions';
-import {compose} from 'redux';
+import { compose } from 'redux';
 import saga from './saga';
-import {makeSelectReqLoading, makeSelectToast} from './selectors';
+import { makeSelectReqLoading, makeSelectToast } from './selectors';
 // import { Helmet } from 'react-helmet';
 // import styled from 'styled-components';
 import { Switch, Route, HashRouter } from 'react-router-dom';
@@ -30,6 +30,7 @@ import MileStone from '../MileStone/Loadable'; // 里程碑
 import Todo from '../Todo/Loadable'; // 计划链
 import AACash from '../AACash/Loadable'; // AA记账
 import PiggyBank from '../PiggyBank/Loadable'; // 存钱罐
+import Travel from '../Travel/Loadable'; // 远方
 
 import Development from '../Development/Loadable'; // 开发后门
 import Info from '../Info/Loadable'; // 一些说明
@@ -41,10 +42,10 @@ import CodingDemo from '../CodingDemo/Loadable'; // 一些例子
 import Header from '../Header/Loadable'; // 头部
 
 import { Bmob } from '../../utils/bmob';
-import Storage  from '../../utils/Storage';
-import { makeSelectUser } from "./selectors";
+import Storage from '../../utils/Storage';
+import { makeSelectUser } from './selectors';
 import { Modal, Spin } from 'antd';
-import { BmobInfo } from "../../const";
+import { BmobInfo } from '../../const';
 import Notice from '../../utils/notice';
 
 /*
@@ -106,7 +107,7 @@ export class App extends React.Component {
     return (
       <HashRouter>
         <Spin spinning={this.props.loading}>
-          <div style={{width: '1260px', margin: '120px auto', padding: '0 30px'}}>
+          <div style={{ width: '1260px', margin: '120px auto', padding: '0 30px' }}>
             <Header logOut={() => this.logOut()} />
             <Switch>
               <Route exact path="/" component={IndexPage} />
@@ -122,6 +123,7 @@ export class App extends React.Component {
               <Route path="/kit/todo" component={Todo} />
               <Route path="/kit/aa" component={AACash} />
               <Route path="/kit/piggy" component={PiggyBank} />
+              <Route path="/kit/travel" component={Travel} />
 
               {/* 开发 */}
               <Route path="/development" component={Development} />
@@ -150,7 +152,7 @@ App.propTypes = {
   user: PropTypes.object.isRequired,
   getBoxInfo: PropTypes.func.isRequired,
   loading: PropTypes.bool.isRequired,
-}
+};
 const mapStateToProps = createStructuredSelector({
   user: makeSelectUser(),
   loading: makeSelectReqLoading(),

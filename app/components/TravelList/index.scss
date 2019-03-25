@@ -1,0 +1,18 @@
+.travel-list-container {
+  .travel-list {
+    margin-top: 30px;
+
+    .travel-list-item {
+      height: 35px;
+      line-height: 35px;
+      background: #fff;
+      width: 530px;
+      padding: 0 15px;
+      transition: 0.4s;
+
+      &:hover {
+        background: #e6f7ff;
+      }
+    }
+  }
+}

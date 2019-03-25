@@ -12,6 +12,7 @@ import Num, { Abs } from '../../utils/num';
 import { Icon, message, InputNumber, Button, Select, Modal, Input, DatePicker } from 'antd';
 import moment from 'moment';
 import PiggyLog from '../PiggyLog/Loadable';
+import Back from '../Back';
 // import styled from 'styled-components';
 
 
@@ -147,9 +148,7 @@ class PiggyDetail extends React.Component { // eslint-disable-line react/prefer-
     return (
       <div className="piggy-detail-page">
         <div>
-          <a href="#/kit/piggy">
-            <Icon type="arrow-left" className="pointer ft_20 mr_20 mt_5 vat" />
-          </a>
+          <Back url="#/kit/piggy" />
           <div className="inline-block piggy-title">
             {detail.title}
             <Button className="ml_20" onClick={() => this.changeEditInfo(true, 'show')}>修改</Button>
