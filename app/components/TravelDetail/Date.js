@@ -59,7 +59,7 @@ class Date extends React.PureComponent {
   }
 
   render() {
-    const { info, index, edit, onDel, onMove, length } = this.props;
+    const { info, index, edit, onDel, onMove, length, priceCount } = this.props;
     const { list = [], title } = info;
     return (
       <div className="date-info">
@@ -73,7 +73,10 @@ class Date extends React.PureComponent {
           <div>
             { edit ?
               <Input style={{ width: '300px' }} size="large" value={title} onChange={(e) => this.onChange('title', e.target.value)} /> :
-              <span className="ft_18">{title}</span>
+              <div>
+                <span className="ft_18 mr_20">{title || `哈皮的第${index + 1}天`}</span>
+                <span className="ft_12">{priceCount.join('，')}</span>
+              </div>
             }
             { edit && (
               <div className="inline-block">
@@ -178,7 +181,7 @@ class Date extends React.PureComponent {
                     </div>
                   </div> :
                   <div className="mt_15">
-                    <b>{item.place}</b>
+                    <b>{item.place || '不知名的行程'}</b>
                     <div>
                       {ItemList.map((icon) => item[icon.type] !== undefined && (
                         <div className="mt_5" key={`${item.id}-show-${icon.type}`}>
@@ -212,6 +215,7 @@ class Date extends React.PureComponent {
 }
 
 Date.propTypes = {
+  priceCount: PropTypes.object,
   info: PropTypes.object,
   index: PropTypes.number,
   onChange: PropTypes.func,

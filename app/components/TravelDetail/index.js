@@ -11,12 +11,19 @@ import { getQueryFromUrl, urlToLink } from '../../utils/stringHelper';
 import DateInfo from './Date';
 import MyIcon from '../Icon';
 import Back from '../Back';
+import Num from '../../utils/num';
 import './index.scss';
 
 const TextArea = Input.TextArea;
 
 // import styled from 'styled-components';
-
+const priceMap = {
+  ticket: '门票',
+  traffic: '交通',
+  eat: '吃滴',
+  hotel: '住滴',
+  other: '其他',
+};
 
 class TravelDetail extends React.PureComponent { // eslint-disable-line react/prefer-stateless-function
   constructor(props) {
@@ -74,38 +81,34 @@ class TravelDetail extends React.PureComponent { // eslint-disable-line react/pr
   }
 
   priceCount(info) {
-    const map = {
-      ticket: '门票',
-      traffic: '交通',
-      eat: '吃滴',
-      hotel: '住滴',
-      other: '其他',
-    };
-    const result = { price: { total: 0, txt: [] }, list: [] };
-    const total = {};
+    const result = { list: [] };
+    const total = { total: 0 };
     info.dateList.forEach((d, i) => {
       result.list[i] = {};
       const priceObj = {};
       let priceNum = 0;
-      d.list.forEach((o) => {
-        Object.keys(map).forEach((k) => {
-          const price = o[`${k}_price`];
+      (d.list || []).forEach((o) => {
+        Object.keys(priceMap).forEach((k) => {
+          const price = Number(o[`${k}_price`]);
           if (price) {
+            total.total += price;
             total[k] = (total[k] || 0) + price;
             priceObj[k] = (priceObj[k] || 0) + price;
             priceNum += price;
           }
         });
       });
-      result.list[i] = Object.keys(priceObj).map((pk) => `${map[pk]}: ${priceNum}`);
+      result.list[i] = Object.keys(priceObj).map((pk) => `${priceMap[pk]}: ${priceObj[pk]}`);
+      result.list[i].unshift(`预算：${priceNum}`);
     });
+    result.total = total;
+    return result;
   }
 
   render() {
     const { info, onSave, onCancel, onDel, changeUrl, isEdit } = this.props;
     const { title, desc, dateList } = info;
-
-
+    const priceCount = this.priceCount(info);
 
     return (
       <div className="travel-detail">
@@ -125,13 +128,19 @@ class TravelDetail extends React.PureComponent { // eslint-disable-line react/pr
           </div>
         </div>
 
-        <div></div>
+        <div className="mt_20">
+          总预算：¥ {Num(priceCount.total.total, 2)}
+          （{Object.keys(priceMap).map((k) => priceCount.total[k] ?
+            <span className="inline-block ml_10 mr_10" key={`total-${k}`}>
+              <MyIcon className="mr_5" type={k} color="#999" /> ¥ {Num(priceCount.total[k], 2)}
+            </span> : '')}）
+        </div>
 
         {/* 简介区块 */}
         {
           isEdit ?
             <TextArea
-              className="mt_20"
+              className="mt_10"
               autosize={{ minRows: 3 }}
               value={desc}
               placeholder="说点什么..."
@@ -142,6 +151,7 @@ class TravelDetail extends React.PureComponent { // eslint-disable-line react/pr
 
         {dateList.map((date, index) =>
           (<DateInfo
+            priceCount={priceCount.list[index]}
             length={dateList.length}
             onMove={this.moveDate}
             edit={isEdit}

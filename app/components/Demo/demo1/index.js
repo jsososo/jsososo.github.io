@@ -5,6 +5,7 @@ import C2 from './pureComponent';
 import C3 from './stateLess';
 import C4 from './pureComponent2';
 import C5 from './pureComponent3';
+import C6 from './stateLess2';
 
 class Demo extends React.Component {
   constructor(props) {
@@ -74,6 +75,9 @@ class Demo extends React.Component {
 
           {/* pureComponent setState  */}
           <C5 type={state.type} />
+
+          {/* stateless with hook */}
+          <C6 />
         </div>
       </div>
     );
