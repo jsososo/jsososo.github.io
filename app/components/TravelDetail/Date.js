@@ -215,7 +215,7 @@ class Date extends React.PureComponent {
 }
 
 Date.propTypes = {
-  priceCount: PropTypes.object,
+  priceCount: PropTypes.array,
   info: PropTypes.object,
   index: PropTypes.number,
   onChange: PropTypes.func,

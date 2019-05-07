@@ -22,7 +22,8 @@ import Storage from '../../utils/Storage';
 
 import { makeSelectUser } from '../App/selectors';
 import * as Action from './actions';
-import { getQueryFromUrl, changeUrlQuery } from "../../utils/stringHelper";
+import { getQueryFromUrl, changeUrlQuery } from '../../utils/stringHelper';
+import DataSaver from '../../utils/hydrogen';
 
 export class Travel extends React.PureComponent { // eslint-disable-line react/prefer-stateless-function
   constructor(props) {
@@ -33,6 +34,7 @@ export class Travel extends React.PureComponent { // eslint-disable-line react/p
     this.changeUrl = this.changeUrl.bind(this);
     this.queryDetail = this.queryDetail.bind(this);
     this.saveDetail = this.saveDetail.bind(this);
+    this.createTravel = this.createTravel.bind(this);
 
     this.queryAllList(props.user);
   }
@@ -49,96 +51,107 @@ export class Travel extends React.PureComponent { // eslint-disable-line react/p
     updateInfo({ ...info, ...data });
   }
 
-  queryAllList(user) {
+  queryAllList(user = this.props.user) {
     const { updateList } = this.props;
-    Storage.queryBmob('Travel', (q) => {
-      q.equalTo('userIds', user.objectId);
-      q.limit(1000);
-      return q;
-    }, (res) => {
-      updateList(res);
-    }, null, 'find');
+
+    const params = {
+      table: 'Travel',
+      e: {
+        userIds: user.objectId,
+      },
+      select: ['title', 'dateLength'],
+    };
+
+    return DataSaver.query(params)
+      .then((res) => {
+        updateList(res);
+      });
   }
 
   queryDetail(id) {
     const { updateInfo, updateRawInfo } = this.props;
     changeUrlQuery({ id, edit: '' });
-    Storage.queryBmob('Travel', (q) => {
-      q.equalTo('objectId', id);
-      return q;
-    }, (res) => {
-      updateInfo(res);
-      updateRawInfo(res);
-    });
+    this.getDetailReq(id)
+      .then((res) => {
+        updateInfo(res);
+        updateRawInfo(res);
+      });
   }
 
-  createTravel(val) {
+  getDetailReq(id) {
+    return DataSaver.get({ table: 'Travel', id });
+  }
+
+  createTravel() {
     const { user } = this.props;
     Storage.createBmob('Travel', {
-      ...val,
-      userIds: [user.objectId],
+      title: '',
+      desc: '',
+      takes: [], // 记得带的物品
+      userIds: [user.objectId], // 用户列表
+      dateList: [
+        {
+          title: '',
+        },
+      ],
     }, (res) => {
       this.updateInfo({ objectId: res.id, userIds: [user.objectId] });
     });
   }
 
-  saveDetail() {
+  async saveDetail() {
     const { travel } = this.props;
     const { info, rawInfo } = travel;
-    // 新建
-    if (!info.objectId) {
-      return this.createTravel(info);
-    }
     // 保存，先获取一遍，然后进行对比修改了啥，选择替换
-    Storage.queryBmob('Travel', (q) => {
-      q.equalTo('objectId', info.objectId);
-      return q;
-    }, (res) => {
-      const list = ['title', 'desc'];
-      const map = {
-        title: '标题',
-        desc: '描述',
-      };
-      const err = [];
-      // 检验其他信息
-      list.forEach((k) => {
-        if (res[k] === rawInfo[k]) {
-          return;
-        }
-        if (res[k] !== info[k]) {
-          if (rawInfo[k] === info[k]) {
-            info[k] = res[k];
-          } else {
-            err.push(map[k]);
-          }
-        }
-      });
-      // 校验行程
-      res.dateList.forEach((date, i) => {
-        const rD = rawInfo.dateList[i] || {};
-        const iD = info.dateList[i] || {};
-        if (JSON.stringify(date) === JSON.stringify(rD)) {
-          return;
-        }
-        if (JSON.stringify(date) !== JSON.stringify(iD)) {
-          if (JSON.stringify(rD) === JSON.stringify(iD)) {
-            info.dateList[i] = date;
-          } else {
-            err.push(`D${i + 1}行程`);
-          }
-        }
-      });
+    let remoteData;
 
-      if (err.length) {
+    await this.getDetailReq(info.objectId)
+      .then((res) => remoteData = res);
 
-      } else {
-        Storage.setBmob('Travel', info.objectId, info, () => {
-          this.queryDetail(info.objectId);
-          message.success('ok～');
-        });
+    const list = ['title', 'desc'];
+    const map = {
+      title: '标题',
+      desc: '描述',
+    };
+    const err = [];
+    // 检验其他信息
+    list.forEach((k) => {
+      if (remoteData[k] === rawInfo[k]) {
+        return;
+      }
+      if (remoteData[k] !== info[k]) {
+        if (rawInfo[k] === info[k]) {
+          info[k] = remoteData[k];
+        } else {
+          err.push(map[k]);
+        }
       }
     });
-    return false;
+    // 校验行程
+    (remoteData.dateList || []).forEach((date, i) => {
+      const rD = rawInfo.dateList[i] || {};
+      const iD = info.dateList[i] || {};
+      if (JSON.stringify(date) === JSON.stringify(rD)) {
+        return;
+      }
+      if (JSON.stringify(date) !== JSON.stringify(iD)) {
+        if (JSON.stringify(rD) === JSON.stringify(iD)) {
+          info.dateList[i] = date;
+        } else {
+          err.push(`D${i + 1}行程`);
+        }
+      }
+    });
+
+    if (err.length) {
+    } else {
+      DataSaver.set({ q: remoteData, obj: info })
+        .then(() => {
+          this.queryAllList();
+          this.queryDetail(rawInfo.objectId);
+          message.success('ok～');
+        });
+    }
   }
 
   changeUrl(obj) {
@@ -172,6 +185,7 @@ export class Travel extends React.PureComponent { // eslint-disable-line react/p
                 list={travel.list}
                 changeUrl={this.changeUrl}
                 queryDetail={this.queryDetail}
+                createTravel={this.createTravel}
               />
           }
         </div>

@@ -15,11 +15,11 @@ import './index.scss';
 
 class TravelList extends React.PureComponent { // eslint-disable-line react/prefer-stateless-function
   render() {
-    const { list = [], changeUrl } = this.props;
+    const { list = [], changeUrl, createTravel } = this.props;
     return (
       <div className="travel-list-container">
         <Back />
-        <Button type="primary">新建一个计划</Button>
+        <Button type="primary" onClick={createTravel}>新建一个计划</Button>
         <div className="travel-list">
           {list.map((item) => (
             <div className="travel-list-item" key={item.objectId} onClick={() => changeUrl({ id: item.objectId })}>
@@ -37,6 +37,7 @@ class TravelList extends React.PureComponent { // eslint-disable-line react/pref
 TravelList.propTypes = {
   list: PropTypes.array,
   changeUrl: PropTypes.func,
+  createTravel: PropTypes.func,
 };
 
 export default TravelList;

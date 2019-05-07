@@ -48,6 +48,8 @@ import { Modal, Spin } from 'antd';
 import { BmobInfo } from '../../const';
 import Notice from '../../utils/notice';
 
+import BB from 'hydrogen-js-sdk';
+
 /*
 *  判断用户是否登录，部分功能需要登录才能使用
 *  点击 去登录 直接眺望登录页面，
@@ -83,6 +85,7 @@ export class App extends React.Component {
     this.props.initApp();
     // Bmob的初始化
     Bmob.initialize(...BmobInfo);
+    BB.initialize(...BmobInfo);
     // 自动登录
     Storage.logIn(null, (res) => {
       const user = res ? res.attributes : { username: '游客', login: false };

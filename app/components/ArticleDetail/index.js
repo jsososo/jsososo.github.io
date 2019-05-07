@@ -22,6 +22,7 @@ import Prism from 'prismjs';
 
 import Storage from '../../utils/Storage';
 import { getUserInfo } from "../../utils/constants";
+import Qn from '../../utils/qiniu';
 
 import 'braft-editor/dist/index.css';
 import './index.scss';
@@ -142,11 +143,11 @@ class ArticleDetail extends React.Component { // eslint-disable-line react/prefe
         // audio: true, // 开启音频插入功能
         validateFn: null, // 指定本地校验函数，说明见下文
         uploadFn: (param) => {
-          Storage.saveFile(param.file, (res) => {
-            param.success(res);
-          }, (event) => {
-            param.progress((event.loaded / event.total) * 100);
-          });
+          Qn(param.file).subscribe(
+            (e) => param.progress(e.percent),
+            (e) => console.log(e, 'err'),
+            (e) => param.success({ url: `http://static.jsososo.com/${e.key}` })
+          );
         }, // 指定上传函数，说明见下文
         removeConfirmFn: null, // 指定删除前的确认函数，说明见下文
         onRemove: null, // 指定媒体库文件被删除时的回调，参数为被删除的媒体文件列表(数组)

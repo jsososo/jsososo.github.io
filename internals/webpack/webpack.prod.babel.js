@@ -10,6 +10,8 @@ module.exports = require('./webpack.base.babel')({
     path.join(process.cwd(), 'app/app.js'),
   ],
 
+  babelExclude: /music/,
+
   // Utilize long-term caching by adding content hashes (not compilation hashes) to compiled assets
   output: {
     filename: '[name].js',
@@ -20,7 +22,7 @@ module.exports = require('./webpack.base.babel')({
     new webpack.optimize.ModuleConcatenationPlugin(),
     new webpack.optimize.CommonsChunkPlugin({
       name: 'vendor',
-      minChunks: (module) => module.context && module.context.match(/react|antd|bmob/i),
+      minChunks: (module) => module.context && module.context.match(/react|antd|bmob|hydrogen/i),
     }),
 
     // Minify and optimize the index.html
