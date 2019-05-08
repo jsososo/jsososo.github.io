@@ -65,7 +65,7 @@ export class Article extends React.PureComponent { // eslint-disable-line react/
         this.props.setArticleInfo({
           ...articleDetail,
           title: decodeURI(decodeURI(articleDetail.title)),
-          content: decodeURI(decodeURI(articleDetail.content)),
+          content: decodeURI(articleDetail.content.split('').reverse().join('')),
         });
         cb && cb(res);
       },
@@ -126,7 +126,7 @@ export class Article extends React.PureComponent { // eslint-disable-line react/
     const saveInfo = {
       ...JSON.parse(JSON.stringify(info)),
       title: encodeURI(encodeURI(info.title)),
-      content: encodeURI(encodeURI(info.content)),
+      content: encodeURI(info.content).split('').reverse().join(''),
     };
     if (lastEdit) {
       saveInfo.lastEdit = new Date().getTime();
