@@ -60,7 +60,8 @@ class Comment extends React.Component {
           commentVal: '',
           showModal: false,
         });
-        getArticleInfo(info.objectId, (res) => Notice.createComment(res, remind));
+        getArticleInfo(info.objectId, false)
+          .then((res) => Notice.createComment(res, remind));
       }
     );
   }

@@ -36,12 +36,11 @@ class CalendarDetail extends React.Component { // eslint-disable-line react/pref
   }
 
   // 取消编辑（分为取消和保存）
-  cancelEdit(save) {
+  async cancelEdit(save) {
     if (save) {
-      this.props.save(this.state.editInfo, () => this.changeEdit());
-    } else {
-      this.changeEdit();
+      await this.props.save(this.state.editInfo);
     }
+    this.changeEdit();
   }
 
   // 修改编辑状态
@@ -63,16 +62,16 @@ class CalendarDetail extends React.Component { // eslint-disable-line react/pref
       content: '真的要删？',
       okText: '毫不留情',
       cancelText: '再想想',
-      onOk: () => this.props.delThing(
-        editInfo,
-        () => {
-          changeUrlQuery({
-            edit: undefined,
-            id: undefined,
+      onOk: () => {
+        this.props.delThing(editInfo)
+          .then(() => {
+            changeUrlQuery({
+              edit: undefined,
+              id: undefined,
+            });
+            message.success('删了删了');
           });
-          message.success('删了删了');
-        }
-      ),
+      },
     });
   }
 

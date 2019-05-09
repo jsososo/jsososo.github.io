@@ -24,15 +24,24 @@ import * as Action from './actions';
 import CalendarComponent from '../../components/CalendarComponent';
 import CalendarList from '../../components/CalendarList';
 import { getQueryFromUrl} from "../../utils/stringHelper";
-import Storage from '../../utils/Storage';
 import { makeSelectUser } from "../App/selectors";
 import { changeUrlQuery } from "../../utils/stringHelper";
 import { checkLogIn } from '../App/index';
 import arrayHelper from '../../utils/arrayHelper';
+import DataSaver from '../../utils/hydrogen';
 
 import { message } from 'antd';
 
 export class Calendar extends React.PureComponent { // eslint-disable-line react/prefer-stateless-function
+  constructor(props) {
+    super(props);
+
+    this.saveThing = this.saveThing.bind(this);
+    this.createThing = this.createThing.bind(this);
+    this.delThing = this.delThing.bind(this);
+    this.getAllThing = this.getAllThing.bind(this);
+  }
+
   componentWillMount() {
     if (this.props.user.objectId) {
       recentlyUsed.set('日历', 'kit');
@@ -49,57 +58,51 @@ export class Calendar extends React.PureComponent { // eslint-disable-line react
   }
 
   // 获取当前用户的所有事情列表
-  getAllThing(cb, user = this.props.user) {
+  getAllThing(user = this.props.user) {
     if (!user.objectId) {
       return;
     }
-    Storage.queryBmob(
-      'Thing',
-      (q) => {
-        q.equalTo('userId', user.objectId);
-        q.limit(1000);
-        return q;
-      },
-      (res) => {
-        const calendarList = {};
-        // 默认的tag
-        let tags = ['生日', '纪念', '远方'];
-        // 对于生日的，给往后50年都记上
-        res.forEach((item) => {
-          if (item.tag === '生日') {
-            let count = 0;
-            while (count < 50) {
-              count += 1;
-              const newThing = JSON.parse(JSON.stringify(item));
-              newThing.time = timer(item.time).from(count, 'Y').time;
-              res.push(newThing);
-            }
+    return DataSaver.query({
+      table: 'Thing',
+      e: { userId: user.objectId },
+      pageSize: 1000,
+      pageNo: 1,
+    }).then((res) => {
+      const calendarList = {};
+      // 默认的tag
+      let tags = ['生日', '纪念', '远方'];
+      // 对于生日的，给往后50年都记上
+      res.forEach((item) => {
+        if (item.tag === '生日') {
+          let count = 0;
+          while (count < 50) {
+            count += 1;
+            const newThing = JSON.parse(JSON.stringify(item));
+            newThing.time = timer(item.time).from(count, 'Y').time;
+            res.push(newThing);
           }
-        });
-        // 把事件按照日期为 key 进行分类
-        res.forEach((item) => {
-          if (item.time) {
-            const dStr = timer(item.time).str('YYYYMMDD');
-            if (!calendarList[dStr]) {
-              calendarList[dStr] = [];
-            }
-            calendarList[dStr].push(item);
+        }
+      });
+      // 把事件按照日期为 key 进行分类
+      res.forEach((item) => {
+        if (item.time) {
+          const dStr = timer(item.time).str('YYYYMMDD');
+          if (!calendarList[dStr]) {
+            calendarList[dStr] = [];
           }
-          if (item.tag) {
-            tags.push(item.tag);
-          }
-        });
-        // 一口气去重
-        tags = arrayHelper.delDuplicate(tags);
-        this.props.queryList({
-          list: calendarList,
-          tags,
-        });
-        cb && cb();
-      },
-      () => message.error('获取事件失败'),
-      'find',
-    );
+          calendarList[dStr].push(item);
+        }
+        if (item.tag) {
+          tags.push(item.tag);
+        }
+      });
+      // 一口气去重
+      tags = arrayHelper.delDuplicate(tags);
+      this.props.queryList({
+        list: calendarList,
+        tags,
+      });
+    }).catch(() => message.error('获取事件失败'));
   }
 
   // 新建一件事
@@ -108,9 +111,9 @@ export class Calendar extends React.PureComponent { // eslint-disable-line react
       return false;
     }
     const { user } = this.props;
-    Storage.createBmob(
-      'Thing',
-      {
+    DataSaver.create({
+      table: 'Thing',
+      obj: {
         userId: user.objectId,
         time: selected.time,
         milestone: false,
@@ -119,14 +122,13 @@ export class Calendar extends React.PureComponent { // eslint-disable-line react
         content: '',
         tag: '',
       },
-      (res) => this.getAllThing(() => {
-        changeUrlQuery({
-          id: res.id,
-          edit: true,
-        });
-      }),
-      () => message.error('创建失败 = ='),
-    );
+    }).then(async (res) => {
+      await this.getAllThing();
+      changeUrlQuery({
+        id: res.objectId,
+        edit: true,
+      });
+    }).catch(() => message.error('创建失败 = ='));
   }
 
   // 根据传入的url更新一些状态
@@ -154,36 +156,23 @@ export class Calendar extends React.PureComponent { // eslint-disable-line react
   }
 
   // 保存修改
-  saveThing(thing, cb) {
+  saveThing(thing) {
     // 生日类的，避免修改时间影响前面
     if (thing.tag === '生日') {
       delete thing.time;
     }
-    Storage.setBmob(
-      'Thing',
-      thing.objectId,
-      thing,
-      () => {
-        this.getAllThing(cb);
-      },
-      () => {
-        message.error('保存出错了 > <!!');
-      }
-    );
+    return DataSaver.set({
+      table: 'Thing',
+      id: thing.objectId,
+      obj: thing,
+    }).then(() => this.getAllThing()
+    , () => message.error('保存出错了 > <!!'));
   }
 
   // 删除一件事
-  delThing(thing, cb) {
-    Storage.delBmob(
-      'Thing',
-      thing.objectId,
-      () => {
-        this.getAllThing(cb);
-      },
-      () => {
-        message.error('删除失败了 -。-');
-      }
-    );
+  delThing(thing) {
+    return DataSaver.del({ table: 'Thing', id: thing.objectId })
+      .then(() => this.getAllThing());
   }
 
   render() {
@@ -206,13 +195,13 @@ export class Calendar extends React.PureComponent { // eslint-disable-line react
             user={user}
           />
           <CalendarList
-            saveThing={(t, cb) => this.saveThing(t, cb)}
-            createThing={(s) => this.createThing(s)}
+            saveThing={this.saveThing}
+            createThing={this.createThing}
             thingId={getQueryFromUrl('id')}
             list={list}
             selected={selected}
             tags={tags}
-            delThing={(thing, cb) => this.delThing(thing, cb)}
+            delThing={this.delThing}
           />
         </div>
       </div>

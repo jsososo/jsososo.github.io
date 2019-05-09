@@ -92,7 +92,7 @@ class NotebookDetail extends React.Component { // eslint-disable-line react/pref
   }
 
   render() {
-    const { info } = this.props;
+    const { info, content } = this.props;
     const { edit, editInfo, tags } = this.state;
     return (
       <div>
@@ -160,11 +160,11 @@ class NotebookDetail extends React.Component { // eslint-disable-line react/pref
               <TextArea
                 placeholder="markdown语法～"
                 autosize={{ minRows: 6 }}
-                value={editInfo.content}
+                value={editInfo.content || ''}
                 onChange={(e) => this.changeInfo(e.target.value, 'content')}
               /> :
               <div id="notebook-pre">
-                {<div className="markdown-content" dangerouslySetInnerHTML={{__html: markdown(editInfo.content)}} /> || '啥也没有。。。'}
+                {<div className="markdown-content" dangerouslySetInnerHTML={{__html: markdown(content || '')}} /> || '啥也没有。。。'}
               </div>
           }
         </div>
@@ -184,6 +184,7 @@ NotebookDetail.propTypes = {
   saveChange: PropTypes.func.isRequired,
   updateTags: PropTypes.func.isRequired,
   edit: PropTypes.bool,
+  content: PropTypes.string,
 };
 
 export default NotebookDetail;

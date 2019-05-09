@@ -23,16 +23,21 @@ import AADetail from '../../components/AADetail';
 import AAList from '../../components/AAList';
 import { message } from 'antd';
 
-import Storage from '../../utils/Storage';
-import timer from '../../utils/timer';
 import { changeUrlQuery, getQueryFromUrl } from "../../utils/stringHelper";
 import { checkLogIn } from "../App";
 import { setSpinning as AppSpinning } from "../App/actions";
+import DataSaver from '../../utils/hydrogen';
 
 import './index.scss';
 import recentlyUsed from "../../utils/recentlyUsed";
 
 export class Aacash extends React.PureComponent { // eslint-disable-line react/prefer-stateless-function
+  constructor(props) {
+    super(props);
+
+    this.getAADetail = this.getAADetail.bind(this);
+  }
+
   componentWillMount() {
     if (checkLogIn('AA对账')) {
       this.getAAList();
@@ -52,67 +57,67 @@ export class Aacash extends React.PureComponent { // eslint-disable-line react/p
     if (!user.objectId) {
       return;
     }
-    Storage.queryBmob(
-      'AACash',
-      (q) => {
-        q.equalTo('userIds', user.objectId);
-        q.select('updatedAt', 'title', 'users', 'userId');
-        return q;
-      },
-      (res) => {
-        res.sort((a, b) => timer(a.updatedAt, 'YYYY-MM-DD HH:mm:ss').time < timer(b.updatedAt, 'YYYY-MM-DD HH:mm:ss'));
-        queryAllList(res);
-      },
-      null,
-      'find'
-    );
+    DataSaver.query({
+      table: 'AACash',
+      e: { userIds: user.objectId },
+      select: ['title', 'users', 'userId'],
+      order: '-updatedAt',
+    }).then(queryAllList);
   }
 
   // 删掉一个aa
   delAA(id) {
-    Storage.delBmob(
-      'AACash',
-      id,
-      () => {
+    DataSaver.del({ table: 'AACash', id })
+      .then(() => {
         message.success('删掉了～');
         this.getAAList();
-      }
-    );
+      });
   }
 
   // 获取aa的详细信息
-  getAADetail(cb = (v) => this.props.getAADetail(v)) {
-    Storage.queryBmob(
-      'AACash',
-      (q) => {
-        q.equalTo('objectId', getQueryFromUrl('id'));
-        return q;
-      }, (v) => cb(v),
-    );
+  getAADetail() {
+    return DataSaver.get({
+      table: 'AACash',
+      id: getQueryFromUrl('id'),
+    });
   }
 
-  // 更新aa
-  updateAA(a, b, c, d) {
-    const { setSpinning } = this.props;
+  /*
+  *  更新aa
+  *
+  *  @param a: 直接更新的对象
+  *  @param b: true 添加，false 删除
+  *  @param c: 用户index （也可能是一个数组，就是转账）
+  *  @param d: 时间戳(这里当作id使用)
+  * */
+  async updateAA(a, b, c, d) {
+    const { setSpinning, getAADetail } = this.props;
     setSpinning(true);
     if (!a) {
-      this.getAADetail((v) => {
-        if (b) {
-          v.info[c].list.unshift(d);
+      const v = await this.getAADetail();
+      if (b) {
+        if (typeof c === 'object') {
+          c.forEach((sval) => v.info[sval.i].list.unshift(sval));
         } else {
-          const delItem = v.info[c].list.find((r) => r.time === d);
-          delItem.del = true;
+          v.info[c].list.unshift(d);
         }
-        Storage.setBmob('AACash', v.objectId, v, () => {
+      } else {
+        const delItem = v.info[c].list.find((r) => r.time === d);
+        delItem.del = true;
+      }
+      DataSaver.set({ table: 'AACash', id: v.objectId, obj: v })
+        .then(() => {
           this.props.getAADetail(v);
           setSpinning(false);
         });
-      });
     } else {
-      Storage.setBmob('AACash', a.objectId, a, () => {
-        this.props.getAADetail(a);
-        setSpinning(false);
-      });
+      DataSaver.set({ table: 'AACash', id: a.objectId, obj: a })
+        .then(this.getAADetail)
+        .then(getAADetail)
+        .then(() => {
+          message.success('修改成功');
+          setSpinning(false);
+        });
     }
   }
 
@@ -126,19 +131,18 @@ export class Aacash extends React.PureComponent { // eslint-disable-line react/p
         list: [],
       });
     });
-    Storage.createBmob(
-      'AACash',
-      { title, info, users, userId: user.objectId, userIds: [user.objectId] },
-      (res) => {
-        this.getAAList();
-        changeUrlQuery({ id: res.id });
-      }
-    );
+    DataSaver.create({
+      table: 'AACash',
+      obj: { title, info, users, userId: user.objectId, userIds: [user.objectId] },
+    }).then((res) => {
+      this.getAAList();
+      changeUrlQuery({ id: res.objectId });
+    });
   }
 
   render() {
     const id = getQueryFromUrl('id');
-    const { aacash, user } = this.props;
+    const { aacash, user, getAADetail } = this.props;
     return (
       <div>
         <Helmet>
@@ -150,7 +154,8 @@ export class Aacash extends React.PureComponent { // eslint-disable-line react/p
             id ?
               <AADetail
                 detail={aacash.detail}
-                getDetail={(val) => this.getAADetail(val)}
+                getDetail={this.getAADetail}
+                updateAADetail={getAADetail}
                 updateFun={(a, b, c, d) => this.updateAA(a, b, c, d)}
                 user={user}
               /> :

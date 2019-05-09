@@ -22,7 +22,7 @@ import { getBoxInfo } from "../App/actions";
 import { queryBoxes } from "../App/actions";
 import recentlyUsed from "../../utils/recentlyUsed";
 import arrayHelper from "../../utils/arrayHelper";
-import Storage from '../../utils/Storage';
+import DataSaver from '../../utils/hydrogen';
 
 import BoxComponent from "../../components/BoxesComponent";
 import { message } from "antd";
@@ -37,42 +37,19 @@ export class KitIndex extends React.Component { // eslint-disable-line react/pre
   componentWillMount() {
     this.getBoxInfo();
   }
-  getRecentlyUsed() {
-    const { user } = this.props;
 
-    Storage.queryBmob(
-      'RecentlyUsed',
-      (q) => {
-        q.equalTo('userId', user.objectId);
-        return q;
-      },
-      (res) => {
-        if (res) {
-          const rU = recentlyUsed.get('kit', res, this.state.boxes);
-          const boxes = arrayHelper.delDuplicateObj([...rU, ...(this.props.boxes.kit)], ['name']);
-          this.setState({
-            boxes,
-          });
-        } else {
-          // 说明该用户没有最近使用的数据，建一个空对象
-          Storage.createBmob(
-            'RecentlyUsed',
-            {
-              userId: user.objectId,
-              value: '{}',
-            },
-          );
-        }
-      }
-    );
+  async getRecentlyUsed() {
+    const rU = await recentlyUsed.query('kit', this.state.boxes);
+    const boxes = arrayHelper.delDuplicateObj([...rU, ...(this.props.boxes.kit)], ['name']);
+    this.setState({
+      boxes,
+    });
   }
   getBoxInfo() {
     if (!this.state.boxes.length) {
       // 获取所有的子应用大致信息
-      Storage.queryBmob(
-        'BoxInfo',
-        undefined,
-        (res) => {
+      DataSaver.query({ table: 'BoxInfo' })
+        .then((res) => {
           // 把box列表按照type为key名分来排好
           const boxInfo = {};
           res.forEach((item) => {
@@ -85,12 +62,10 @@ export class KitIndex extends React.Component { // eslint-disable-line react/pre
           this.setState({
             boxes: boxInfo.kit,
           }, this.getRecentlyUsed);
-        },
-        () => {
+        }).catch((err) => {
+          console.log(err);
           message.error('获取基本信息失败');
-        },
-        'find',
-      );
+      });
     } else {
       this.getRecentlyUsed();
     }

@@ -26,6 +26,7 @@ import Storage from '../../utils/Storage';
 import * as Action from './actions';
 import { checkLogIn } from "../App/index";
 import arrayHelper from '../../utils/arrayHelper';
+import DataSaver from '../../utils/hydrogen';
 
 export class MileStone extends React.PureComponent { // eslint-disable-line react/prefer-stateless-function
   // 页面加载或者更新之后都自动滚动到想要的位置
@@ -49,43 +50,35 @@ export class MileStone extends React.PureComponent { // eslint-disable-line reac
       return;
     }
     const today = timer();
-    Storage.queryBmob(
-      'Thing',
-      (q) => {
-        q.equalTo('userId', uid);
-        q.equalTo('milestone', true);
-        q.limit(1000);
-
-        return q;
+    DataSaver.query({
+      table: 'Thing',
+      e: {
+        userId: uid,
+        milestone: true,
       },
-      (res = []) => {
-        let tags = [];
-        res.push({ id: 'today', time: today.time });
-        res.forEach((t) => {
-          if (t.tag) {
-            tags.push(t.tag);
+    }).then(async (res) => {
+      let tags = [];
+      res.push({ id: 'today', time: today.time });
+      res.forEach((t) => {
+        if (t.tag) {
+          tags.push(t.tag);
+        }
+        if (t.tag === '生日') {
+          const newTime = timer(`${today.year}${timer(t.time).str('MMDD')}`, 'YYYYMMDD');
+          t.time = newTime.time;
+          if (newTime.str('YYYYMMDD') < today.str('YYYYMMDD')) {
+            t.time = newTime.from(1, 'Y').time;
           }
-          if (t.tag === '生日') {
-            const newTime = timer(`${today.year}${timer(t.time).str('MMDD')}`, 'YYYYMMDD');
-            t.time = newTime.time;
-            if (newTime.str('YYYYMMDD') < today.str('YYYYMMDD')) {
-              t.time = newTime.from(1, 'Y').time;
-            }
-          }
-        });
-        tags = arrayHelper.delDuplicate(tags);
-        this.props.queryMileStone({
-          list: res,
-          tags,
-        });
-        this.selectMileStone(Storage.get(`mile-stone-tag-${username}`));
-        this.pageScroll();
-      },
-      () => {
-        message.error('找不到呀');
-      },
-      'find',
-    );
+        }
+      });
+      tags = arrayHelper.delDuplicate(tags);
+      await this.props.queryMileStone({
+        list: res,
+        tags,
+      });
+      await this.selectMileStone(Storage.get(`mile-stone-tag-${username}`));
+      this.pageScroll();
+    });
   }
 
   // 根据tag去筛选

@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Icon, Button, Input, message } from 'antd';
-import Storage from '../../utils/Storage';
+import DataSaver from '../../utils/hydrogen';
 
 class Box extends React.Component {
   constructor(props) {
@@ -13,15 +13,12 @@ class Box extends React.Component {
   }
 
   componentWillMount() {
-    Storage.queryBmob(
-      'BoxInfo', undefined,
-      (res) => {
+    DataSaver.query({ table: 'BoxInfo' })
+      .then((res) => {
         this.setState({
           list: res,
         });
-      },
-      null, 'find',
-    );
+      });
   }
 
   addNewBox() {
@@ -56,7 +53,7 @@ class Box extends React.Component {
 
 Box.propTypes = {
   goBack: PropTypes.func.isRequired,
-}
+};
 
 export default Box;
 
@@ -76,35 +73,27 @@ class SingleBox extends React.Component {
   saveChange() {
     const { info } = this.state;
     if (info.objectId) {
-      Storage.setBmob(
-        'BoxInfo',
-        info.objectId,
-        info,
-        () => {
-          message.success('ojbk');
-        },
-      );
+      DataSaver.set({
+        table: 'BoxInfo',
+        id: info.objectId,
+        obj: info,
+      }).then(() => message.success('ojbk'));
     } else {
-      Storage.createBmob(
-        'BoxInfo',
-        info,
-        (res) => {
-          info.objectId = res;
-          message.success('ojbk');
-          this.setState({
-            info,
-          });
-        },
-      );
+      DataSaver.create({
+        table: 'BoxInfo',
+        obj: info,
+      }).then((res) => {
+        info.objectId = res;
+        message.success('ojbk');
+        this.setState({ info });
+      });
     }
   }
 
   changeInfo(k, v) {
     const { info } = this.state;
     info[k] = v;
-    this.setState({
-      info,
-    });
+    this.setState({ info });
   }
 
   render() {
@@ -113,42 +102,42 @@ class SingleBox extends React.Component {
       <div className="mt_10 inline-block" style={{ width: '33.33%' }} >
         <div className="mt_10">
           <div className="w_100 inline-block">name: </div>
-          <Input className="w_200" value={info.name} onChange={(e) => this.changeInfo('name', e.target.value)}/>
+          <Input className="w_200" value={info.name} onChange={(e) => this.changeInfo('name', e.target.value)} />
         </div>
         <div className="mt_10">
           <div className="w_100 inline-block">url: </div>
-          <Input className="w_200" value={info.url} onChange={(e) => this.changeInfo('url', e.target.value)}/>
+          <Input className="w_200" value={info.url} onChange={(e) => this.changeInfo('url', e.target.value)} />
         </div>
         <div className="mt_10">
           <div className="w_100 inline-block">type: </div>
-          <Input className="w_200" value={info.type} onChange={(e) => this.changeInfo('type', e.target.value)}/>
+          <Input className="w_200" value={info.type} onChange={(e) => this.changeInfo('type', e.target.value)} />
         </div>
         <div className="mt_10">
           <div className="w_100 inline-block">color: </div>
-          <Input className="w_200" value={info.color} onChange={(e) => this.changeInfo('color', e.target.value)}/>
+          <Input className="w_200" value={info.color} onChange={(e) => this.changeInfo('color', e.target.value)} />
         </div>
         <div className="mt_10">
           <div className="w_100 inline-block">img: </div>
-          <Input className="w_200" value={info.img} onChange={(e) => this.changeInfo('img', e.target.value)}/>
+          <Input className="w_200" value={info.img} onChange={(e) => this.changeInfo('img', e.target.value)} />
         </div>
         <div className="mt_10">
           <div className="w_100 inline-block">imgSize: </div>
-          <Input className="w_200" value={info.imgSize} onChange={(e) => this.changeInfo('imgSize', e.target.value)}/>
+          <Input className="w_200" value={info.imgSize} onChange={(e) => this.changeInfo('imgSize', e.target.value)} />
         </div>
         <div className="mt_10">
           <div className="w_100 inline-block">keyWords: </div>
-          <Input className="w_200" value={info.keyWords} onChange={(e) => this.changeInfo('keyWords', e.target.value)}/>
+          <Input className="w_200" value={info.keyWords} onChange={(e) => this.changeInfo('keyWords', e.target.value)} />
         </div>
         <div className="mt_10">
           <div className="w_100 inline-block">wxUrl: </div>
           <Input className="w_200" value={info.wxUrl} onChange={(e) => this.changeInfo('wxUrl', e.target.value)} />
         </div>
-        <Button style={{marginLeft: '100px'}} className="mt_10" onClick={() => this.saveChange()}>保存</Button>
+        <Button style={{ marginLeft: '100px' }} className="mt_10" onClick={() => this.saveChange()}>保存</Button>
       </div>
-    )
+    );
   }
 }
 
 SingleBox.propTypes = {
   info: PropTypes.object.isRequired,
-}
+};

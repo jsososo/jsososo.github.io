@@ -13,19 +13,25 @@ import { compose } from 'redux';
 
 import injectReducer from 'utils/injectReducer';
 import makeSelectArticle from './selectors';
-import { makeSelectUser } from "../App/selectors";
+import { makeSelectUser } from '../App/selectors';
 import reducer from './reducer';
 import * as Action from './actions';
 
-import Storage from '../../utils/Storage';
-import { changeUrlQuery, getQueryFromUrl } from "../../utils/stringHelper";
+import { changeUrlQuery, getQueryFromUrl } from '../../utils/stringHelper';
 
 import { message } from 'antd';
 import ArticleList from '../../components/ArticleList';
 import ArticleDetail from '../../components/ArticleDetail';
-import { setSpinning as AppSpinning } from "../App/actions";
+import { setSpinning as AppSpinning } from '../App/actions';
+import DataSaver from '../../utils/hydrogen';
 
 export class Article extends React.PureComponent { // eslint-disable-line react/prefer-stateless-function
+  constructor(props) {
+    super(props);
+
+    this.getArticleInfo = this.getArticleInfo.bind(this);
+  }
+
   componentWillMount() {
     if (getQueryFromUrl('id')) {
       this.props.setArticleInfo({
@@ -55,11 +61,13 @@ export class Article extends React.PureComponent { // eslint-disable-line react/
   getArticleInfo(newId, showLoading = true, cb) {
     const loading = document.getElementById('xhr-loading');
     showLoading && (loading.style.display = 'block');
-    Storage.getBmob(
-      'Article',
-      newId,
-      null,
-      (res) => {
+    const params = {
+      table: 'Article',
+      id: newId,
+    };
+
+    return DataSaver.get(params)
+      .then((res) => {
         loading.style.display = 'none';
         const articleDetail = JSON.parse(JSON.stringify(res));
         this.props.setArticleInfo({
@@ -67,22 +75,18 @@ export class Article extends React.PureComponent { // eslint-disable-line react/
           title: decodeURI(decodeURI(articleDetail.title)),
           content: decodeURI(articleDetail.content.split('').reverse().join('')),
         });
-        cb && cb(res);
-      },
-    );
+        return res;
+      });
   }
 
   delArticle(id) {
-    Storage.delBmob(
-      'Article',
-      id,
-      () => {
+    DataSaver.del({ table: 'Article', id })
+      .then(() => {
         changeUrlQuery({ id: '' });
         this.props.setArticleInfo(null, false);
         this.queryArticleList();
         message.success('删除成功~');
-      }
-    );
+      });
   }
   /*
   *  获取所有的文章
@@ -90,31 +94,21 @@ export class Article extends React.PureComponent { // eslint-disable-line react/
   queryArticleList() {
     const { user, getArticleList, setSpinning } = this.props;
     setSpinning(true);
-    Storage.queryBmobOr(
-      'Article',
-      [
-        (q) => {
-          q.equalTo('public', true);
-          return q;
-        },
-        (q) => {
-          q.equalTo('authorId', user.objectId || ' ');
-          return q;
-        },
+    DataSaver.query({
+      table: 'Article',
+      or: [
+        ['public', '==', true],
+        ['authorId', '==', user.objectId || ' '],
       ],
-      (q) => {
-        q.select('author', 'lastEdit', 'authorId', 'comment', 'title', 'tag', 'public');
-        return q;
-      },
-      (res) => {
-        setSpinning(false);
-        getArticleList(res.map((a) => ({
-          ...a,
-          title: decodeURI(decodeURI(a.title)),
-          content: decodeURI(decodeURI(a.content)),
-        })));
-      }
-    );
+      select: ['author', 'lastEdit', 'authorId', 'comment', 'title', 'tag', 'public'],
+    }).then((res) => {
+      setSpinning(false);
+      getArticleList(res.map((a) => ({
+        ...a,
+        title: decodeURI(decodeURI(a.title)),
+        content: decodeURI(decodeURI(a.content)),
+      })));
+    });
   }
 
   /*
@@ -133,29 +127,23 @@ export class Article extends React.PureComponent { // eslint-disable-line react/
     }
     if (info.objectId) {
       // 保存
-      Storage.setBmob(
-        'Article',
-        info.objectId,
-        saveInfo,
-        () => {
+      DataSaver.get({ table: 'Article', id: info.objectId })
+        .then((q) => DataSaver.set({ q, obj: saveInfo }))
+        .then(() => {
           setArticleInfo(info, edit, time);
           setSpinning(false);
           message.success('保存成功~');
-        }
-      );
+        });
     } else {
       // 新建
-      Storage.createBmob(
-        'Article',
-        saveInfo,
-        (res) => {
-          info.objectId = res.id;
-          changeUrlQuery({ id: res.id });
+      DataSaver.create({ table: 'Article', obj: saveInfo })
+        .then((res) => {
+          info.objectId = res.objectId;
+          changeUrlQuery({ id: res.objectId });
           setArticleInfo(info, edit, time);
           setSpinning(false);
           message.success('保存成功~');
-        }
-      );
+        });
     }
   }
 
@@ -179,7 +167,7 @@ export class Article extends React.PureComponent { // eslint-disable-line react/
               list={article.list || []}
             /> :
             <ArticleDetail
-              getArticleInfo={(id, cb) => this.getArticleInfo(id, false, cb)}
+              getArticleInfo={this.getArticleInfo}
               delArticle={(id) => this.delArticle(id)}
               user={user}
               saveArticle={(info, edit) => this.saveArticle(info, edit)}

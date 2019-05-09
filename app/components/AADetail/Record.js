@@ -76,6 +76,9 @@ class Record extends React.Component {
       },
       totalCost: totalCost + num,
     });
+    if (transfer) {
+      return;
+    }
     this.props.updateFun(true, {
       time: timer().time,
       desc,

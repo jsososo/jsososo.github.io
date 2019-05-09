@@ -7,7 +7,6 @@
 import React from 'react';
 import Box from './box';
 import Data from './data';
-import Imgg from './img';
 // import styled from 'styled-components';
 
 import BraftEditor from 'braft-editor'
@@ -39,13 +38,11 @@ class Dev extends React.Component { // eslint-disable-line react/prefer-stateles
           selected === '' &&
             <ul style={{ listStyleType: 'none', fontSize: '16px' }} className="pointer">
               <li className="mt_10" onClick={() => this.setState({ selected: 'box' })}>box信息</li>
-              <li className="mt_10" onClick={() => this.setState({ selected: 'data' })}>删掉重复的提示</li>
-              <li className="mt_10" onClick={() => this.setState({ selected: 'img' })}>img</li>
+              {/*<li className="mt_10" onClick={() => this.setState({ selected: 'data' })}>删掉重复的提示</li>*/}
             </ul>
         }
         { selected === 'box' && <Box goBack={() => this.goBack()} /> }
-        { selected === 'data' && <Data goBack={() => this.goBack()} /> }
-        { selected === 'img' && <Imgg /> }
+        {/*{ selected === 'data' && <Data goBack={() => this.goBack()} /> }*/}
       </div>
     );
   }

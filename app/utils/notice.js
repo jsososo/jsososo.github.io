@@ -42,9 +42,9 @@ const Notice = {
             userId: u.objectId,
             type: 'ARTICLE_COMMENT',
             content: {
-              title: shortString(decodeURI(decodeURI(articleInfo.attributes.title || '')), 7),
-              articleId: articleInfo.id,
-              location: articleInfo.attributes.comment.length,
+              title: shortString(decodeURI(decodeURI(articleInfo.title || '')) || '无题', 7),
+              articleId: articleInfo.objectId,
+              location: articleInfo.comment.length,
             },
             time: timer().time,
             isRead: false,

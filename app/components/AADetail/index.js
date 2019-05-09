@@ -13,7 +13,7 @@ import Num from '../../utils/Num';
 import { Icon, Modal, Input, Button } from 'antd';
 import Back from '../Back';
 import { getUserInfo } from "../../utils/constants";
-import Storage from '../../utils/Storage';
+import DataSaver from '../../utils/hydrogen';
 
 // import styled from 'styled-components';
 
@@ -31,7 +31,8 @@ class Aadetail extends React.Component { // eslint-disable-line react/prefer-sta
   }
 
   componentWillMount() {
-    this.props.getDetail();
+    this.props.getDetail()
+      .then(this.props.updateAADetail);
   }
 
   componentWillReceiveProps(props) {
@@ -52,22 +53,18 @@ class Aadetail extends React.Component { // eslint-disable-line react/prefer-sta
 
   transferRecord(u1, u2, num) {
     const { detail, updateFun } = this.props;
-    updateFun(null, true, detail.users.indexOf(u1), {
-      time: timer().time,
-      desc: `收到${u2}的转账`,
-      num,
-    });
+    updateFun(null, true, [
+      { i: detail.users.indexOf(u1), desc: `收到${u2}的转账`, time: timer().time, num },
+      { i: detail.users.indexOf(u2), desc: `转账给${u1}`, time: timer().time, num: -num },
+    ]);
   }
 
   findUser() {
-    Storage.queryBmob(
-      '_User',
-      (q) => {
-        q.equalTo('username', this.state.searchUser);
-        return q;
-      },
-      (findUser) => this.setState({ findUser }),
-    );
+    DataSaver.query({
+      table: '_User',
+      e: { username: this.state.searchUser },
+      single: true,
+    }).then((findUser) => this.setState({ findUser }));
   }
 
   // 添加或删除可以编辑这个aa列表的用户
@@ -81,7 +78,7 @@ class Aadetail extends React.Component { // eslint-disable-line react/prefer-sta
     }
     detail.userIds = userIds;
     this.setState({ searchUser: '', findUser: null });
-    updateFun(detail);
+    updateFun({ userIds, objectId: detail.objectId });
   }
 
   renderBalance() {
@@ -186,6 +183,7 @@ Aadetail.propTypes = {
   detail: PropTypes.object.isRequired,
   updateFun: PropTypes.func.isRequired,
   user: PropTypes.object.isRequired,
+  updateAADetail: PropTypes.func,
 };
 
 export default Aadetail;

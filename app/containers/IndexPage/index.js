@@ -29,6 +29,7 @@ import timer from '../../utils/timer';
 import BoxComponent from '../../components/BoxesComponent';
 import './index.scss';
 import {message} from "antd/lib/index";
+import DataSaver from '../../utils/hydrogen';
 
 export class IndexPage extends React.Component { // eslint-disable-line react/prefer-stateless-function
   constructor(props) {
@@ -48,78 +49,46 @@ export class IndexPage extends React.Component { // eslint-disable-line react/pr
   getBoxInfo() {
     if (!this.state.kits.length) {
       // 获取所有的子应用大致信息
-      Storage.queryBmob(
-        'BoxInfo',
-        undefined,
-        (res) => {
-          // 把box列表按照type为key名分来排好
-          const boxInfo = {};
-          res.forEach((item) => {
-            if (!boxInfo[item.type]) {
-              boxInfo[item.type] = [];
-            }
-            boxInfo[item.type].push(item);
-          });
-          this.props.getBoxInfo(boxInfo);
-          this.setState({
-            kits: boxInfo.kit,
-          }, this.getKits);
-        },
-        () => {
-          message.error('获取基本信息失败');
-        },
-        'find',
-      );
+      DataSaver.query({
+        table: 'BoxInfo',
+      }).then((res) => {
+        // 把box列表按照type为key名分来排好
+        const boxInfo = {};
+        res.forEach((item) => {
+          if (!boxInfo[item.type]) {
+            boxInfo[item.type] = [];
+          }
+          boxInfo[item.type].push(item);
+        });
+        this.props.getBoxInfo(boxInfo);
+        this.setState({
+          kits: boxInfo.kit,
+        }, this.getKits);
+      }).catch(() => message.error('获取基本信息失败'));
     } else {
       this.getKits();
     }
   }
 
   getArticles() {
-    Storage.queryBmob(
-      'Article',
-      (q) => {
-        q.equalTo('public', true);
-        q.select('author', 'lastEdit', 'title', 'tag');
-        return q;
-      },
-      (res) => {
-        res.sort((a, b) => timer(b.createdAt).time - timer(a.createdAt).time);
-        this.setState({
-          articles: res.map(a => ({ ...a, title: shortString(decodeURI(decodeURI(a.title))) })),
-        });
-      },
-      null, 'find',
-    );
+    DataSaver.query({
+      table: 'Article',
+      e: { 'public': true },
+      select: ['author', 'lastEdit', 'title', 'tag'],
+    }).then((res) => {
+      res.sort((a, b) => timer(b.createdAt).time - timer(a.createdAt).time);
+      this.setState({
+        articles: res.map(a => ({ ...a, title: shortString(decodeURI(decodeURI(a.title))) })),
+      });
+    });
   }
 
-  getKits() {
-    const user = decodeURI(Storage.get('uName'));
-    Storage.queryBmob(
-      'RecentlyUsed',
-      (q) => {
-        q.equalTo('user', user);
-        return q;
-      },
-      (res) => {
-        if (res) {
-          const rU = recentlyUsed.get('kit', res, this.state.kits);
-          const boxes = arrayHelper.delDuplicateObj([...rU, ...(this.props.boxes.kit)], ['name']);
-          this.setState({
-            kits: boxes,
-          });
-        } else {
-          // 说明该用户没有最近使用的数据，建一个空对象
-          Storage.createBmob(
-            'RecentlyUsed',
-            {
-              userId: user.objectId,
-              value: '{}',
-            },
-          );
-        }
-      }
-    );
+  async getKits() {
+    const rU = await recentlyUsed.query('kit', this.state.kits);
+    const boxes = arrayHelper.delDuplicateObj([...rU, ...(this.props.boxes.kit)], ['name']);
+    this.setState({
+      kits: boxes,
+    });
   }
 
   render() {

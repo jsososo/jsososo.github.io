@@ -22,19 +22,28 @@ import NotebookDetail from '../../components/NotebookDetail';
 
 import { Button, Select, message, Icon } from 'antd';
 import timer from '../../utils/timer';
-import { getQueryFromUrl } from "../../utils/stringHelper";
+import { getQueryFromUrl, shortString } from '../../utils/stringHelper';
 import recentlyUsed from '../../utils/recentlyUsed';
 
 import * as Action from './actions';
-import arrayHelper from "../../utils/arrayHelper";
+import arrayHelper from '../../utils/arrayHelper';
 import Storage from '../../utils/Storage';
-import { makeSelectUser } from "../App/selectors";
-import { checkLogIn } from "../App/index";
-import { setSpinning as AppSetSpinning } from "../App/actions";
+import { makeSelectUser } from '../App/selectors';
+import { checkLogIn } from '../App/index';
+import { setSpinning as AppSetSpinning } from '../App/actions';
+import DataSaver from '../../utils/hydrogen';
 
 const Option = Select.Option;
 
 export class Notebook extends React.PureComponent { // eslint-disable-line react/prefer-stateless-function
+  constructor(props) {
+    super(props);
+
+    this.updateTags = this.updateTags.bind(this);
+    this.saveChange = this.saveChange.bind(this);
+    this.delNote = this.delNote.bind(this);
+  }
+
   componentWillMount() {
     if (checkLogIn('记事本')) {
       this.queryNoteBooks();
@@ -53,7 +62,7 @@ export class Notebook extends React.PureComponent { // eslint-disable-line react
 
   componentWillReceiveProps(nextProps) {
     if (nextProps.user.objectId && nextProps.user.objectId !== this.props.user.objectId) {
-      this.queryNoteBooks(null, nextProps.user);
+      this.queryNoteBooks(nextProps.user);
       this.queryAllTags(nextProps.user);
       const { user } = nextProps;
       const sTags = Storage.get(`p_n_select_tags_${user.username}`, true, '[]');
@@ -64,139 +73,136 @@ export class Notebook extends React.PureComponent { // eslint-disable-line react
   /*
   *  查找所有该用户的notebook
   * */
-  queryNoteBooks(cb, user = this.props.user) {
+  queryNoteBooks(user = this.props.user) {
     this.props.setSpinning(true);
     if (!user.login) {
       return;
     }
-    Storage.queryBmob(
-      'Notebook',
-      (q) => {
-        q.equalTo('userId', user.objectId);
-        q.limit(1000);
-        return q;
-      },
-      (res) => {
-        const list = res || [];
-        list.sort((a, b) => {
-          if (Boolean(b.star) !== Boolean(a.star)) {
-            return Boolean(b.star) - Boolean(a.star);
-          }
-          return b.lastEdit - a.lastEdit;
-        });
-        this.props.updateNotebook(list.map(n => ({
-          ...n,
-          title: decodeURI(decodeURI(n.title)),
-          content: decodeURI(decodeURI(n.content)),
-        })));
-        this.props.setSpinning(false);
-        if (cb) {
-          cb();
+    return DataSaver.query({
+      table: 'Notebook',
+      e: { userId: user.objectId },
+      select: ['title', 'star', 'lastEdit', 'shortContent', 'tags'],
+      pageNo: 1,
+      pageSize: 1000,
+    }).then((res) => {
+      const list = res || [];
+      list.sort((a, b) => {
+        if (Boolean(b.star) !== Boolean(a.star)) {
+          return Boolean(b.star) - Boolean(a.star);
         }
-      },
-      () => {
-        message.error('找着找着就出问题了 = =||');
-      },
-      'find'
-    );
+        return b.lastEdit - a.lastEdit;
+      });
+      this.props.updateNotebook(list.map((n) => ({
+        ...n,
+        title: decodeURI(decodeURI(n.title)),
+      })));
+      this.props.setSpinning(false);
+    });
+  }
+
+  getNotebookDetail() {
+    const id = getQueryFromUrl('id');
+    const { notebook, updateNotebook } = this.props;
+
+    DataSaver.get({
+      table: 'Notebook',
+      id,
+    }).then((res) => {
+      const index = notebook.list.findIndex((v) => v.objectId === id);
+      res.title = decodeURI(decodeURI(res.title));
+      res.content = decodeURI(decodeURI(res.content));
+      notebook.list[index] = res;
+      updateNotebook(notebook.list);
+    });
   }
 
   /*
   *  新建记事本
   * */
-  createNote() {
+  async createNote() {
     const { user } = this.props;
     if (!user.login) {
       return;
     }
-    Storage.createBmob(
-      'Notebook',
-      {
+    const res = await DataSaver.create({
+      table: 'Notebook',
+      obj: {
         userId: user.objectId,
         created: timer().time,
         lastEdit: timer().time,
         title: '',
         content: '',
+        shortContent: '',
         tags: [],
       },
-      (res) => {
-        this.queryNoteBooks(() => {
-          window.location = `#/kit/notebook/detail/?id=${res.id}&edit=true`;
-        });
-      },
-      () => {
-        message.error('创建失败 = =||');
-      }
-    );
-    // window.location = `#/kit/notebook/detail/?id=${id}`;
+    });
+    await this.queryNoteBooks();
+    window.location = `#/kit/notebook/detail/?id=${res.objectId}&edit=true`;
   }
 
   /*
   *  获取所有的标签
   * */
   queryAllTags(user = this.props.user) {
-    Storage.queryBmob(
-      'Tags',
-      (q) => {
-        q.equalTo('userId', user.objectId);
-        return q;
-      },
-      (res) => {
-        this.props.changeTags(res);
-      }
-    );
+    DataSaver.query({
+      table: 'Tags',
+      e: { userId: user.objectId },
+      single: true,
+    }).then((res) => this.props.changeTags(res));
   }
 
   /*
   * 更新tags
   * */
-  updateTags(tags, cb = () => message.success('新增成功~')) {
+  async updateTags(tags) {
     const { user, notebook } = this.props;
     const { tagsBmob } = notebook;
     const value = {
       userId: user.objectId,
       notebook: tags,
     };
-    const callback = () => {
-      this.queryAllTags();
-      cb();
-    };
+
     if (!tagsBmob.objectId) {
-      Storage.createBmob('Tags', value, callback);
+      await DataSaver.create({ table: 'Tags', obj: value });
+      message.success('新增成功~');
     } else {
-      Storage.setBmob('Tags', tagsBmob.objectId, value, callback);
+      await DataSaver.set({
+        table: 'Tags',
+        id: tagsBmob.objectId,
+        obj: value,
+      });
     }
+    this.queryAllTags();
   }
 
   /*
   *  保存单个笔记
   * */
-  saveChange(info, cb) {
+  saveChange(info) {
     this.props.setSpinning(true);
     const saveInfo = {
       ...JSON.parse(JSON.stringify(info)),
       lastEdit: timer().time,
       title: encodeURI(encodeURI(info.title)),
       content: encodeURI(encodeURI(info.content)),
+      shortContent: shortString(info.content, 57),
     };
-    Storage.setBmob(
-      'Notebook',
-      info.objectId,
-      saveInfo,
-      () => this.queryNoteBooks(cb),
-      () => message.error('保存出问题了呀'),
-    );
+    DataSaver.set({
+      table: 'Notebook',
+      obj: saveInfo,
+      id: info.objectId,
+    }).then(() => this.queryNoteBooks());
   }
 
   /*
   * 删除笔记
   * */
   delNote(id) {
-    Storage.delBmob(
-      'Notebook',
+    DataSaver.del({
+      table: 'Notebook',
       id,
-      () => this.queryNoteBooks(() => window.location = '#/kit/notebook'),
-      () => message.error('删除出错啦'));
+    }).then(() => this.queryNoteBooks())
+      .then(() => window.location = '#/kit/notebook');
   }
 
   /*
@@ -207,10 +213,11 @@ export class Notebook extends React.PureComponent { // eslint-disable-line react
     let tags = [];
     this.props.notebook.list.forEach((item) => tags = [...tags, ...item.tags]);
     tags = arrayHelper.delDuplicate(tags);
-    this.updateTags(tags, () => {
-      message.success('已清空空标签~');
-      this.props.selectTags(arrayHelper.getDuplicate(tags, Storage.get(`p_n_select_tags_${user.username}`, true, '[]')));
-    });
+    this.updateTags(tags)
+      .then(() => {
+        message.success('已清空空标签~');
+        this.props.selectTags(arrayHelper.getDuplicate(tags, Storage.get(`p_n_select_tags_${user.username}`, true, '[]')));
+      });
   }
 
   render() {
@@ -226,6 +233,9 @@ export class Notebook extends React.PureComponent { // eslint-disable-line react
         isIndex = true;
       } else {
         edit = search.edit ? JSON.parse(search.edit) : false;
+        if (!info.content) {
+          this.getNotebookDetail();
+        }
       }
     }
     // 根据选择的标签来筛选订单
@@ -244,7 +254,7 @@ export class Notebook extends React.PureComponent { // eslint-disable-line react
             isIndex &&
               <div>
                 <a href="#/kit/" style={{ marginLeft: '2.5%' }}>
-                  <Icon type="arrow-left" className="pointer ft_20 mr_20 mt_5 vat"/>
+                  <Icon type="arrow-left" className="pointer ft_20 mr_20 mt_5 vat" />
                 </a>
                 <Button
                   type="primary"
@@ -259,7 +269,7 @@ export class Notebook extends React.PureComponent { // eslint-disable-line react
                     placeholder="Select tags"
                     onChange={selectTags}
                   >
-                    {notebook.tags.map((item) => <Option value={item} key={`tag-o-${item}`}>{item}</Option>)}
+                    {(notebook.tags || []).map((item) => <Option value={item} key={`tag-o-${item}`}>{item}</Option>)}
                   </Select>
                   <Button className="ml_5" onClick={() => this.clearTags()} type="danger">清空空标签</Button>
                 </div>
@@ -270,10 +280,10 @@ export class Notebook extends React.PureComponent { // eslint-disable-line react
                 <div className="mt_15">
                   {
                     list.map((item) =>
-                      <NotebookCard
+                      (<NotebookCard
                         key={`nb-${item.objectId}`}
                         info={item}
-                      />)
+                      />))
                   }
                 </div>
               </div>
@@ -283,10 +293,11 @@ export class Notebook extends React.PureComponent { // eslint-disable-line react
             <NotebookDetail
               edit={edit}
               tags={notebook.tags || []}
-              updateTags={(t) => this.updateTags(t)}
-              delNote={(id) => this.delNote(id)}
-              saveChange={(d) => this.saveChange(d)}
+              updateTags={this.updateTags}
+              delNote={this.delNote}
+              saveChange={this.saveChange}
               info={info}
+              content={info.content}
             />
           }
         </div>
