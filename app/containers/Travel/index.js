@@ -84,19 +84,20 @@ export class Travel extends React.PureComponent { // eslint-disable-line react/p
 
   createTravel() {
     const { user } = this.props;
-    Storage.createBmob('Travel', {
-      title: '',
-      desc: '',
-      takes: [], // 记得带的物品
-      userIds: [user.objectId], // 用户列表
-      dateList: [
-        {
-          title: '',
-        },
-      ],
-    }, (res) => {
-      this.updateInfo({ objectId: res.id, userIds: [user.objectId] });
-    });
+    DataSaver.create({
+      table: 'Travel',
+      obj: {
+        title: '',
+        desc: '',
+        takes: [], // 记得带的物品
+        userIds: [user.objectId], // 用户列表
+        dateList: [
+          {
+            title: '',
+          },
+        ],
+      }
+    }).then((res) => this.updateInfo({ objectId: res.id, userIds: [user.objectId] }));
   }
 
   async saveDetail() {

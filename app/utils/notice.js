@@ -1,9 +1,9 @@
 import React from 'react';
 import Storage from './Storage';
 import timer from './timer';
-import { getUserInfo } from "./constants";
 import { notification } from 'antd';
-import { shortString } from "./stringHelper";
+import { shortString } from './stringHelper';
+import DataSaver from './hydrogen';
 
 const today = timer();
 
@@ -26,65 +26,42 @@ let NoticeList = [];
 
 const Notice = {
   // 来自主动创建的提醒（如评论）
-  create: (val) => {
-    Storage.createBmob(
-      'Notice',
-      val,
-    );
+  create: (obj) => {
+    DataSaver.create({ table: 'Notice', obj });
   },
   // 创建评论提醒
   createComment: (articleInfo, remind) => {
-    remind.forEach((name) => {
-      getUserInfo(
-        name,
-        (u) => {
-          Notice.create({
-            userId: u.objectId,
-            type: 'ARTICLE_COMMENT',
-            content: {
-              title: shortString(decodeURI(decodeURI(articleInfo.title || '')) || '无题', 7),
-              articleId: articleInfo.objectId,
-              location: articleInfo.comment.length,
-            },
-            time: timer().time,
-            isRead: false,
-          });
+    remind.forEach(async (name) => {
+      const u = await DataSaver.getUser(name, 'username');
+      Notice.create({
+        userId: u.objectId,
+        type: 'ARTICLE_COMMENT',
+        content: {
+          title: shortString(decodeURI(decodeURI(articleInfo.title || '')) || '无题', 7),
+          articleId: articleInfo.objectId,
+          location: articleInfo.comment.length,
         },
-        'name',
-      );
+        time: timer().time,
+        isRead: false,
+      });
     });
   },
   // 获取提醒 (获取主动创建的提醒)
-  get: (id, cb, errCb = (err) => console.log(err) , isRead = false, type, showLoading = false) => {
+  get: (param = {}) => {
     const uId = Storage.get('uId');
     if (!uId) {
       cb();
       return;
     }
-    Storage.queryBmob(
-      'Notice',
-      (q) => {
-        q.equalTo('userId', uId);
-        if (id) {
-          q.equalTo('id', id);
-        }
-        q.equalTo('isRead', isRead);
-        if (type) {
-          q.equalTo('type', type);
-        }
-        return q;
-      },
-      cb,
-      errCb,
-      'find',
-      showLoading
-    );
+    return DataSaver.query({
+      table: 'Notice',
+      e: { isRead: false, ...param, userId: uId },
+    });
   },
   // 循环调用，每两分钟查询一次
   getInfo: () => {
-    Notice.get(
-      '',
-      (res) => {
+    Notice.get({})
+      .then((res) => {
         if (res && res.length > 0) {
           NoticeList = res;
           res.forEach((n) => {
@@ -100,14 +77,12 @@ const Notice = {
         setTimeout(() => {
           Notice.getInfo();
         }, 1000 * 120);
-      },
-      (err) => {
+      }).catch((err) => {
         console.log(err);
         setTimeout(() => {
           Notice.getInfo();
         }, 1000 * 120);
-      }
-    );
+      });
   },
   // 评论设置为已读
   commentRead: (aId) => {
@@ -120,13 +95,13 @@ const Notice = {
   // 提醒设置为已读
   read: (id) => {
     notification.close(`notice-${id}`);
-    Storage.setBmob(
-      'Notice',
+    DataSaver.set({
+      table: 'Notice',
       id,
-      {
+      obj: {
         isRead: true,
       },
-    );
+    });
   },
   // 寻找提醒（不计入数据存储，调各个应用的接口拉数据去判断是否要提醒）
   findNotice: () => {
@@ -135,27 +110,18 @@ const Notice = {
     if (!userId || Storage.get(`notice-record-${userId}`) === today.str()) {
       return;
     }
-    baseQuery('Piggy', { userId }, null, ['total', 'current', 'endTime', 'startTime', 'title', 'average', 'type', 'record'], piggyCb);
-    baseQuery('NoticeSetting', { userId }, null, null, noticeSettingCb);
+    DataSaver.query({
+      table: 'Piggy',
+      e: { userId },
+      select: ['total', 'current', 'endTime', 'startTime', 'title', 'average', 'type', 'record'],
+    }).then(piggyCb);
+    DataSaver.query({
+      table: 'NoticeSetting',
+      e: { userId },
+    }).then(noticeSettingCb);
     // 标志今天提醒过了
     Storage.set(`notice-record-${userId}`, today.str());
   },
-};
-
-// 一个基础Bmob find的请求
-const baseQuery = (table, eq, nEq, s, cb) => {
-  Storage.queryBmob(
-    table,
-    (q) => {
-      eq && Object.keys(eq).forEach((k) => q.equalTo(k, eq[k]));
-      nEq && Object.keys(nEq).forEach((k) => q.notEqualTo(k, nEq[k]));
-      s && q.select(...[s]);
-      return q;
-    },
-    (res) => res && cb(res),
-    null,
-    'find',
-  );
 };
 
 // NoticeSetting相关
@@ -184,12 +150,20 @@ const noticeSettingCb = (res) => {
       item.isSys = true;
       item.type = 'thing';
       item.userId = userId;
-      Storage.createBmob('NoticeSetting', item);
+      DataSaver.create({
+        table: 'NoticeSetting',
+        obj: item,
+      });
     });
     return;
   }
   NoticeSetting = res;
-  baseQuery('Thing', { userId }, { tag: '' }, ['title', 'tag', 'time'], thingCb);
+  DataSaver.query({
+    table: 'Thing',
+    e: { userId },
+    n: { tag: '' },
+    select: ['title', 'tag', 'time'],
+  }).then(thingCb);
 };
 
 const noticeStr = (num, t = false) => {

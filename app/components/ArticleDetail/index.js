@@ -19,9 +19,6 @@ import 'prismjs/components/prism-java';
 import 'prismjs/components/prism-python';
 // import 'prismjs/components/prism-php';
 import Prism from 'prismjs';
-
-import Storage from '../../utils/Storage';
-import { getUserInfo } from "../../utils/constants";
 import Qn from '../../utils/qiniu';
 
 import 'braft-editor/dist/index.css';
@@ -58,10 +55,6 @@ class ArticleDetail extends React.Component { // eslint-disable-line react/prefe
       info: JSON.parse(JSON.stringify(props.rawInfo)),
       editorInfo: EditorState.createFrom(''),
     };
-  }
-
-  componentDidMount() {
-    getUserInfo(this.props.rawInfo.authorId, () => {});
   }
 
   componentWillReceiveProps(nextProps) {

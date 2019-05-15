@@ -74,10 +74,11 @@ export class Notebook extends React.PureComponent { // eslint-disable-line react
   *  查找所有该用户的notebook
   * */
   queryNoteBooks(user = this.props.user) {
-    this.props.setSpinning(true);
     if (!user.login) {
       return;
     }
+    console.log(user);
+    this.props.setSpinning(true);
     return DataSaver.query({
       table: 'Notebook',
       e: { userId: user.objectId },

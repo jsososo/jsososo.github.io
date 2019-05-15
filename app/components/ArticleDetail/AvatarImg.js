@@ -2,8 +2,7 @@ import PropTypes from "prop-types";
 import React from "react";
 
 import { Icon } from 'antd';
-
-import { getUserInfo } from "../../utils/constants";
+import DataSaver from '../../utils/hydrogen';
 
 class AvatarImg extends React.Component {
   constructor(props) {
@@ -16,12 +15,13 @@ class AvatarImg extends React.Component {
   }
 
   componentWillMount() {
-    getUserInfo(this.props.id, (user) => {
-      this.setState({
-        avatar: user.avatar,
-        name: user.username,
+    DataSaver.getUser(this.props.id)
+      .then((user) => {
+        this.setState({
+          avatar: user.avatar,
+          name: user.username,
+        });
       });
-    });
   }
 
   render() {

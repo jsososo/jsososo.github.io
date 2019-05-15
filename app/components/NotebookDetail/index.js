@@ -8,14 +8,13 @@ import React from 'react';
 import PropTypes from 'prop-types';
 // import styled from 'styled-components';
 import timer from '../../utils/timer';
-import { markdown } from '../../utils/stringHelper';
 
 import { Input, Button, Modal, Select, message, Icon, Tooltip } from 'antd';
 const { TextArea } = Input;
 const { Option } = Select;
 
 import ArrayHelper from '../../utils/arrayHelper';
-import { changeUrlQuery } from "../../utils/stringHelper";
+import { markdown, changeUrlQuery } from '../../utils/stringHelper';
 
 class NotebookDetail extends React.Component { // eslint-disable-line react/prefer-stateless-function
   constructor(props) {
@@ -118,7 +117,7 @@ class NotebookDetail extends React.Component { // eslint-disable-line react/pref
               </div> :
               <span>
                 <a href="#/kit/notebook/">
-                  <Icon type="arrow-left" className="pointer ft_20 mr_10 mt_5 vat"/>
+                  <Icon type="arrow-left" className="pointer ft_20 mr_10 mt_5 vat" />
                 </a>
                 {(info.title || '无题')}
               </span>
@@ -164,7 +163,7 @@ class NotebookDetail extends React.Component { // eslint-disable-line react/pref
                 onChange={(e) => this.changeInfo(e.target.value, 'content')}
               /> :
               <div id="notebook-pre">
-                {<div className="markdown-content" dangerouslySetInnerHTML={{__html: markdown(content || '')}} /> || '啥也没有。。。'}
+                {<div className="markdown-content" dangerouslySetInnerHTML={{ __html: markdown(content || '') }} /> || '啥也没有。。。'}
               </div>
           }
         </div>

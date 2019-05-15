@@ -18,13 +18,12 @@ import { makeSelectUser } from "../App/selectors";
 import reducer from './reducer';
 import saga from './saga';
 
-import Storage from '../../utils/Storage';
-import { Button, message, Icon } from 'antd';
+import { Button, Icon } from 'antd';
 import TodoList from '../../components/TodoList';
 import * as Action from './actions';
 import recentlyUsed from '../../utils/recentlyUsed';
 import { changeUrlQuery } from "../../utils/stringHelper";
-import timer from "../../utils/timer";
+import DataSaver from '../../utils/hydrogen';
 
 import { checkLogIn } from "../App/index";
 
@@ -47,75 +46,68 @@ export class Todo extends React.PureComponent { // eslint-disable-line react/pre
     if (!user.objectId) {
       return;
     }
-    Storage.queryBmob(
-      'Thing',
-      (q) => {
-        q.equalTo('isTodo', true);
-        q.equalTo('userId', user.objectId);
-        q.limit(1000);
-        return q;
+    DataSaver.query({
+      table: 'Thing',
+      e: {
+        isTodo: true,
+        userId: user.objectId,
       },
-      (res) => {
-        if (!update) {
-          return;
+      order: '-createdAt',
+      pageNo: 1,
+      pageSize: 1000,
+    }).then((res) => {
+      if (!update) {
+        return;
+      }
+      // 这里要对todo做一个排序
+      res.sort((a, b) => {
+        if (a.status === 2 && b.status !== 2) {
+          return 1;
         }
-        // 这里要对todo做一个排序
-        res.sort((a, b) => {
-          // if (a.status === b.status) {
-          //   return timer(a.createdAt, 'YYYY-MM-DD HH:mm:ss').time < timer(b.createdAt, 'YYYY-MM-DD HH:mm:ss').time;
-          // }
-          if (a.status === 2 && b.status !== 2) {
-            return 1;
-          }
-          if (a.status === 1 && b.status !== 1) {
-            return -1;
-          }
-          if (a.status !== 2 && b.status === 2) {
-            return -1;
-          }
-          if (a.status !== 1 && b.status === 1) {
-            return 1;
-          }
-        });
-        this.props.queryList(res);
-      },
-      () => {
-        message.error('查询失败了 = =');
-      },
-      'find'
-    );
+        if (a.status === 1 && b.status !== 1) {
+          return -1;
+        }
+        if (a.status !== 2 && b.status === 2) {
+          return -1;
+        }
+        if (a.status !== 1 && b.status === 1) {
+          return 1;
+        }
+      });
+      this.props.queryList(res);
+    });
   }
 
   // 新增事件
   createNewTodo(parent = '') {
     const { user, todo, queryList } = this.props;
-    Storage.createBmob(
-      'Thing',
-      {
-        userId: user.objectId,
-        time: 0,
-        startTime: 0,
-        endTime: 0,
-        isTodo: true,
-        milestone: false,
-        notice: false,
-        title: '',
-        content: '',
-        parent,
-        children: [],
-        showChildren: true,
-        status: 0,
-      },
-      (res) => {
-        const thing = JSON.parse(JSON.stringify(res));
-        todo.list.push(thing);
-        queryList(todo.list);
-        if (parent) {
-          this.updateParentStatusTo1(parent, res.id);
-        }
-        changeUrlQuery({ id: res.id, edit: 1 });
-      },
-    );
+    const obj = {
+      userId: user.objectId,
+      time: 0,
+      startTime: 0,
+      endTime: 0,
+      isTodo: true,
+      milestone: false,
+      notice: false,
+      title: '',
+      content: '',
+      parent,
+      children: [],
+      showChildren: true,
+      status: 0,
+    };
+    DataSaver.create({
+      table: 'Thing',
+      obj,
+    }).then((res) => {
+      const thing = { ...obj, ...res };
+      todo.list.unshift(thing);
+      queryList(todo.list);
+      if (parent) {
+        this.updateParentStatusTo1(parent, thing.objectId);
+      }
+      changeUrlQuery({ id: thing.objectId, edit: 1 });
+    });
   }
 
   // 更新父事件的status
@@ -142,7 +134,7 @@ export class Todo extends React.PureComponent { // eslint-disable-line react/pre
   }
 
   // 快速修改一个事件, cb 可以是一个递归，一层一层的向上修改父事件或向下修改子事件
-  updateThing(id, editInfo, cb = () => this.queryAllList()) {
+  updateThing(id, editInfo) {
     // 作为递归中的终止判断
     if (!id) {
       this.queryAllList();
@@ -154,18 +146,14 @@ export class Todo extends React.PureComponent { // eslint-disable-line react/pre
     todo.list[index] = { ...thing, ...editInfo };
     this.props.queryList(todo.list);
     changeUrlQuery({ edit: 0 });
-    Storage.setBmob(
-      'Thing',
+    DataSaver.set({
+      table: 'Thing',
       id,
-      {
+      obj: {
         ...thing,
         ...editInfo,
       },
-      null,
-      () => {
-        message.error('失败了= =');
-      }
-    );
+    });
   }
 
   render() {

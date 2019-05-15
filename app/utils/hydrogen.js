@@ -1,4 +1,6 @@
 import Bmob from 'hydrogen-js-sdk';
+import Storage from "./Storage";
+import { allUserInfo } from "./constants";
 
 const eMap = {
   e: '==',
@@ -68,15 +70,14 @@ const query = async (param) => {
   return single ? result[0] : result;
 };
 
-const get = (param) => {
-  const { table, id } = param;
+const get = ({ table, id, select }) => {
   const q = Bmob.Query(table);
   return q.get(id);
-}
+};
 
 const queryObj = (q, obj, type) => {
   Object.keys(obj).forEach((k) => {
-    q.equalTo(k, type, obj[k]);
+    q.equalTo(k, type, obj[k] === undefined ? ' ' : obj[k]);
   });
 };
 
@@ -105,6 +106,46 @@ const queryOr = (param) => {
   return query(param);
 };
 
+const login = async (userInfo) => {
+  if (!userInfo) {
+    const storageInfo = Storage.get('user');
+    if (!storageInfo) {
+      return;
+    }
+    userInfo = {
+      username: storageInfo.split('-')[0],
+      password: storageInfo.split('-')[1].split('').reverse().join(''),
+    };
+  }
+  const { username, password } = userInfo;
+  return Bmob.User.login(username, password)
+    .then((res) => {
+      allUserInfo.id[res.objectId] = res;
+      allUserInfo.name[res.username] = res;
+      return res;
+    });
+};
+
+const getUser = (val, key = 'objectId') => {
+  const e = {};
+  e[key] = val;
+  return query({
+    table: '_User',
+    e,
+    single: true,
+  });
+};
+
+const arrAdd = ({ table, id, key, arr }) => {
+  get({ table, id })
+    .then((res) => {
+      res.add(key, arr);
+      return res.save();
+    });
+};
+
+const resetPassword = (data) => Bmob.updateUserPassword(Storage.get('uId'), data);
+
 export default {
   set,
   get,
@@ -112,4 +153,10 @@ export default {
   query,
   del,
   queryOr,
+  login,
+  register: (info) => Bmob.User.register(info),
+  user: () => Bmob.User.current(),
+  getUser,
+  arrAdd,
+  resetPassword,
 };

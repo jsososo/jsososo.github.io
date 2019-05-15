@@ -6,7 +6,7 @@
 
 import React from 'react';
 import PropTyeps from 'prop-types';
-import Storage from '../../utils/Storage';
+import DataSaver from '../../utils/hydrogen';
 import timer from '../../utils/timer';
 
 import { Button, Tag, Input, InputNumber, Select, Icon, message } from 'antd';
@@ -37,47 +37,42 @@ class NoticeSetting extends React.Component { // eslint-disable-line react/prefe
 
   getThingSettingList(selId) {
     const { user } = this.props;
-    Storage.queryBmob(
-      'NoticeSetting',
-      (q) => {
-        q.equalTo('userId', user.objectId);
-        q.equalTo('type', 'thing');
-        return q;
+    DataSaver.query({
+      table: 'NoticeSetting',
+      e: {
+        userId: user.objectId,
+        type: 'thing',
       },
-      (res) => {
-        if (selId) {
-          this.setState({
-            thingSettings: res,
-            selectThingId: selId,
-            btnLoading: false,
-          });
-        } else {
-          this.setState({
-            thingSettings: res,
-            selectThingId: '',
-            selectThing: {},
-            btnLoading: false,
-          });
-        }
-      },
-      null,
-      'find',
-    );
+    }).then((res) => {
+      if (selId) {
+        this.setState({
+          thingSettings: res,
+          selectThingId: selId,
+          btnLoading: false,
+        });
+      } else {
+        this.setState({
+          thingSettings: res,
+          selectThingId: '',
+          selectThing: {},
+          btnLoading: false,
+        });
+      }
+    });
   }
 
   createThingTag() {
     const { user } = this.props;
-    Storage.createBmob(
-      'NoticeSetting',
-      {
+    DataSaver.create({
+      table: 'NoticeSetting',
+      obj: {
         rules: [],
         tag: timer().str('YYMDHms'),
         type: 'thing',
         userId: user.objectId,
         isSys: false,
-      },
-      (res) => this.getThingSettingList(res.id),
-    );
+      }
+    }).then((res) => this.getThingSettingList(res.objectId));
   }
 
   selectThing(id) {
@@ -110,33 +105,32 @@ class NoticeSetting extends React.Component { // eslint-disable-line react/prefe
     });
   }
 
-  saveRule() {
+  async saveRule() {
     const { user } = this.props;
     const { selectThing } = this.state;
     this.setState({
       btnLoading: true,
     });
-    Storage.queryBmob(
-      'NoticeSetting',
-      (q) => {
-        q.equalTo('userId', user.objectId);
-        q.equalTo('tag', selectThing.tag);
-        q.notEqualTo('objectId', selectThing.objectId);
-        return q;
+    const res = await DataSaver.query({
+      table: 'NoticeSetting',
+      e: {
+        userId: user.objectId,
+        tag: selectThing.tag,
       },
-      (res) => {
-        if (res > 0) {
-          message.error('不能与其他tag重名');
-          this.setState({
-            btnLoading: false,
-          });
-          return;
-        }
-        Storage.setBmob('NoticeSetting', selectThing.objectId, selectThing, () => this.getThingSettingList());
-      },
-      null,
-      'count',
-    );
+      n: { objectId: selectThing.objectId },
+      single: true,
+    });
+    if (res) {
+      this.setState({
+        btnLoading: false,
+      });
+      return message.error('不能与其他tag重名');
+    }
+    DataSaver.set({
+      table: 'NoticeSetting',
+      id: selectThing.objectId,
+      obj: selectThing
+    }).then(() => this.getThingSettingList());
   }
 
   changeTagName(v) {

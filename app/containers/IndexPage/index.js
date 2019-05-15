@@ -20,7 +20,6 @@ import saga from './saga';
 import { setArticleInfo } from "../Article/actions";
 import { getBoxInfo } from "../App/actions";
 
-import Storage from '../../utils/Storage';
 import recentlyUsed from '../../utils/recentlyUsed';
 import arrayHelper from '../../utils/arrayHelper';
 import { shortString } from "../../utils/stringHelper";

@@ -41,7 +41,6 @@ import CodingDemo from '../CodingDemo/Loadable'; // 一些例子
 
 import Header from '../Header/Loadable'; // 头部
 
-import { Bmob } from '../../utils/bmob';
 import Storage from '../../utils/Storage';
 import { makeSelectUser } from './selectors';
 import { Modal, Spin } from 'antd';
@@ -49,14 +48,16 @@ import { BmobInfo } from '../../const';
 import Notice from '../../utils/notice';
 
 import BB from 'hydrogen-js-sdk';
+import DataSaver from '../../utils/hydrogen';
 
 /*
 *  判断用户是否登录，部分功能需要登录才能使用
 *  点击 去登录 直接眺望登录页面，
 *  点击 取消 默认眺望首页，也可以进行自由配置（某些页面部分功能可以不登录使用）
 * */
-export const checkLogIn = (page, cancel = () => window.location = '#') => {
-  if (!Bmob.User.current()) {
+export const checkLogIn = async (page, cancel = () => window.location = '#') => {
+  const user = await DataSaver.user();
+  if (!user) {
     Modal.confirm({
       iconType: 'warning',
       content: `${page}功能需要登录才能使用哟~`,
@@ -84,16 +85,22 @@ export class App extends React.Component {
   componentWillMount() {
     this.props.initApp();
     // Bmob的初始化
-    Bmob.initialize(...BmobInfo);
     BB.initialize(...BmobInfo);
     // 自动登录
-    Storage.logIn(null, (res) => {
-      const user = res ? res.attributes : { username: '游客', login: false };
-      user.login = Boolean(res);
-      user.objectId = res.id;
-      this.props.getUserInfo(user);
-    }, null);
-    Notice.getInfo();
+    DataSaver.login()
+      .then((res) => {
+        const user = res;
+        user.login = Boolean(res);
+        user.objectId = res.objectId;
+        this.props.getUserInfo(user);
+      })
+      .then(() => {
+        Notice.getInfo();
+      })
+      .catch((err) => {
+        console.log(err);
+        // message.error('登陆出错');
+    });
   }
 
   /*
@@ -101,7 +108,7 @@ export class App extends React.Component {
   * */
   logOut() {
     Storage.set('user', '-');
-    Bmob.User.logOut();
+    BB.User.logout();
     this.props.getUserInfo({ username: '游客', login: false });
     window.location = '#';
   }

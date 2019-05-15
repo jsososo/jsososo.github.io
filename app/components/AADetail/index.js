@@ -12,7 +12,6 @@ import timer from '../../utils/timer';
 import Num from '../../utils/Num';
 import { Icon, Modal, Input, Button } from 'antd';
 import Back from '../Back';
-import { getUserInfo } from "../../utils/constants";
 import DataSaver from '../../utils/hydrogen';
 
 // import styled from 'styled-components';
@@ -43,10 +42,11 @@ class Aadetail extends React.Component { // eslint-disable-line react/prefer-sta
     // 除去创建者自己，获取其他用户数据
     (detail.userIds || []).forEach((id) => {
       if (id !== user.objectId) {
-        getUserInfo(id, (v) => {
-          userList.push(v);
-          this.setState({ userList });
-        });
+        DataSaver.getUser(id)
+          .then((v) => {
+            userList.push(v);
+            this.setState({ userList });
+          });
       }
     });
   }

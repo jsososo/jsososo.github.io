@@ -58,7 +58,7 @@ export class Article extends React.PureComponent { // eslint-disable-line react/
     this.props.setArticleInfo(null, false);
   }
 
-  getArticleInfo(newId, showLoading = true, cb) {
+  getArticleInfo(newId, showLoading = true) {
     const loading = document.getElementById('xhr-loading');
     showLoading && (loading.style.display = 'block');
     const params = {
@@ -69,7 +69,7 @@ export class Article extends React.PureComponent { // eslint-disable-line react/
     return DataSaver.get(params)
       .then((res) => {
         loading.style.display = 'none';
-        const articleDetail = JSON.parse(JSON.stringify(res));
+        const articleDetail = res;
         this.props.setArticleInfo({
           ...articleDetail,
           title: decodeURI(decodeURI(articleDetail.title)),

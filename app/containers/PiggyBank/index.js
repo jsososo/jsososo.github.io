@@ -14,14 +14,13 @@ import { compose } from 'redux';
 import injectSaga from 'utils/injectSaga';
 import injectReducer from 'utils/injectReducer';
 import makeSelectPiggyBank from './selectors';
-import { makeSelectUser } from "../App/selectors";
+import { makeSelectUser } from '../App/selectors';
 import reducer from './reducer';
 import saga from './saga';
 import * as Action from './actions';
 
-import { getQueryFromUrl, changeUrlQuery } from "../../utils/stringHelper";
-import Storage from '../../utils/Storage';
-import { checkLogIn } from "../App";
+import { getQueryFromUrl, changeUrlQuery } from '../../utils/stringHelper';
+import { checkLogIn } from '../App';
 import timer from '../../utils/timer';
 
 import PiggyList from '../../components/PiggyList';
@@ -29,7 +28,8 @@ import PiggyDetail from '../../components/PiggyDetail';
 import { message } from 'antd';
 
 import './index.scss';
-import recentlyUsed from "../../utils/recentlyUsed";
+import recentlyUsed from '../../utils/recentlyUsed';
+import DataSaver from '../../utils/hydrogen';
 
 export class PiggyBank extends React.PureComponent { // eslint-disable-line react/prefer-stateless-function
   componentWillMount() {
@@ -46,78 +46,57 @@ export class PiggyBank extends React.PureComponent { // eslint-disable-line reac
   }
 
   getPiggyDetail() {
-    const id = getQueryFromUrl('id');
-    Storage.queryBmob(
-      'Piggy',
-      (q) => {
-        q.equalTo('objectId', id);
-        return q;
-      },
-      (res) => {
-        this.props.getPiggyDetail(res);
-      },
-    );
+    DataSaver.get({
+      table: 'Piggy',
+      id: getQueryFromUrl('id'),
+    }).then((res) => this.props.getPiggyDetail(res));
   }
 
   getPiggyList(user = this.props.user) {
     if (!user.objectId) {
       return;
     }
-    Storage.queryBmob(
-      'Piggy',
-      (q) => {
-        q.equalTo('userId', user.objectId);
-        return q;
-      },
-      (res) => {
-        const now = timer().time;
-        res.sort((a, b) => {
-          if ((now - a.endTime) * (now - b.endTime) < 0) {
-            return (b.endTime - a.endTime);
-          }
-          return timer(a.updatedAt, 'YYYY-MM-DD HH:mm:ss').time - timer(b.updatedAt, 'YYYY-MM-DD HH:mm:ss').time;
-        });
-        this.props.getPiggyList(res);
-      },
-      null,
-      'find',
-    );
+    DataSaver.query({
+      table: 'Piggy',
+      e: { userId: user.objectId },
+    }).then((res) => {
+      const now = timer().time;
+      res.sort((a, b) => {
+        if ((now - a.endTime) * (now - b.endTime) < 0) {
+          return (b.endTime - a.endTime);
+        }
+        return timer(a.updatedAt, 'YYYY-MM-DD HH:mm:ss').time - timer(b.updatedAt, 'YYYY-MM-DD HH:mm:ss').time;
+      });
+      this.props.getPiggyList(res);
+    });
   }
 
-  createPiggy(val) {
+  createPiggy(obj) {
     const { user } = this.props;
-    val.userId = user.objectId;
-    Storage.createBmob(
-      'Piggy',
-      val,
-      (res) => {
-        this.getPiggyList();
-        changeUrlQuery({ id: res.id });
-      },
-    );
+    obj.userId = user.objectId;
+    DataSaver.create({
+      table: 'Piggy',
+      obj,
+    }).then((res) => {
+      this.getPiggyList();
+      changeUrlQuery({ id: res.objectId });
+    });
   }
 
-  updatePiggyDetail(val) {
-    Storage.setBmob(
-      'Piggy',
-      val.objectId,
-      val,
-      () => {
-        this.getPiggyDetail();
-        this.getPiggyList();
-      },
-    );
+  async updatePiggyDetail(val) {
+    await DataSaver.set({
+      table: 'Piggy',
+      id: val.objectId,
+      obj: val,
+    });
+    this.getPiggyDetail();
+    this.getPiggyList();
   }
 
-  delPiggy(id) {
-    Storage.delBmob(
-      'Piggy',
-      id,
-      () => {
-        message.success('删掉了～');
-        this.getPiggyList();
-      }
-    );
+  async delPiggy(id) {
+    await DataSaver.del({ table: 'Piggy', id });
+    message.success('删掉了～');
+    this.getPiggyList();
   }
   render() {
     const id = getQueryFromUrl('id');

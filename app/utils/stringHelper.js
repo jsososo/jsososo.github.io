@@ -51,14 +51,14 @@ export function shortString(str, length = 20) {
   return str.length > length ? `${str.substr(0, length - 3)}...` : str;
 }
 
-export function markdown(str) {
+export function markdown(str = '') {
   let result = str;
   // marked插件里有一些不足，这里自己改造一下
   result = replaceTextForMarkdown(str);
   return marked(result);
 }
 
-function replaceTextForMarkdown(str) {
+function replaceTextForMarkdown(str = '') {
   let result = str;
 
   const replace = [];

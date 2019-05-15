@@ -23,46 +23,37 @@ import UserInfo from '../../components/UserInfo';
 import { getUserInfo } from "../App/actions";
 
 import Storage from '../../utils/Storage';
+import DataSaver from '../../utils/hydrogen';
 import { message } from 'antd';
 
 export class User extends React.PureComponent { // eslint-disable-line react/prefer-stateless-function
-  login(user, errCb) {
-    Storage.logIn(
-      user,
-      (res) => {
+  login(user, goIndex = true) {
+    return DataSaver.login(user)
+      .then((res) => {
         if (res) {
-          const userObj = JSON.parse(JSON.stringify(res));
+          const userObj = res;
           userObj.login = true;
-          userObj.objectId = res.id;
+          userObj.objectId = res.objectId;
           Storage.set('user', `${user.username}-${user.password.split('').reverse().join('')}`);
           this.props.login(userObj);
-          window.location = '#/';
+          goIndex && (window.location = '#/');
         }
-      },
-      errCb,
-    );
+      })
+      .catch(() => message.error('登陆失败'));
   }
 
-  create(user) {
-    Storage.queryBmob(
-      '_User',
-      (q) => {
-        q.equalTo('username', user.username);
-        return q;
-      },
-      (res) => {
-        if (res) {
-          message.error('你的名字被抢了');
-        } else {
-          Storage.singUp(user.username, user.password, () => {
-            message.success('注册成功，马上跑路');
-            setTimeout(() => {
-              this.login(user);
-            }, 2000);
-          });
-        }
-      }
-    );
+  async create(user) {
+    const qU = await DataSaver.query({
+      table: '_User',
+      e: { username: user.username },
+    });
+    if (qU.length > 0) {
+      return message.error('你的名字被抢了');
+    }
+
+    await DataSaver.register(user);
+    message.success('注册成功');
+    setTimeout(() => this.login(user), 2000);
   }
 
   render() {
@@ -75,7 +66,7 @@ export class User extends React.PureComponent { // eslint-disable-line react/pre
         </Helmet>
         {
           user.login ?
-            <UserInfo logIn={(u) => this.login(u, () => {})} user={user} /> :
+            <UserInfo logIn={(u) => this.login(u, false)} user={user} /> :
             <Login login={(u) => this.login(u)} create={(u) => this.create(u)} />
         }
       </div>

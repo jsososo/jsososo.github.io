@@ -9,7 +9,7 @@ import PropTypes from 'prop-types';
 
 import timer from '../../utils/timer';
 
-import { Tabs, Table, Icon } from 'antd';
+import { Tabs, Table, Icon, Modal } from 'antd';
 import Calendar from './Calendar';
 import LineChart from '../LineChart/Loadable';
 import Num from '../../utils/num';
@@ -115,20 +115,28 @@ class PiggyLog extends React.PureComponent { // eslint-disable-line react/prefer
 
   // 删掉日志
   delLog(v) {
-    const { detail, updateFun } = this.props;
-    const date = timer(v.key);
-    let key = '';
-    if (detail.type === 'W') {
-      key = date.week();
-    } else if (detail.type === 'D') {
-      key = date.str('YYYYMMDD');
-    } else {
-      key = date.str('YYYYMM');
-    }
-    detail.record[key] -= v.num;
-    detail.log = detail.log.filter((r) => r.key !== v.key);
-    detail.current -= v.num;
-    updateFun(detail);
+    Modal.confirm({
+      title: '删除',
+      content: '确认删除这条记录？',
+      onOk: () => {
+        const { detail, updateFun } = this.props;
+        const date = timer(v.key);
+        let key = '';
+        if (detail.type === 'W') {
+          key = date.week();
+        } else if (detail.type === 'D') {
+          key = date.str('YYYYMMDD');
+        } else {
+          key = date.str('YYYYMM');
+        }
+        detail.record[key] -= v.num;
+        detail.log = detail.log.filter((r) => r.key !== v.key);
+        detail.current -= v.num;
+        updateFun(detail);
+      },
+      okText: '不要了',
+      cancelText: '缓缓',
+    });
   }
 
   render() {
@@ -144,7 +152,7 @@ class PiggyLog extends React.PureComponent { // eslint-disable-line react/prefer
         <Tabs.TabPane tab="累计图表" key={3}>
           <LineChart {...this.getLineChartData(true)} />
         </Tabs.TabPane>
-        <Tabs.TabPane tab="每日图表" key={4}>
+        <Tabs.TabPane tab="每期图表" key={4}>
           <LineChart {...this.getLineChartData(false)} />
         </Tabs.TabPane>
       </Tabs>

@@ -3,9 +3,9 @@ import PropTypes from 'prop-types';
 import { Input, Button, message, Modal } from 'antd';
 import AvatarImg from './AvatarImg';
 
-import Storage from '../../utils/Storage';
 import timer from '../../utils/timer';
 import Notice from '../../utils/notice';
+import DataSaver from '../../utils/hydrogen';
 import { getQueryFromUrl } from "../../utils/stringHelper";
 
 class Comment extends React.Component {
@@ -28,7 +28,7 @@ class Comment extends React.Component {
     }, 200);
   }
 
-  sendComment() {
+  async sendComment() {
     const { info, user, getArticleInfo } = this.props;
     const { commentVal } = this.state;
     if (!commentVal) {
@@ -44,30 +44,35 @@ class Comment extends React.Component {
         remind.push(s);
       }
     });
-    Storage.arrAdd(
-      'Article',
-      info.objectId,
-      'comment',
-      {
+    await DataSaver.arrAdd({
+      table: 'Article',
+      key: 'comment',
+      id: info.objectId,
+      arr: [{
         content: commentVal,
         userId: user.objectId,
         isDel: false,
         time: timer().time,
-      },
-      () => {
-        message.success('评论成功～');
-        this.setState({
-          commentVal: '',
-          showModal: false,
-        });
-        getArticleInfo(info.objectId, false)
-          .then((res) => Notice.createComment(res, remind));
-      }
-    );
+      }],
+    });
+    message.success('评论成功～');
+    this.setState({
+      commentVal: '',
+      showModal: false,
+    });
+
+    setTimeout(async () => {
+      const res = await getArticleInfo(info.objectId, false);
+      Notice.createComment(res, remind);
+    }, 1000);
   }
 
   replay(index) {
-    const name = this[`comment-${index}`].state.name;
+    const com = this[`comment-${index}`];
+    let name = com.state.name;
+    if (com.props.isAuthor && com.props.isHide) {
+      name = '不愿透露姓名的作者';
+    }
     this.setState({
       commentVal: `回复#${index + 1} @${name} ：`,
       showModal: true,

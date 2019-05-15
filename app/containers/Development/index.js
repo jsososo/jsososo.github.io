@@ -21,6 +21,9 @@ import saga from './saga';
 import Dev from '../../components/Dev/index';
 
 import { Button, Input, message, Icon } from 'antd';
+import DataSaver from '../../utils/hydrogen';
+import { shortString } from "../../utils/stringHelper";
+import Qn from '../../utils/qiniu';
 
 const TextArea = Input.TextArea;
 

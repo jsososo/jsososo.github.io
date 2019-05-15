@@ -6,15 +6,13 @@ import DataSaver from './hydrogen';
 const userId = Storage.get('uId');
 
 const recentlyUsed = {
-  create: () => {
-    DataSaver.create({
-      table: 'RecentlyUsed',
-      obj: {
-        userId,
-        value: '{}',
-      },
-    });
-  },
+  create: () => DataSaver.create({
+    table: 'RecentlyUsed',
+    obj: {
+      userId,
+      value: '{}',
+    },
+  }),
   query: async (type, boxes) => {
     const res = await DataSaver.query({
       table: 'RecentlyUsed',
@@ -74,14 +72,18 @@ const recentlyUsed = {
     }
   },
   set: async (name, type) => {
-    const res = await DataSaver.query({
+    let res = await DataSaver.query({
       table: 'RecentlyUsed',
       e: { userId },
       single: true,
     });
 
-    const rU = res || { userId, value: '{}' };
-    rU.value = JSON.parse(rU.value);
+    if (!res) {
+      res = await recentlyUsed.create();
+    }
+
+    const rU = res;
+    rU.value = JSON.parse(rU.value || '{}');
 
     const date = timer().str('YYYYMMDD');
     if (!rU.value[date]) {

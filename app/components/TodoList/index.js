@@ -12,6 +12,7 @@ import './index.scss';
 import { changeUrlQuery, getQueryFromUrl } from '../../utils/stringHelper';
 import timer from '../../utils/timer';
 import Storage from '../../utils/Storage';
+import DataSaver from '../../utils/hydrogen';
 // import styled from 'styled-components';
 
 
@@ -139,17 +140,18 @@ class TodoList extends React.Component { // eslint-disable-line react/prefer-sta
     deleteIds.push(id);
     let count = 0;
     deleteIds.forEach((item) => {
-      Storage.delBmob('Thing', item, () => {
-        count++;
-        if (count === deleteIds.length) {
-          this.props.queryAllList();
-          if (parent) {
-            const newC = parent.children.filter((c) => c !== id);
-            updateThing(parent.objectId, { children: newC });
-            changeUrlQuery({ edit: 0 });
+      DataSaver.del({ table: 'Thing', id: item })
+        .then(() => {
+          count++;
+          if (count === deleteIds.length) {
+            this.props.queryAllList();
+            if (parent) {
+              const newC = parent.children.filter((c) => c !== id);
+              updateThing(parent.objectId, { children: newC });
+              changeUrlQuery({ edit: 0 });
+            }
           }
-        }
-      });
+        });
     });
   }
 

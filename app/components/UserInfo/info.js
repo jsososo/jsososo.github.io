@@ -3,7 +3,9 @@ import { Button, Input, Modal, Icon, message } from 'antd';
 import PropTypes from 'prop-types';
 import Storage from '../../utils/Storage';
 import md5 from 'js-md5';
+import DataSaver from '../../utils/hydrogen';
 import wxQR from '../../resources/img/wx-qr.png';
+import Qn from "../../utils/qiniu";
 
 class Info extends React.Component {
   constructor(props) {
@@ -14,7 +16,9 @@ class Info extends React.Component {
       preview: '',
       editInfo: { ...props.user },
       newAvatar: '',
+      newAvatarFile: null,
       changePassword: false,
+      uploadSuccess: false,
       passwordInfo: {
         old: '',
         new1: '',
@@ -37,6 +41,8 @@ class Info extends React.Component {
         ...user,
       },
       newAvatar: '',
+      newAvatarFile: null,
+      uploadSuccess: false,
     });
   }
 
@@ -65,43 +71,56 @@ class Info extends React.Component {
       reader.onload = function () {
         that.setState({
           newAvatar: this.result,
+          newAvatarFile: inputArea.files[0],
         });
       };
     };
   }
 
-  onSave() {
+  async onSave() {
     const { editInfo } = this.state;
     const { user } = this.props;
     if (user.username !== editInfo.username) {
-      Storage.queryBmob(
-        '_User',
-        (q) => {
-          q.equalTo('username', editInfo.username);
-          return q;
-        },
-        (res) => {
-          if (res) {
-            message.error('名字被取走了');
-          } else {
-            this.updateInfo();
-          }
-        }
-      );
+      const res = await DataSaver.query({
+        table: '_User',
+        e: { username: editInfo.username },
+        single: true,
+      });
+      if (res) {
+        message.error('名字被取走了');
+      } else {
+        this.updateInfo();
+      }
     } else {
       this.updateInfo();
     }
   }
 
-  updateInfo() {
-    const { newAvatar, editInfo } = this.state;
-    if (newAvatar) {
-      editInfo.avatar = newAvatar;
+  async updateInfo() {
+    const { newAvatar, newAvatarFile, editInfo, uploadSuccess } = this.state;
+    if (newAvatar && !uploadSuccess) {
+      return Qn(newAvatarFile).subscribe(
+        (e) => console.log(e.percent),
+        (e) => message.error('头像上传失败'),
+        (e) => {
+          editInfo.avatar = `http://static.jsososo.com/${e.key}`;
+          this.setState({
+            uploadSuccess: true,
+            editInfo,
+          }, this.updateInfo);
+        },
+      );
     }
-    Storage.updateUser(editInfo, () => {
-      this.cancelEdit();
-      this.props.logIn(editInfo);
-    });
+    DataSaver.set({
+      table: '_User',
+      id: editInfo.objectId,
+      obj: editInfo,
+    })
+      .then(() => {
+        this.cancelEdit();
+        this.props.logIn({ username: editInfo.username, password: Storage.get('user').split('-')[1].split('').reverse().join('')});
+      })
+      .catch((err) => console.log(err));
   }
 
   inputPassword(type, val) {
@@ -112,39 +131,32 @@ class Info extends React.Component {
     });
   }
 
-  changePassword() {
+  async changePassword() {
     const { passwordInfo } = this.state;
     const { user } = this.props;
     if (passwordInfo.new1 !== passwordInfo.new2) {
       message.error('新的两个不一样，逗我呢');
       return;
     }
-    Storage.queryBmob(
-      '_User',
-      (q) => {
-        q.equalTo('username', user.username);
-        q.equalTo('password', md5(passwordInfo.old));
-        return q;
+    const res = await DataSaver.query({
+      table: '_User',
+      e: {
+        username: user.username,
+        password: md5(passwordInfo.old),
       },
-      (res) => {
-        if (res) {
-          Storage.setBmob(
-            '_User',
-            res.objectId,
-            {
-              password: md5(passwordInfo.new1),
-            },
-            () => {
-              message.success('改好了');
-              Storage.set('user', `${user.username}-${md5(passwordInfo.new2).split('').reverse().join('')}`);
-              this.closePasswordDialog();
-            }
-          );
-        } else {
-          message.error('你怕是密码输错了');
-        }
-      }
-    );
+    });
+    if (res) {
+      DataSaver.resetPassword({
+        oldPassword: md5(passwordInfo.old),
+        newPassword: md5(passwordInfo.new1),
+      }).then(() => {
+        message.success('改好了');
+        Storage.set('user', `${user.username}-${md5(passwordInfo.new2).split('').reverse().join('')}`);
+        this.closePasswordDialog();
+      });
+    } else {
+      message.error('你怕是密码输错了');
+    }
   }
 
   closePasswordDialog() {
@@ -175,7 +187,7 @@ class Info extends React.Component {
   showQr() {
     Modal.info({
       content: (
-        <div style={{ marginTop: '-10px'}}>
+        <div style={{ marginTop: '-10px' }}>
           <div>微信扫码登陆小程序绑定哟</div>
           <div className="mt_10">
             <img src={wxQR} height="80px" />
@@ -257,7 +269,7 @@ class Info extends React.Component {
                         </div>
                       )
                     }
-                    <input type="file" id="input-avatar" style={{display: 'none'}} />
+                    <input type="file" id="input-avatar" style={{ display: 'none' }} />
                   </div>
                 </div>
               )
@@ -305,7 +317,7 @@ class Info extends React.Component {
           width={290}
           onCancel={() => this.previewAvatar('')}
         >
-          <img src={preview} style={{ width: '250px', height: '250px' }}/>
+          <img src={preview} style={{ width: '250px', height: '250px' }} />
         </Modal>
         <Modal
           visible={changePassword}

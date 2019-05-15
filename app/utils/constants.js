@@ -100,36 +100,3 @@ export const allUserInfo = {
   id: {},
   name: {},
 };
-export const getUserInfo = (val, cb, key = 'id') => {
-  const keyMap = { id: 'objectId', name: 'username' };
-  if (!val) {
-    cb({ username: '一个路人', avatar: '' });
-    return;
-  }
-  if (!allUserInfo[key][val]) {
-    allUserInfo[key][val] = {};
-    Storage.queryBmob(
-      'User',
-      (q) => {
-        q.equalTo(keyMap[key], val);
-        return q;
-      },
-      (res) => {
-        if (!res) {
-          return;
-        }
-        allUserInfo.id[res.objectId] = res;
-        allUserInfo.name[res.username] = res;
-        cb(res);
-      }
-    );
-    return;
-  }
-  if (allUserInfo[key][val].objectId) {
-    cb(allUserInfo[key][val]);
-    return;
-  }
-  setTimeout(() => {
-    getUserInfo(val, cb, key);
-  }, 100);
-};
